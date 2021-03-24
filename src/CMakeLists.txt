@@ -163,7 +163,7 @@ if (WIN32)
 
     add_custom_command(TARGET Trilobytes
         POST_BUILD
-        COMMAND "${WINDEPLOYQT_ENV_SETUP}" && "${WINDEPLOYQT_EXECUTABLE}" \"$<TARGET_FILE:Trilobytes>\"
+        COMMAND "${WINDEPLOYQT_ENV_SETUP}" && "${WINDEPLOYQT_EXECUTABLE}" \"$<TARGET_FILE:Trilobytes>\" --no-translations
         COMMENT "Packaging dependancies..."
     )
 endif()
