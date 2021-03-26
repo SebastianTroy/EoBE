@@ -126,3 +126,13 @@ void Genome::Mutate(const UniverseParameters& universeParameters)
         }
     }
 }
+
+uint64_t Genome::GetGeneCount() const
+{
+    uint64_t count = 0;
+    ForEach([&](const auto& /*gene*/)
+    {
+        ++count;
+    });
+    return count;
+}

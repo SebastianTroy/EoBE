@@ -5,6 +5,7 @@
 #include "JsonHelpers.h"
 
 #include <nlohmann/json.hpp>
+#include <fmt/format.h>
 
 /**
  * @brief Placeholder for a proper matrix based coordinate system
@@ -28,5 +29,23 @@ private:
     static const inline std::string KEY_Y = "y";
     static const inline std::string KEY_Rotation = "Rotation";
 };
+
+template<>
+struct fmt::formatter<Transform> : fmt::formatter<double>
+{
+    template <typename FormatContext>
+    auto format(const Transform& transform, FormatContext& context)
+    {
+        auto&& out= context.out();
+        format_to(out, "(x=");
+        fmt::formatter<double>::format(transform.x, context);
+        format_to(out, ", y=");
+        fmt::formatter<double>::format(transform.y, context);
+        format_to(out, ", rotation=");
+        fmt::formatter<double>::format(transform.rotation, context);
+        return format_to(out, ")");
+    }
+};
+
 
 #endif // TRANSFORM_H

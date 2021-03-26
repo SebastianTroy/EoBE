@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="mainWindowLayout">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QSplitter" name="verticalSplitter">
       <property name="orientation">
@@ -23,367 +23,318 @@
       <property name="childrenCollapsible">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="horizontalLayout" native="true">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QSplitter" name="horizontalSplitter">
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="childrenCollapsible">
-           <bool>false</bool>
-          </property>
-          <widget class="QGroupBox" name="settingsPanel">
-           <property name="title">
-            <string>Settings</string>
+      <widget class="QSplitter" name="horizontalSplitter">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="childrenCollapsible">
+        <bool>false</bool>
+       </property>
+       <widget class="QGroupBox" name="settingsPanel">
+        <property name="title">
+         <string>Settings</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>1</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="QScrollArea" name="settingsScrollPanel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <property name="spacing">
-             <number>0</number>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="verticalScrollBarPolicy">
+            <enum>Qt::ScrollBarAsNeeded</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>336</width>
+              <height>564</height>
+             </rect>
             </property>
-            <property name="leftMargin">
-             <number>1</number>
-            </property>
-            <property name="topMargin">
-             <number>1</number>
-            </property>
-            <property name="rightMargin">
-             <number>1</number>
-            </property>
-            <property name="bottomMargin">
-             <number>1</number>
-            </property>
-            <item>
-             <widget class="QScrollArea" name="settingsScrollPanel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="verticalScrollBarPolicy">
-               <enum>Qt::ScrollBarAsNeeded</enum>
-              </property>
-              <property name="horizontalScrollBarPolicy">
-               <enum>Qt::ScrollBarAlwaysOff</enum>
-              </property>
-              <property name="widgetResizable">
-               <bool>true</bool>
-              </property>
-              <widget class="QWidget" name="scrollAreaWidgetContents">
-               <property name="geometry">
-                <rect>
-                 <x>0</x>
-                 <y>0</y>
-                 <width>292</width>
-                 <height>553</height>
-                </rect>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QGroupBox" name="globalSettingsGroup">
+               <property name="title">
+                <string>Global</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_5">
-                <item>
-                 <widget class="QGroupBox" name="globalSettingsGroup">
-                  <property name="title">
-                   <string>Global</string>
+               <layout class="QGridLayout" name="gridLayout">
+                <item row="9" column="0">
+                 <widget class="QDoubleSpinBox" name="meanChromosomeMutationSpinBox">
+                  <property name="prefix">
+                   <string>Mean Chromosome Mutations: </string>
                   </property>
-                  <layout class="QGridLayout" name="gridLayout">
-                   <item row="9" column="0">
-                    <widget class="QDoubleSpinBox" name="meanChromosomeMutationSpinBox">
-                     <property name="prefix">
-                      <string>Mean Chromosome Mutations: </string>
-                     </property>
-                     <property name="maximum">
-                      <double>20.000000000000000</double>
-                     </property>
-                     <property name="value">
-                      <double>0.800000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QPushButton" name="addDefaultSwimmerButton">
-                     <property name="text">
-                      <string>Add Default Swimmer</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="7" column="0">
-                    <widget class="QDoubleSpinBox" name="meanGeneMutationSpinBox">
-                     <property name="prefix">
-                      <string>Mean Gene Mutations: </string>
-                     </property>
-                     <property name="maximum">
-                      <double>20.000000000000000</double>
-                     </property>
-                     <property name="value">
-                      <double>1.000000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="8" column="0">
-                    <widget class="QDoubleSpinBox" name="geneMutationStdDevSpinBox">
-                     <property name="prefix">
-                      <string>Gene Mutation StdDev: </string>
-                     </property>
-                     <property name="maximum">
-                      <double>100.000000000000000</double>
-                     </property>
-                     <property name="singleStep">
-                      <double>0.100000000000000</double>
-                     </property>
-                     <property name="value">
-                      <double>5.000000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="resetAllButton">
-                     <property name="text">
-                      <string>Reset</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QPushButton" name="removeAllSwimmersButton">
-                     <property name="text">
-                      <string>Remove all Swimmers</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="0">
-                    <widget class="QSpinBox" name="quadCapacitySpinner">
-                     <property name="prefix">
-                      <string>Quad Capacity: </string>
-                     </property>
-                     <property name="minimum">
-                      <number>0</number>
-                     </property>
-                     <property name="maximum">
-                      <number>500</number>
-                     </property>
-                     <property name="value">
-                      <number>20</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="0">
-                    <widget class="QSpinBox" name="quadLeewaySpinner">
-                     <property name="prefix">
-                      <string>Quad Leeway: </string>
-                     </property>
-                     <property name="maximum">
-                      <number>500</number>
-                     </property>
-                     <property name="value">
-                      <number>5</number>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QPushButton" name="addRandomSwimmerButton">
-                     <property name="text">
-                      <string>Add Random Swimmer</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QPushButton" name="removeAllFoodButton">
-                     <property name="text">
-                      <string>Remove all Food</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="10" column="0">
-                    <widget class="QDoubleSpinBox" name="chromosomeMutationStdDevSpinBox">
-                     <property name="prefix">
-                      <string>Chromosome Mutation StdDev: </string>
-                     </property>
-                     <property name="maximum">
-                      <double>5.000000000000000</double>
-                     </property>
-                     <property name="singleStep">
-                      <double>0.100000000000000</double>
-                     </property>
-                     <property name="value">
-                      <double>0.200000000000000</double>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                  <property name="maximum">
+                   <double>20.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.800000000000000</double>
+                  </property>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QGroupBox" name="foodSettingsGroup">
-                  <property name="title">
-                   <string>Food</string>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="addDefaultSwimmerButton">
+                  <property name="text">
+                   <string>Add Default Swimmer</string>
                   </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_7">
-                   <item>
-                    <widget class="QPushButton" name="spawnFoodToggle">
-                     <property name="text">
-                      <string>Spawn Food</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
                  </widget>
                 </item>
-                <item>
-                 <widget class="QGroupBox" name="selectedSwimmerGroup">
-                  <property name="title">
-                   <string>Selected Swimmer</string>
+                <item row="7" column="0">
+                 <widget class="QDoubleSpinBox" name="meanGeneMutationSpinBox">
+                  <property name="prefix">
+                   <string>Mean Gene Mutations: </string>
                   </property>
-                  <layout class="QVBoxLayout" name="verticalLayout_8">
-                   <item>
-                    <widget class="QPushButton" name="selectFittestButton">
-                     <property name="text">
-                      <string>Select Fittest</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="followSelectedToggle">
-                     <property name="text">
-                      <string>Follow</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                  <property name="maximum">
+                   <double>20.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="0">
+                 <widget class="QDoubleSpinBox" name="geneMutationStdDevSpinBox">
+                  <property name="prefix">
+                   <string>Gene Mutation StdDev: </string>
+                  </property>
+                  <property name="maximum">
+                   <double>100.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>5.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="resetAllButton">
+                  <property name="text">
+                   <string>Reset</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QPushButton" name="removeAllSwimmersButton">
+                  <property name="text">
+                   <string>Remove all Swimmers</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QSpinBox" name="quadCapacitySpinner">
+                  <property name="prefix">
+                   <string>Quad Capacity: </string>
+                  </property>
+                  <property name="minimum">
+                   <number>0</number>
+                  </property>
+                  <property name="maximum">
+                   <number>500</number>
+                  </property>
+                  <property name="value">
+                   <number>20</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QSpinBox" name="quadLeewaySpinner">
+                  <property name="prefix">
+                   <string>Quad Leeway: </string>
+                  </property>
+                  <property name="maximum">
+                   <number>500</number>
+                  </property>
+                  <property name="value">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QPushButton" name="addRandomSwimmerButton">
+                  <property name="text">
+                   <string>Add Random Swimmer</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QPushButton" name="removeAllFoodButton">
+                  <property name="text">
+                   <string>Remove all Food</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="10" column="0">
+                 <widget class="QDoubleSpinBox" name="chromosomeMutationStdDevSpinBox">
+                  <property name="prefix">
+                   <string>Chromosome Mutation StdDev: </string>
+                  </property>
+                  <property name="maximum">
+                   <double>5.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.200000000000000</double>
+                  </property>
                  </widget>
                 </item>
                </layout>
               </widget>
-             </widget>
-            </item>
-           </layout>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="foodSettingsGroup">
+               <property name="title">
+                <string>Food</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_7">
+                <item>
+                 <widget class="QPushButton" name="spawnFoodToggle">
+                  <property name="text">
+                   <string>Spawn Food</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="selectedSwimmerGroup">
+               <property name="title">
+                <string>Selected Swimmer</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_8">
+                <item>
+                 <widget class="QPushButton" name="selectFittestButton">
+                  <property name="text">
+                   <string>Select Fittest</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="followSelectedToggle">
+                  <property name="text">
+                   <string>Follow</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
-          <widget class="QGroupBox" name="universePanel">
-           <property name="title">
-            <string>Simulation</string>
+         </item>
+        </layout>
+       </widget>
+       <widget class="UniverseWidget" name="universe" native="true">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="QPushButton" name="limitButton">
+           <property name="text">
+            <string>Limit</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <item>
-             <widget class="QWidget" name="universeParameters" native="true">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_4">
-               <item>
-                <widget class="QPushButton" name="pauseButton">
-                 <property name="text">
-                  <string>Pause</string>
-                 </property>
-                 <property name="checkable">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="limitButton">
-                 <property name="text">
-                  <string>Limit</string>
-                 </property>
-                 <property name="checkable">
-                  <bool>true</bool>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSpinBox" name="tpsSelector">
-                 <property name="prefix">
-                  <string>TPS: </string>
-                 </property>
-                 <property name="maximum">
-                  <number>120</number>
-                 </property>
-                 <property name="value">
-                  <number>60</number>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSpinBox" name="fpsSelector">
-                 <property name="prefix">
-                  <string>FPS: </string>
-                 </property>
-                 <property name="maximum">
-                  <number>120</number>
-                 </property>
-                 <property name="singleStep">
-                  <number>10</number>
-                 </property>
-                 <property name="value">
-                  <number>40</number>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="UniverseWidget" name="universe" native="true"/>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QGroupBox" name="inspectorPanel">
-           <property name="title">
-            <string>Brain Inspector</string>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout">
-            <item>
-             <widget class="QWidget" name="inspectorSettings" native="true">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
-               <item>
-                <widget class="QPushButton" name="resetInspectorView">
-                 <property name="text">
-                  <string>Reset View</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="liveUpdateSelector">
-                 <property name="text">
-                  <string>UpdateLive</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="NeuralNetworkInspector" name="inspector" native="true"/>
-            </item>
-           </layout>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
           </widget>
-         </widget>
-        </item>
-       </layout>
+         </item>
+         <item row="0" column="0">
+          <widget class="QPushButton" name="pauseButton">
+           <property name="text">
+            <string>Pause</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QSpinBox" name="tpsSelector">
+           <property name="prefix">
+            <string>TPS: </string>
+           </property>
+           <property name="maximum">
+            <number>120</number>
+           </property>
+           <property name="value">
+            <number>60</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QSpinBox" name="fpsSelector">
+           <property name="prefix">
+            <string>FPS: </string>
+           </property>
+           <property name="maximum">
+            <number>120</number>
+           </property>
+           <property name="singleStep">
+            <number>10</number>
+           </property>
+           <property name="value">
+            <number>40</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="InspectorPanel" name="inspectorPanel" native="true"/>
       </widget>
       <widget class="QTabWidget" name="graphs">
        <property name="sizePolicy">
@@ -435,7 +386,7 @@
               <x>0</x>
               <y>0</y>
               <width>976</width>
-              <height>139</height>
+              <height>146</height>
              </rect>
             </property>
            </widget>
@@ -457,13 +408,6 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionSave_Selected_Swimmer"/>
-   </widget>
-   <addaction name="menuFile"/>
   </widget>
   <action name="actionSave_Selected_Swimmer">
    <property name="text">
@@ -479,9 +423,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>NeuralNetworkInspector</class>
+   <class>InspectorPanel</class>
    <extends>QWidget</extends>
-   <header>NeuralNetworkInspector.h</header>
+   <header>InspectorPanel.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

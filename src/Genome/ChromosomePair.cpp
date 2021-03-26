@@ -161,7 +161,6 @@ void ChromosomePair::MutateStructure()
 {
     // All equally weighted for now
     auto index = Random::WeightedIndex({ 1, 1, 1, 1, 1, 1 });
-    std::cout << "MutateStructure() " << index << std::endl;
     switch (index) {
     case 0:
         // chromosome range change

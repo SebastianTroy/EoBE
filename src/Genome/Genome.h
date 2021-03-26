@@ -6,6 +6,8 @@
 #include "ChromosomePair.h"
 #include "UniverseParameters.h"
 
+#include "fmt/format.h"
+
 #include <vector>
 #include <memory>
 #include <functional>
@@ -23,6 +25,8 @@ public:
 
     Phenotype GetPhenoType(Swimmer& owner) const;
 
+    uint64_t GetChromosomeCount() const { return chromosomes_.size(); }
+    uint64_t GetGeneCount() const;
     uint64_t GetGeneMutationCount() const { return geneMutationCount_; }
     uint64_t GetChromosomeMutationCount() const { return chromosomeMutationCount_; }
 
@@ -40,6 +44,22 @@ private:
     std::vector<ChromosomePair> chromosomes_;
 
     void ForEach(const std::function<void(const Gene& gene)>& action) const;
+};
+
+template<>
+struct fmt::formatter<Genome>
+{
+    template<typename ParseContext>
+    constexpr auto parse(ParseContext& context)
+    {
+        return context.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const Genome& genome, FormatContext& context)
+    {
+        return fmt::format_to(context.out(), "{} chromosomes, {} genes, {} mutations", genome.GetChromosomeCount(), genome.GetGeneCount(), genome.GetChromosomeMutationCount() + genome.GetGeneMutationCount());
+    }
 };
 
 #endif // GENOME_H

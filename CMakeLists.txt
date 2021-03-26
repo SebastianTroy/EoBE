@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (MINGW)
-    # This allows Catch2 to be built by MinGW without MinGW having a fit over the size of the object file generated
+    # This allows Catch2 to be built without MinGW having a fit over the size of the object file generated
     add_compile_options("-Wa,-mbig-obj")
 endif()
 

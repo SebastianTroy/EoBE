@@ -7,6 +7,7 @@
 #include "MeatChunk.h"
 #include "LineGraphContainerWidget.h"
 #include "UniverseWidget.h"
+#include "InspectorPanel.h"
 #include "Genome/GeneFactory.h"
 
 #include <RollingStatistics.h>
@@ -17,7 +18,6 @@
 #include "QFileDialog"
 
 #include <fstream>
-//#include <filesystem>
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -31,54 +31,29 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle(QString::fromStdString(fmt::format("Trilobytes - Evolution Simulator v{}.{} {}", TOSTRING(VERSION_MAJOR), TOSTRING(VERSION_MINOR), TOSTRING(VERSION_ADDITIONAL))));
 
     universe_ = std::make_shared<Universe>(Rect{ -500, -500, 500, 500 });
-    ui->universe->SetUniverse(universe_);
 
     ui->newGraphButtonsContainer->setLayout(new QVBoxLayout());
 
-    connect(ui->universe, &UniverseWidget::EntitySelected, [&](const std::shared_ptr<Entity>& selected)
-    {
-        ui->inspector->SetSwimmer(std::dynamic_pointer_cast<Swimmer>(selected));
-        ui->inspector->UpdateConnectionStrengths(universe_->GetEntityContainer(), universe_->GetParameters());
-    });
-    connect(ui->universe, &UniverseWidget::Ticked, [&]()
-    {
-        ui->inspector->UpdateConnectionStrengths(universe_->GetEntityContainer(), universe_->GetParameters());
-    });
+    connect(this, &MainWindow::UniverseReset, ui->universe, &UniverseWidget::SetUniverse, Qt::QueuedConnection);
+    connect(this, &MainWindow::UniverseReset, ui->inspectorPanel, &InspectorPanel::SetUniverse, Qt::QueuedConnection);
+    connect(ui->universe, &UniverseWidget::Ticked, ui->inspectorPanel, &InspectorPanel::OnUniverseTick, Qt::QueuedConnection);
+    connect(ui->universe, &UniverseWidget::EntitySelected, ui->inspectorPanel, &InspectorPanel::SetEntity, Qt::QueuedConnection);
 
-    // Make sure graphs don't start too squashed
-    ui->verticalSplitter->setSizes({ 700, 150 });
-
-    /// File Menu Options
-    connect(ui->actionSave_Selected_Swimmer, &QAction::triggered, [&]()
-    {
-        if (auto inspected = ui->inspector->GetSwimmer(); inspected != nullptr) {
-            if (auto genome = inspected->InspectGenome(); genome != nullptr) {
-                std::string saveFileName = QFileDialog::getSaveFileName(this, "Save Genome", "./SavedGenomes/", "Genome (*.genome)").toStdString();
-                nlohmann::json serialised = Genome::Serialise(genome);
-                // std::filesystem::create_directories(saveFileName);
-                std::ofstream fileWriter(saveFileName);
-                fileWriter << serialised.dump(2);
-            }
-        }
-    });
-
-    /// NeuralNetowrk Inspector controlls
-    connect(ui->liveUpdateSelector, &QCheckBox::toggled, [&](bool checked) { ui->inspector->SetUpdateLive(checked); });
-    connect(ui->resetInspectorView, &QPushButton::pressed, ui->inspector, &NeuralNetworkInspector::ResetViewTransform);
+    // Set reasonable initial proportions
+    ui->horizontalSplitter->setSizes({ static_cast<int>(width() * 0.15), static_cast<int>(width() * 0.65), static_cast<int>(width() * 0.2) });
+    ui->verticalSplitter->setSizes({ static_cast<int>(height() * 0.7), static_cast<int>(height() * 0.3) });
 
     /// Universe TPS & FPS controlls
-    connect(ui->pauseButton, &QPushButton::toggled, ui->universe, &UniverseWidget::SetTicksPaused);
-    connect(ui->limitButton, &QPushButton::toggled, ui->universe, &UniverseWidget::SetLimitTickRate);
-    connect(ui->tpsSelector, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), ui->universe, &UniverseWidget::SetTpsTarget);
-    connect(ui->fpsSelector, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), ui->universe, &UniverseWidget::SetFpsTarget);
+    connect(ui->pauseButton, &QPushButton::toggled, ui->universe, &UniverseWidget::SetTicksPaused, Qt::QueuedConnection);
+    connect(ui->limitButton, &QPushButton::toggled, ui->universe, &UniverseWidget::SetLimitTickRate, Qt::QueuedConnection);
+    connect(ui->tpsSelector, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), ui->universe, &UniverseWidget::SetTpsTarget, Qt::QueuedConnection);
+    connect(ui->fpsSelector, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), ui->universe, &UniverseWidget::SetFpsTarget, Qt::QueuedConnection);
 
     /// Global controlls
     connect(ui->resetAllButton, &QPushButton::pressed, [&]()
     {
         universe_ = std::make_shared<Universe>(Rect{ -500, -500, 500, 500 });
-        ui->universe->SetUniverse(universe_);
-        ui->inspector->SetSwimmer(nullptr);
-        ui->inspector->ResetViewTransform();
+        emit UniverseReset(universe_);
         ResetGraphs();
     });
     connect(ui->removeAllSwimmersButton, &QPushButton::pressed, [&]()
@@ -118,7 +93,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     /// Selected Swimmer Controlls
     connect(ui->selectFittestButton, &QPushButton::pressed, ui->universe, &UniverseWidget::SelectFittestSwimmer, Qt::QueuedConnection);
-    connect(ui->followSelectedToggle, &QPushButton::toggled, ui->universe, &UniverseWidget::SetTrackSelectedEntity);
+    connect(ui->followSelectedToggle, &QPushButton::toggled, ui->universe, &UniverseWidget::SetTrackSelectedEntity, Qt::QueuedConnection);
 
     /// Graph Controlls
     connect(ui->graphs, &QTabWidget::tabCloseRequested, [&](int index)
@@ -129,6 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     ResetGraphs();
+    emit UniverseReset(universe_);
 }
 
 MainWindow::~MainWindow()

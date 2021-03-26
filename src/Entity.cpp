@@ -1,6 +1,9 @@
 #include "Entity.h"
 
 #include <Random.h>
+#include <Algorithm.h>
+
+#include <fmt/core.h>
 
 #include <QPainter>
 
@@ -19,6 +22,78 @@ Entity::Entity(const Transform& transform, double radius, QColor colour, Energy 
 
 Entity::~Entity()
 {
+}
+
+std::vector<Property> Entity::GetProperties() const
+{
+    std::vector<Property> entityProperties{
+        {
+            "Name",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->GetName());
+            },
+            std::string(GetDescription()),
+        },
+        {
+            "Energy",
+            [&]() -> std::string
+            {
+                return fmt::format("{:.2f}μj", this->energy_ * 1_uj);
+            },
+            "The current energy available to the entity in micro-joules."
+        },
+        {
+            "Exists",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", !this->terminated_);
+            },
+            "True if the entity is currently part of a simulation."
+        },
+        {
+            "Location",
+            [&]() -> std::string
+            {
+                return fmt::format("{:.2f}", this->transform_);
+            },
+            "The location of the entity in the simulation"
+        },
+        {
+            "Size",
+            [&]() -> std::string
+            {
+                return fmt::format("{:.2f}", this->radius_ * 2);
+            },
+            "The width of the entity. All entities are considered to be circular."
+        },
+        {
+            "Velocity",
+            [&]() -> std::string
+            {
+                return fmt::format("{:.2f}", this->speed_);
+            },
+            "The current velocity of the entity, in pixels per tick."
+        },
+        {
+            "Age",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->age_);
+            },
+            "The number of ticks that this entity has existed within a simulation."
+        },
+        {
+            "Colour",
+            [&]() -> std::string
+            {
+                return fmt::format("R={}, G={}, B={}", this->colour_.red(), this->colour_.green(), this->colour_.blue());
+            },
+            "The colour that this entity will appear to be to other entities."
+        },
+    };
+
+    return Tril::Combine(std::move(entityProperties), CollectProperties());
 }
 
 void Entity::FeedOn(Entity& other, Energy quantity)

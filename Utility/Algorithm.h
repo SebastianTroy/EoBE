@@ -78,6 +78,16 @@ std::vector<T> CreateSeries(T firstValue, T lastValue, uint64_t count)
     });
 }
 
+template <typename T>
+std::vector<T> Combine(std::vector<T>&& first, std::vector<T>&& second)
+{
+    std::vector<T> combined;
+    combined.swap(first);
+    combined.reserve(combined.size() + second.size());
+    std::move(std::begin(second), std::end(second), std::back_inserter(combined));
+    return combined;
+}
+
 } // namespace Tril
 
 #endif // ALGORITHM_H

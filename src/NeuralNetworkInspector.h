@@ -32,6 +32,7 @@ protected:
     virtual void wheelEvent(QWheelEvent* event) override;
     virtual void resizeEvent(QResizeEvent* event) override;
     virtual void paintEvent(QPaintEvent* event) override;
+    virtual void showEvent(QShowEvent* event) override;
 
 private:
     enum class GroupType {

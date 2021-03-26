@@ -49,6 +49,7 @@ UniverseWidget::~UniverseWidget()
 void UniverseWidget::SetUniverse(std::shared_ptr<Universe> universe)
 {
     universe_ = universe;
+    emit EntitySelected(nullptr);
 }
 
 void UniverseWidget::SetFpsTarget(double fps)

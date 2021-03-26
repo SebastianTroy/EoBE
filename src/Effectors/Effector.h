@@ -7,6 +7,8 @@
 #include <NeuralNetwork.h>
 #include <NeuralNetworkConnector.h>
 
+#include <fmt/format.h>
+
 #include <vector>
 
 class Swimmer;
@@ -39,6 +41,22 @@ private:
     std::vector<double> outputs_;
 
     virtual Energy PerformActions(const std::vector<double>& actionValues, const EntityContainerInterface& entities, const UniverseParameters& universeParameters) = 0;
+};
+
+template<>
+struct fmt::formatter<Effector>
+{
+    template<typename ParseContext>
+    constexpr auto parse(ParseContext& context)
+    {
+        return context.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const Effector& effector, FormatContext& context)
+    {
+        return fmt::format_to(context.out(), "{} inputs, {} layers", effector.Inspect().GetInputCount(), effector.Inspect().GetLayerCount());
+    }
 };
 
 #endif // EFFECTOR_H

@@ -13,6 +13,13 @@ MeatChunk::~MeatChunk()
 {
 }
 
+std::string_view MeatChunk::GetDescription() const
+{
+    return "<p>Meat chunks can be eaten by swimmers as a source of energy. "
+           "When a swimmer loses all of its health, all remaining energy is converted into meat chunks, "
+           "which are scattered near the body of the deceased swimmer.</p>";
+}
+
 void MeatChunk::TickImpl(EntityContainerInterface& /*container*/, const UniverseParameters& /*universeParameters*/)
 {
     UseEnergy(GetEnergy() / 500.0);

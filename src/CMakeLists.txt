@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         Genome/GeneSenseTraitsSelf.cpp
         Genome/GeneSenseTraitsTouching.cpp
         Genome/Genome.cpp
+        InspectorPanel.cpp
         LineGraph.cpp
         LineGraphContainerWidget.cpp
         MeatChunk.cpp
@@ -91,6 +92,7 @@ set(PROJECT_HEADERS
         Genome/GeneSenseTraitsTouching.h
         Genome/Genome.h
         Genome/Phenotype.h
+        InspectorPanel.h
         LineGraph.h
         LineGraphContainerWidget.h
         MeatChunk.h
@@ -116,6 +118,7 @@ set(PROJECT_HEADERS
 
 set(PROJECT_DESIGNER_FILES
         MainWindow.ui
+        InspectorPanel.ui
 )
 
 qt_add_executable(Trilobytes

@@ -15,12 +15,16 @@ public:
     ~FoodPellet() override;
 
     virtual std::string_view GetName() const override { return "FoodPellet"; }
+    virtual std::string_view GetDescription() const override;
 
 private:
     const std::shared_ptr<FeedDispenser> spawner_;
 
     virtual void TickImpl(EntityContainerInterface& /*container*/, const UniverseParameters& /*universeParameters*/) override final {}
     virtual void DrawImpl(QPainter& paint) override final;
+
+private:
+    virtual std::vector<Property> CollectProperties() const override { return {}; }
 };
 
 #endif // FOODPELLET_H

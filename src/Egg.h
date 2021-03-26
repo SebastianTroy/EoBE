@@ -12,6 +12,7 @@ public:
     virtual ~Egg() override;
 
     virtual std::string_view GetName() const override { return "Egg"; }
+    virtual std::string_view GetDescription() const override;
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override;
@@ -22,6 +23,8 @@ private:
     std::shared_ptr<Genome> genomeOne_;
     std::shared_ptr<Genome> genomeTwo_;
     unsigned hatchingDelay_;
+
+    virtual std::vector<Property> CollectProperties() const override;
 };
 
 #endif // EGG_H

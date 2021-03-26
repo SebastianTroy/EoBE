@@ -9,6 +9,7 @@ public:
     ~MeatChunk() override;
 
     virtual std::string_view GetName() const override { return "MeatChunk"; }
+    virtual std::string_view GetDescription() const override;
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override final;
@@ -16,6 +17,8 @@ protected:
 
 private:
     static double GetMeatChunkRadius(const Energy& energy);
+
+    virtual std::vector<Property> CollectProperties() const override { return {}; }
 };
 
 #endif // MEATCHUNK_H

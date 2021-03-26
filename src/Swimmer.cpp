@@ -8,6 +8,7 @@
 
 #include <QPainter>
 
+#include <sstream>
 #include <math.h>
 
 Swimmer::Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome)
@@ -25,6 +26,17 @@ Swimmer::~Swimmer()
     if (closestLivingAncestor_) {
         closestLivingAncestor_->DescendantDied(generation_);
     }
+}
+
+std::string_view Swimmer::GetDescription() const
+{
+    return "<p>A Swimmer is made up of a few important parts.</p>"
+           "<ul>"
+             "<li>It has senses, which are the only source of information a swimmer has about the simulation.</li>"
+             "<li>It has effectors, which are the only way a swimmer can do anything within the simulation.</li>"
+             "<li>It has a brain in the form of a neural network, which is responsible for converting the input from the senses into actions performed by the effectors.</li>"
+             "<li>And finally it has a genome, this contains all of the information required to create the brain, the senses and the effectors.</li>"
+           "</ul>";
 }
 
 std::shared_ptr<Entity> Swimmer::GiveBirth(const std::shared_ptr<Genome>& other)
@@ -166,6 +178,120 @@ Swimmer::Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Geno
     if (closestLivingAncestor_) {
         closestLivingAncestor_->DescendantBorn(generation_);
     }
+}
+
+std::vector<Property> Swimmer::CollectProperties() const
+{
+    return std::vector<Property>{
+        {
+            "Fitness",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->GetTotalDescendantsCount(2));
+            },
+            "A good measure of fitness biologically is the number of grand-children an individual has had. Children is meaningless if you have a mutation to spawn many thousands of weak and doomed children, and great-great... grand-children e.t.c. unfairly favours older individuals.",
+        },
+        {
+            "Generation",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->generation_);
+            },
+            "When 0, this swimmer was spawned into the simulation artificially. Generation is equal to the generation of the swimmers mother + 1.",
+        },
+        {
+            "Metabolism",
+            [&]() -> std::string
+            {
+                return fmt::format("{:.2f}μj", this->baseMetabolism_);
+            },
+            "The quantity of energy, in micro-joules, that the swimmer consumes each tick by default. A swimmer will consume more energy than this if it does any other action, e.g. moving.",
+        },
+        {
+            "Health",
+            [&]() -> std::string
+            {
+                return fmt::format("{:.2f}%", this->health_);
+            },
+            "When less than 100% a swimmer will gradually convert energy into health. If a swimmer reaches 0% health it will die, and any remaining energy it had will be converted into meat chunks.",
+        },
+        {
+            "Genome",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", *this->genome_);
+            },
+            "The complete instructions used to create this swimmer.",
+        },
+        {
+            "Brain",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", *this->brain_);
+            },
+            "The neural network responsible for controlling actions of the swimmer.",
+        },
+        {
+            "Senses",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->senses_.size());
+            },
+            [&]() -> std::string
+            {
+                std::stringstream description;
+                description << "<p>Senses are required for a swimmer to detect anything within the simulation.</p><p>The swimmer has the following senses:</p><ul>";
+                for (const auto& sense : this->senses_) {
+                    description << "<li>" << sense->GetName() << ": " << sense->GetDescription() << "</li>";
+                }
+                description << "</ul>";
+                return description.str();
+            }(),
+        },
+        {
+            "Effectors",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->effectors_.size());
+            },
+            [&]() -> std::string
+            {
+                std::stringstream description;
+                description << "<p>Effectors are required for a swimmer to do anything within the simulation.</p>"
+                               "<p>The swimmer has the following effectors:</p>"
+                               "<ul>";
+                for (const auto& effector : this->effectors_) {
+                    description << "<li>" << effector ->GetName() << ": " << effector ->GetDescription() << "</li>";
+                }
+                description << "</ul>";
+                return description.str();
+            }(),
+        },
+        {
+            "Eggs laid",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->eggsLayed_);
+            },
+            "The number of eggs the swimmer has laid. Not all of them will hatch, depending on the genetic compatibility of the father.",
+        },
+        {
+            "Living descendants",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->GetLivingDescendantsCount());
+            },
+            "The total number of descendants that this swimmer has had, which are currently still living.",
+        },
+        {
+            "Total descendants",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->GetTotalDescendantsCount());
+            },
+            "The total number of descendants that this swimmer has had.",
+        },
+    };
 }
 
 std::shared_ptr<Swimmer> Swimmer::FindClosestLivingAncestor() const

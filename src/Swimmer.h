@@ -17,6 +17,7 @@ public:
     virtual ~Swimmer() override;
 
     virtual std::string_view GetName() const override { return "Swimmer"; }
+    virtual std::string_view GetDescription() const override;
 
     std::shared_ptr<Entity> GiveBirth(const std::shared_ptr<Genome>& other);
 
@@ -65,6 +66,8 @@ private:
     std::map<unsigned, unsigned> extantDescentantCounts_;
 
     Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, const Phenotype& phenotype, std::shared_ptr<Swimmer>&& mother);
+
+    virtual std::vector<Property> CollectProperties() const override;
 
     std::shared_ptr<Swimmer> FindClosestLivingAncestor() const;
 

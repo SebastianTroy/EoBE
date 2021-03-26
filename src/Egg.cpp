@@ -17,6 +17,12 @@ Egg::~Egg()
 {
 }
 
+std::string_view Egg::GetDescription() const
+{
+    return "<p>Swimmers can lay eggs. "
+           "When creating an egg, the genetics of up to two swimmers can be combined to create the genetics passed onto the egg.</p>";
+}
+
 void Egg::TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters)
 {
     // TODO could delay depending on ammount of energy in the egg
@@ -41,4 +47,18 @@ void Egg::TickImpl(EntityContainerInterface& container, const UniverseParameters
 void Egg::DrawImpl(QPainter& paint)
 {
     paint.drawEllipse(QPointF(GetTransform().x, GetTransform().y), GetRadius() / 2.0, GetRadius() / 3.0);
+}
+
+std::vector<Property> Egg::CollectProperties() const
+{
+    return std::vector<Property>{
+        {
+            "Delay",
+            [&]() -> std::string
+            {
+                return fmt::format("{}", this->hatchingDelay_);
+            },
+            "The number of ticks until the egg hatches",
+        },
+    };
 }

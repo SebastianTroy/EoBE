@@ -12,6 +12,13 @@ Spike::~Spike()
 {
 }
 
+std::string_view Spike::GetDescription() const
+{
+    return "<p>Spikes add variety to the environment. "
+           "Swimmers will have to evolve strategies for avoiding them, or minimising the damage they cause. "
+           "By creating areas with different survival pressures you can encourage Swimmers to speciate to more efficiently fill each unique niche</p>";
+}
+
 void Spike::TickImpl(EntityContainerInterface& container, const UniverseParameters& /*universeParameters*/)
 {
     container.ForEachCollidingWith(Circle{ GetLocation().x, GetLocation().y, GetRadius() }, [](const std::shared_ptr<Entity>& entity)
@@ -34,4 +41,18 @@ void Spike::DrawImpl(QPainter& paint)
         paint.drawLine(QLineF(GetLocation().x, GetLocation().y, tip.x, tip.y));
     }
     paint.drawEllipse(QPointF(GetLocation().x, GetLocation().y), GetRadius() / 2, GetRadius() / 2);
+}
+
+std::vector<Property> Spike::CollectProperties() const
+{
+    return std::vector<Property>{
+        {
+            "Damage",
+            []() -> std::string
+            {
+                return "SwimmerVelocity²";
+            },
+            "The damage dealt to a swimmer per tick is equal to the velocity of that swimmer squared.",
+        }
+    };
 }

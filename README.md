@@ -19,6 +19,7 @@ The easiest way to build from sources yourself is to open project in QtCreator, 
 
 TODO
 -----
+ - Need to refactor Swimmer into Trilobyte
  - Need to move QuadTree into utility, which will require some simple base class for entity to extend
  - - Then particle can also extend entity, (FeedDispenser could also be a particle?)
  - More GUI controlls

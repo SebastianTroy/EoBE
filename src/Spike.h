@@ -9,10 +9,14 @@ public:
     ~Spike() override;
 
     virtual std::string_view GetName() const override { return "Spike"; }
+    virtual std::string_view GetDescription() const override;
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override;
     virtual void DrawImpl(QPainter& paint) override;
+
+private:
+    virtual std::vector<Property> CollectProperties() const override;
 };
 
 #endif // SPIKE_H

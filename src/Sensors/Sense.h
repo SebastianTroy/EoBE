@@ -9,6 +9,8 @@ class QPainter;
 #include <NeuralNetwork.h>
 #include <NeuralNetworkConnector.h>
 
+#include <fmt/format.h>
+
 #include <string_view>
 #include <memory>
 
@@ -44,6 +46,22 @@ private:
     std::vector<double> inputs_;
 
     virtual void PrepareToPrime() {}
+};
+
+template<>
+struct fmt::formatter<Sense>
+{
+    template<typename ParseContext>
+    constexpr auto parse(ParseContext& context)
+    {
+        return context.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const Sense& sense, FormatContext& context)
+    {
+        return fmt::format_to(context.out(), "{} inputs, {} layers", sense.Inspect().GetInputCount(), sense.Inspect().GetLayerCount());
+    }
 };
 
 #endif // SENSE_H

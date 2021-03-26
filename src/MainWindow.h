@@ -3,23 +3,25 @@
 
 #include "Universe.h"
 #include "ScatterGraph.h"
+#include "Entity.h"
 
 #include <QMainWindow>
 #include <QImage>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class Swimmer;
-class EntityContainerInterface;
-
 class MainWindow : public QMainWindow {
     Q_OBJECT
-
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+signals:
+    void UniverseReset(std::shared_ptr<Universe> newUniverse);
 
 private:
     Ui::MainWindow *ui;

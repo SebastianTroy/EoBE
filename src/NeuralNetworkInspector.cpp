@@ -88,6 +88,7 @@ void NeuralNetworkInspector::SetSwimmer(std::shared_ptr<Swimmer> toInspect)
         LayoutGroupsInView();
         update();
     }
+    ResetViewTransform();
 }
 
 void NeuralNetworkInspector::UpdateConnectionStrengths(const EntityContainerInterface& container, const UniverseParameters& universeParameters)
@@ -202,62 +203,69 @@ void NeuralNetworkInspector::mouseMoveEvent(QMouseEvent* event)
 
 void NeuralNetworkInspector::paintEvent(QPaintEvent* event)
 {
-    QPainter p(this);
-    p.setClipRegion(event->region());
-    p.translate(width() / 2, height() / 2);
-    p.scale(transformScale_, transformScale_);
-    p.translate(transformX_, transformY_);
+    if (isVisible()) {
+        QPainter p(this);
+        p.setClipRegion(event->region());
+        p.translate(width() / 2, height() / 2);
+        p.scale(transformScale_, transformScale_);
+        p.translate(transformX_, transformY_);
 
-    ForEachGroup([&](GroupType type, const Group& group)
-    {
-        // Draw the connections
-        for (auto& [ nodeCoordinates, node ] : group.nodes) {
-            (void) nodeCoordinates; // unused
-            p.setBrush(Qt::BrushStyle::NoBrush);
-            for (auto& [ target, strength ] : node.connections) {
-                qreal penWidth = (std::abs(strength) / 1.5) * 8;
-                if (penWidth * transformScale_ >= 0.75) {
-                    unsigned opacity = liveUpdate_ ? std::clamp(std::abs(node.value) * 200, 0.0, 255.0) : 255.0;
-                    QPen pen(QColor(strength > 0 ? 0 : 255, 0, 0, opacity));
-                    pen.setWidthF(penWidth);
-                    p.setPen(pen);
+        ForEachGroup([&](GroupType type, const Group& group)
+        {
+            // Draw the connections
+            for (auto& [ nodeCoordinates, node ] : group.nodes) {
+                (void) nodeCoordinates; // unused
+                p.setBrush(Qt::BrushStyle::NoBrush);
+                for (auto& [ target, strength ] : node.connections) {
+                    qreal penWidth = (std::abs(strength) / 1.5) * 8;
+                    if (penWidth * transformScale_ >= 0.75) {
+                        unsigned opacity = liveUpdate_ ? std::clamp(std::abs(node.value) * 200, 0.0, 255.0) : 255.0;
+                        QPen pen(QColor(strength > 0 ? 0 : 255, 0, 0, opacity));
+                        pen.setWidthF(penWidth);
+                        p.setPen(pen);
 
-                    p.drawLine(QPointF{ node.x, node.y }, QPointF{ target.get().x, target.get().y });
+                        p.drawLine(QPointF{ node.x, node.y }, QPointF{ target.get().x, target.get().y });
+                    }
                 }
             }
-        }
 
-        // Draw the Nodes over the top
-        for (auto& [ nodeCoordinates, node ] : group.nodes) {
-            (void) nodeCoordinates; // unused
-            // Draw the Node
-            QColor nodeCol(liveUpdate_ ? (node.value > 0 ? Qt::blue : Qt::red) : Qt::magenta);
-            qreal transparency = liveUpdate_ ? std::abs(node.value) : 1.0;
-            p.setPen(QPen(nodeCol, 3.0));
-            nodeCol.setAlphaF(std::min(1.0, transparency));
-            p.setBrush(nodeCol);
-            // scale /should/ be 1.0, if it isn't something needs normalising!
-            double scale = std::max(1.0, transparency);
-            p.drawEllipse(QPointF(node.x, node.y), (nodeWidth_ / 2) * scale, (nodeHeight_ / 2) * scale);
-        }
+            // Draw the Nodes over the top
+            for (auto& [ nodeCoordinates, node ] : group.nodes) {
+                (void) nodeCoordinates; // unused
+                // Draw the Node
+                QColor nodeCol(liveUpdate_ ? (node.value > 0 ? Qt::blue : Qt::red) : Qt::magenta);
+                qreal transparency = liveUpdate_ ? std::abs(node.value) : 1.0;
+                p.setPen(QPen(nodeCol, 3.0));
+                nodeCol.setAlphaF(std::min(1.0, transparency));
+                p.setBrush(nodeCol);
+                // scale /should/ be 1.0, if it isn't something needs normalising!
+                double scale = std::max(1.0, transparency);
+                p.drawEllipse(QPointF(node.x, node.y), (nodeWidth_ / 2) * scale, (nodeHeight_ / 2) * scale);
+            }
 
-        // Draw last so can be seen over over stimulated neurons
-        p.setPen(Qt::black);
-        p.setBrush(group.selected ? QBrush(QColor::fromRgb(90, 25, 110, 45)): QBrush(Qt::NoBrush));
-        p.drawRect(group.area);
-        p.setCompositionMode(QPainter::CompositionMode_Exclusion);
-        p.setPen(Qt::white);
-        if (type == GroupType::Effector) {
-            // Draw effector text below the neurons
-            QRectF titleRect = p.boundingRect(group.area, Qt::AlignBottom | Qt::AlignHCenter, QString(group.name.c_str()));
-            p.drawText(titleRect, QString(group.name.c_str()));
-        } else {
-            // Draw Sensor/Brain text above the neurons
-            QRectF titleRect = p.boundingRect(group.area, Qt::AlignTop | Qt::AlignHCenter, QString(group.name.c_str()));
-            p.drawText(titleRect, QString(group.name.c_str()));
-        }
-        p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    });
+            // Draw last so can be seen over over stimulated neurons
+            p.setPen(Qt::black);
+            p.setBrush(group.selected ? QBrush(QColor::fromRgb(90, 25, 110, 45)): QBrush(Qt::NoBrush));
+            p.drawRect(group.area);
+            p.setCompositionMode(QPainter::CompositionMode_Exclusion);
+            p.setPen(Qt::white);
+            if (type == GroupType::Effector) {
+                // Draw effector text below the neurons
+                QRectF titleRect = p.boundingRect(group.area, Qt::AlignBottom | Qt::AlignHCenter, QString(group.name.c_str()));
+                p.drawText(titleRect, QString(group.name.c_str()));
+            } else {
+                // Draw Sensor/Brain text above the neurons
+                QRectF titleRect = p.boundingRect(group.area, Qt::AlignTop | Qt::AlignHCenter, QString(group.name.c_str()));
+                p.drawText(titleRect, QString(group.name.c_str()));
+            }
+            p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        });
+    }
+}
+
+void NeuralNetworkInspector::showEvent(QShowEvent* /*event*/)
+{
+    ResetViewTransform();
 }
 
 QPointF NeuralNetworkInspector::TransformLocalToSimCoords(const QPointF& local) const

@@ -14,8 +14,6 @@ public:
     explicit UniverseWidget(QWidget* parent);
     virtual ~UniverseWidget();
 
-    void SetUniverse(std::shared_ptr<Universe> universe);
-
 signals:
     void EntitySelected(const std::shared_ptr<Entity>& newSelection);
     void Ticked();
@@ -25,6 +23,8 @@ public slots:
      * The fllowing slots should be Queued to prevent multi-threaded universe
      * interactions
      */
+
+    void SetUniverse(std::shared_ptr<Universe> newUniverse);
 
     void SetFpsTarget(double fps);
     void SetTpsTarget(double tps);

@@ -15,6 +15,16 @@
 
 class QPainter;
 
+/**
+ * Designed to allow inspection of entities. Each sub-class should add each of
+ * its member variables to the list of properties.
+ */
+struct Property{
+    std::string name_;
+    std::function<std::string()> value_;
+    std::string description_;
+};
+
 class Entity {
 public:
     static constexpr double MAX_RADIUS = 12.0;
@@ -23,6 +33,9 @@ public:
     virtual ~Entity();
 
     virtual std::string_view GetName() const = 0;
+    virtual std::string_view GetDescription() const = 0;
+
+    std::vector<Property> GetProperties() const;;
 
     const uint64_t& GetAge() const { return age_; }
     const Transform& GetTransform() const { return transform_; }
@@ -62,6 +75,8 @@ private:
     double speed_;
     uint64_t age_;
     QColor colour_;
+
+    virtual std::vector<Property> CollectProperties() const = 0;
 
     // returns true if the entity has moved
     bool Move();

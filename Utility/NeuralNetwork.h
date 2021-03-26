@@ -5,6 +5,7 @@
 #include "JsonHelpers.h"
 
 #include <nlohmann/json.hpp>
+#include <fmt/format.h>
 
 #include <vector>
 #include <memory>
@@ -70,6 +71,22 @@ private:
     static Layer CreatePassThroughLayer(unsigned width);
 
     std::vector<Layer> CopyLayers() const;
+};
+
+template<>
+struct fmt::formatter<NeuralNetwork>
+{
+    template<typename ParseContext>
+    constexpr auto parse(ParseContext& context)
+    {
+        return context.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const NeuralNetwork& network, FormatContext& context)
+    {
+        return fmt::format_to(context.out(), "{} inputs, {} layers", network.GetInputCount(), network.GetLayerCount());
+    }
 };
 
 #endif // NEURALNETWORK_H

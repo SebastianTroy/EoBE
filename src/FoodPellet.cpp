@@ -22,6 +22,12 @@ FoodPellet::~FoodPellet()
     spawner_->PelletEaten();
 }
 
+std::string_view FoodPellet::GetDescription() const
+{
+    return "<p>Food pellets are spawned into the game by 'Feed Dispensers'. "
+           "The can be eaten by swimmers as a source of energy.</p>";
+}
+
 void FoodPellet::DrawImpl(QPainter& paint)
 {
     paint.drawEllipse(QPointF{ GetTransform().x, GetTransform().y }, GetRadius(), GetRadius());
