@@ -43,7 +43,7 @@ void QuadTree::Draw(QPainter& paint, const Rect& renderArea) const
 void QuadTree::SetEntityTargetPerQuad(uint64_t target, uint64_t leeway)
 {
     // target cannot be 0 (requires infinite quads)
-    targetCount_ = std::max(target, 1ull);
+    targetCount_ = std::max(target, uint64_t{1});
     // FIXME BUG leeway cannot be greater than target, causes repeat recalculation (probably uint underflow somewhere)
     leewayCount_ = std::min(leeway, target);
     root_->Rebalance(targetCount_, leewayCount_);
