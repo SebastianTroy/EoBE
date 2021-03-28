@@ -30,6 +30,7 @@ public slots:
     void SetTpsTarget(double tps);
     void SetLimitTickRate(bool limit);
     void SetTicksPaused(bool paused);
+    void StepForwards(unsigned ticksToStep);
 
     void SelectFittestSwimmer();
     void SetTrackSelectedEntity(bool track) { trackSelected_ = track; }

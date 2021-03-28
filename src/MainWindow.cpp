@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    SetupPlayControls();
 
     setWindowTitle(QString::fromStdString(fmt::format("Trilobytes - Evolution Simulator v{}.{} {}", TOSTRING(VERSION_MAJOR), TOSTRING(VERSION_MINOR), TOSTRING(VERSION_ADDITIONAL))));
 
@@ -42,12 +43,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Set reasonable initial proportions
     ui->horizontalSplitter->setSizes({ static_cast<int>(width() * 0.15), static_cast<int>(width() * 0.65), static_cast<int>(width() * 0.2) });
     ui->verticalSplitter->setSizes({ static_cast<int>(height() * 0.7), static_cast<int>(height() * 0.3) });
-
-    /// Universe TPS & FPS controlls
-    connect(ui->pauseButton, &QPushButton::toggled, ui->universe, &UniverseWidget::SetTicksPaused, Qt::QueuedConnection);
-    connect(ui->limitButton, &QPushButton::toggled, ui->universe, &UniverseWidget::SetLimitTickRate, Qt::QueuedConnection);
-    connect(ui->tpsSelector, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), ui->universe, &UniverseWidget::SetTpsTarget, Qt::QueuedConnection);
-    connect(ui->fpsSelector, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), ui->universe, &UniverseWidget::SetFpsTarget, Qt::QueuedConnection);
 
     /// Global controlls
     connect(ui->resetAllButton, &QPushButton::pressed, [&]()
@@ -110,6 +105,55 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::SetupPlayControls()
+{
+    ui->forwardButton->setChecked(true);
+    ui->playStepContainer->setHidden(true);
+
+    // Only show speed buttons when playing and step buttons when paused
+    connect(ui->playPauseButton, &QPushButton::toggled, ui->playSpeedContainer, &QWidget::setHidden, Qt::QueuedConnection);
+    connect(ui->playPauseButton, &QPushButton::toggled, ui->playStepContainer, &QWidget::setVisible, Qt::QueuedConnection);
+
+    connect(ui->playPauseButton, &QPushButton::toggled, ui->universe, &UniverseWidget::SetTicksPaused, Qt::QueuedConnection);
+    connect(ui->forwardButton, &QPushButton::toggled, this, [&]()
+    {
+        ui->universe->SetLimitTickRate(true);
+        ui->universe->SetTpsTarget(40);
+        ui->universe->SetFpsTarget(40);
+    }, Qt::QueuedConnection);
+    connect(ui->fastForwardButton, &QPushButton::toggled, this, [&]()
+    {
+        ui->universe->SetLimitTickRate(true);
+        ui->universe->SetTpsTarget(120);
+        ui->universe->SetFpsTarget(60);
+    }, Qt::QueuedConnection);
+    connect(ui->fastFastForwardButton, &QPushButton::toggled, this, [&]()
+    {
+        ui->universe->SetLimitTickRate(true);
+        ui->universe->SetTpsTarget(500);
+        ui->universe->SetFpsTarget(30);
+    }, Qt::QueuedConnection);
+    connect(ui->fullSpeedButton, &QPushButton::toggled, this, [&]()
+    {
+        ui->universe->SetLimitTickRate(false);
+        ui->universe->SetFpsTarget(0.25);
+    }, Qt::QueuedConnection);
+
+    connect(ui->stepOneButton, &QPushButton::pressed, this, [&]()
+    {
+        ui->universe->StepForwards(1);
+    });
+    connect(ui->stepTenButton, &QPushButton::pressed, this, [&]()
+    {
+        ui->universe->StepForwards(10);
+    });
+    connect(ui->stepHundredButton, &QPushButton::pressed, this, [&]()
+    {
+        ui->universe->StepForwards(100);
+    });
+
 }
 
 void MainWindow::ResetGraphs()

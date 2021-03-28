@@ -81,6 +81,28 @@ void UniverseWidget::SetTicksPaused(bool paused)
     UpdateTps();
 }
 
+void UniverseWidget::StepForwards(unsigned ticksToStep)
+{
+    bool tickThreadWasRunning = tickThread_.isActive();
+    bool renderThreadWasRunning = renderThread_.isActive();
+    tickThread_.stop();
+    renderThread_.stop();
+
+    for (unsigned i = 0; i < ticksToStep; ++i) {
+        universe_->Tick();
+    }
+    updateToRender_ = true;
+    update();
+    emit Ticked();
+
+    if (tickThreadWasRunning) {
+        tickThread_.start();
+    }
+    if (renderThreadWasRunning) {
+        renderThread_.start();
+    }
+}
+
 void UniverseWidget::SelectFittestSwimmer()
 {
     unsigned mostLivingChildren = 0;
@@ -245,4 +267,5 @@ void UniverseWidget::UpdateTps()
             tickThread_.start(0);
         }
     }
+    update();
 }
