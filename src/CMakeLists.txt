@@ -125,6 +125,7 @@ set(PROJECT_DESIGNER_FILES
 
 set(PROJECT_RESOURCE_FILES
     Icons.qrc
+    Images.qrc
 )
 
 qt_add_executable(Trilobytes

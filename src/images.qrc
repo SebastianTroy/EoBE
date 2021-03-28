@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/foodPellet.svg</file>
+        <file>images/spikeBall.svg</file>
+        <file>images/trilobite.svg</file>
+        <file>images/meatChunk.svg</file>
+    </qresource>
+</RCC>
