@@ -39,9 +39,9 @@ std::vector<Property> Entity::GetProperties() const
             "Energy",
             [&]() -> std::string
             {
-                return fmt::format("{:.2f}μj", this->energy_ * 1_uj);
+                return fmt::format("{:.2f}mj", this->energy_ / 1_mj);
             },
-            "The current energy available to the entity in micro-joules."
+            "The current energy available to the entity in milli-joules."
         },
         {
             "Exists",

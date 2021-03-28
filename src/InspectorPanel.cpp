@@ -13,19 +13,29 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     : QTabWidget(parent)
     , ui(new Ui::InspectorPanel)
     , previewPixmap_(50, 50)
+    , newEntity_(true)
+    , entityPropertyModel_(this)
+    , entityPropertyDetailButtonDelegate_(this)
 {
     ui->setupUi(this);
     ui->entityPreview->setAlignment(Qt::AlignCenter);
-    ui->entityPreview->setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Policy::Preferred);
     ui->entityPreviewScale->setRange(10, 120);
-    ui->entityProperties->setContentsMargins(8, 3, 5, 3);
+    ui->entityPreviewScale->setValue(70);
+    ui->entityProperties->setModel(&entityPropertyModel_);
+    ui->entityProperties->setItemDelegateForColumn(EntityPropertyTableModel::MORE_INFO_COLUMN_INDEX, &entityPropertyDetailButtonDelegate_);
+    ui->entityProperties->setColumnWidth(EntityPropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
     ui->splitter->setStretchFactor(0, 3);
     ui->splitter->setStretchFactor(1, 5);
     ui->splitter->setStretchFactor(2, 3);
+    connect(ui->splitter, &QSplitter::splitterMoved, this, &InspectorPanel::UpdateEntityTab, Qt::QueuedConnection);
 
     /// Entity Inspector controlls
+    connect(&entityPropertyModel_, &EntityPropertyTableModel::DescriptionRequested, [&](QString description)
+    {
+        ui->entityPropertyDescription->setText(description);
+    });
     connect(ui->refreshButton, &QPushButton::pressed, this, &InspectorPanel::UpdateEntityTab, Qt::QueuedConnection);
-    connect(ui->entityPreviewScale, &QSlider::sliderMoved, this, &InspectorPanel::UpdateEntityPreview, Qt::QueuedConnection);
+    connect(ui->entityPreviewScale, &QSlider::valueChanged, this, &InspectorPanel::UpdateEntityPreview, Qt::QueuedConnection);
 
     /// NeuralNetowrk Inspector controlls
     connect(ui->liveUpdateSelector, &QCheckBox::toggled, [&](bool checked) { ui->brainInspector->SetUpdateLive(checked); });
@@ -44,6 +54,8 @@ InspectorPanel::InspectorPanel(QWidget *parent)
             }
         }
     });
+
+    SetEntity({});
 }
 
 InspectorPanel::~InspectorPanel()
@@ -58,20 +70,28 @@ void InspectorPanel::SetUniverse(std::shared_ptr<Universe> universe)
 
 void InspectorPanel::SetEntity(std::shared_ptr<Entity> selectedEntity)
 {
-    if (selectedEntity != selectedEntity_) {
+    if (!selectedEntity_ || selectedEntity != selectedEntity_) {
+        newEntity_ = true;
         selectedEntity_ = selectedEntity;
+        if (selectedEntity_) {
+            SetProperties(selectedEntity_->GetProperties());
+        } else {
+            SetProperties({});
+        }
         // Entity tab
         ui->entityPropertyDescription->setText("Press '...' in the table above for more information about a value.");
         UpdateEntityTab();
 
         // Brain & Genome tabs
         std::shared_ptr<Swimmer> swimmerPointer = std::dynamic_pointer_cast<Swimmer>(selectedEntity_);
-        ui->brainTab->setVisible(swimmerPointer != nullptr);
-        ui->genomeTab->setVisible(swimmerPointer != nullptr);
+        setTabVisible(BRAIN_TAB_INDEX, swimmerPointer != nullptr);
+        setTabVisible(GENOME_TAB_INDEX, swimmerPointer != nullptr);
         if (swimmerPointer || selectedEntity == nullptr) {
             ui->brainInspector->SetSwimmer(swimmerPointer); // TODO switch to SetEntity and deal with non Swimmer entities in the tab itself
             ui->brainInspector->UpdateConnectionStrengths(universe_->GetEntityContainer(), universe_->GetParameters());
         }
+
+        update();
     }
 }
 
@@ -87,43 +107,9 @@ void InspectorPanel::OnUniverseTick()
 
 void InspectorPanel::UpdateEntityTab()
 {
-    if (isVisible()) {
-        ui->entityProperties->hide();
-        ui->entityProperties->clear();
+    if (currentIndex() == ENTITY_TAB_INDEX) {
         UpdateEntityPreview();
-        if (selectedEntity_) {
-            ui->entityProperties->setRowCount(0);
-            ui->entityProperties->setColumnCount(3);
-
-            for (const auto& property : selectedEntity_->GetProperties()) {
-                int rowIndex = ui->entityProperties->rowCount();
-                ui->entityProperties->insertRow(rowIndex);
-                QPushButton* moreInfoAction = new QPushButton("...");
-                moreInfoAction->setFixedWidth(30);
-                connect(moreInfoAction, &QPushButton::pressed, [&, description = QString::fromStdString(property.description_)]()
-                {
-                    ui->entityPropertyDescription->setText(description);
-                });
-                ui->entityProperties->setCellWidget(rowIndex, 0, moreInfoAction);
-                ui->entityProperties->setItem(rowIndex, 1, new QTableWidgetItem(QString::fromStdString(property.name_)));
-                ui->entityProperties->setItem(rowIndex, 2, new QTableWidgetItem(QString::fromStdString(property.value_())));
-            }
-        } else {
-            ui->entityProperties->setRowCount(1);
-            ui->entityProperties->setColumnCount(2);
-
-            QPushButton* moreInfoAction = new QPushButton("...");
-            moreInfoAction->setFixedWidth(30);
-            connect(moreInfoAction, &QPushButton::pressed, ui->entityPropertyDescription, [&]()
-            {
-                ui->entityPropertyDescription->setText("You can select an entity within the simulation by right clicking on it. Left click and drag can be used to move them around.");
-            });
-            ui->entityProperties->setCellWidget(0, 0, moreInfoAction);
-            ui->entityProperties->setItem(0, 1, new QTableWidgetItem("When an entity is selected, details about it will appear here."));
-        }
-        ui->entityProperties->resizeColumnsToContents();
-        ui->entityProperties->resizeRowsToContents();
-        ui->entityProperties->show();
+        entityPropertyModel_.UpdateValues();
     }
 }
 
@@ -133,7 +119,7 @@ void InspectorPanel::UpdateEntityPreview()
         ui->entityPreview->clear();
 
         Transform entityTransform = selectedEntity_->GetTransform();
-        double scale = (0.01 * ui->entityPreviewScale->value() * std::min(ui->entityPreview->width(), ui->entityPreview->height())) / (selectedEntity_->GetRadius() * 2);
+        double scale = (0.01 * ui->entityPreviewScale->value() * std::min(ui->entityPreview->width(), ui->entityPreview->height())) / (Entity::MAX_RADIUS * 2);
         previewPixmap_ = QPixmap(ui->entityPreview->width(), ui->entityPreview->height());
         previewPixmap_.fill(Qt::white);
 
@@ -148,4 +134,11 @@ void InspectorPanel::UpdateEntityPreview()
         ui->entityPreview->clear();
         ui->entityPreview->setText("No preview available");
     }
+}
+
+void InspectorPanel::SetProperties(std::vector<Property>&& properties)
+{
+    entityPropertyModel_.SetProperties(std::move(properties));
+    ui->entityProperties->resizeColumnsToContents();
+    ui->entityProperties->setColumnWidth(EntityPropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
 }

@@ -203,6 +203,8 @@ void NeuralNetworkInspector::mouseMoveEvent(QMouseEvent* event)
 
 void NeuralNetworkInspector::paintEvent(QPaintEvent* event)
 {
+    QWidget::paintEvent(event);
+
     if (isVisible()) {
         QPainter p(this);
         p.setClipRegion(event->region());

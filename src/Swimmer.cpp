@@ -203,7 +203,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             "Metabolism",
             [&]() -> std::string
             {
-                return fmt::format("{:.2f}μj", this->baseMetabolism_);
+                return fmt::format("{:.2f}μj", this->baseMetabolism_ / 1_uj);
             },
             "The quantity of energy, in micro-joules, that the swimmer consumes each tick by default. A swimmer will consume more energy than this if it does any other action, e.g. moving.",
         },

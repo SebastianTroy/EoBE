@@ -9,6 +9,7 @@ set(PROJECT_SOURCES
         Effectors/EffectorTail.cpp
         Egg.cpp
         Entity.cpp
+        EntityPropertyTableModel.cpp
         FeedDispenser.cpp
         FoodPellet.cpp
         Genome/ChromosomePair.cpp
@@ -67,6 +68,7 @@ set(PROJECT_HEADERS
         Egg.h
         Entity.h
         EntityContainerInterface.h
+        EntityPropertyTableModel.h
         FeedDispenser.h
         FoodPellet.h
         Genome/ChromosomePair.h
