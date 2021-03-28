@@ -19,9 +19,11 @@ The easiest way to build from sources yourself is to open project in QtCreator, 
 
 TODO
 -----
+ - Need to display some properties about the sim in another tab on the inspector side
+ - - Requires moving the Entity stuff into its own designer-widget class
  - Need to refactor Swimmer into Trilobyte
  - Need to move QuadTree into utility, which will require some simple base class for entity to extend
- - - Then particle can also extend entity, (FeedDispenser could also be a particle?)
+ - - Then particle can also extend new base class, (FeedDispenser could also be a particle?)
  - More GUI controlls
  - More niches
  - - More hazards
@@ -34,7 +36,7 @@ TODO
  - More graphs & configurable graphs
  - Matrix based coordinate system/collisions
  - More entities (pheremones? poisons? more food types?)
- - tabs in left and right GUI to split up settings (add more settings per section) and add geneome inspector on right
+ - tabs in left GUI to split up settings
  -  - Allow adding multiple swimmers at a time
  -  - Move feed dispenser
  -  - adjust feed dispenser pellet energy/frequency
