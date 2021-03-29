@@ -69,11 +69,11 @@ public:
     {
         if constexpr (std::is_integral<NumericType>::value) {
             static std::uniform_int_distribution<NumericType> distribution;
-            distribution.param(typename std::uniform_int_distribution<NumericType>::param_type(min, max));
+            distribution.param(typename decltype(distribution)::param_type(min, max));
             return Generate(distribution);
         } else if constexpr (std::is_floating_point<NumericType>::value) {
             static std::uniform_real_distribution<NumericType> distribution;
-            distribution.param(typename std::uniform_real_distribution<NumericType>::param_type(min, std::nextafter(max, std::numeric_limits<double>::max())));
+            distribution.param(typename decltype(distribution)::param_type(min, std::nextafter(max, std::numeric_limits<NumericType>::max())));
             return Generate(distribution);
         } else {
             static_assert(std::is_floating_point<NumericType>::value, "Random::Number requires an integral OR floating point number type to work.");

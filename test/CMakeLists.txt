@@ -5,10 +5,12 @@ target_sources(Tests
     main.cpp
     TestShape.cpp
     TestRangeConverter.cpp
+    TestRollingStatistics.cpp
 )
 
 target_include_directories(Tests
     PUBLIC
+    ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/Utility
 )
 
