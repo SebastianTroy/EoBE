@@ -55,6 +55,8 @@ TODO
 
 Next Steps
 ----------
+Tests for all Utility classes
+
 Entity needs some generic introspection so that classes don't need to do a bunch of dynamic casts to see if they'll interact or not
    - Perhaps a pure virtual GetType() which returns Animal, Vegetable, or Mineral
    - Perhaps a pure virtual GetAlive() (Animal, Egg & MeatChunk are all animal, but MeatChunks are not alive)

@@ -23,4 +23,13 @@ double RollingStatistics::StandardDeviation() const
     }
 }
 
+void RollingStatistics::Reset()
+{
+    count_ = 0;
+    sumOfValues_ = 0.0;
+    sumOfValuesSquared_ = 0.0;
+    min_ = std::numeric_limits<double>::max();
+    max_ = std::numeric_limits<double>::lowest();
+}
+
 } // namespace Tril

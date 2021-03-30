@@ -2,9 +2,12 @@
 #define UNIVERSEWIDGET_H
 
 #include "Universe.h"
+
+#include <WindowedRollingStatistics.h>
 #include <Shape.h>
 
 // TODO QOpenGLWidget allows QPainter painting, but its messed up, consider moving over once everything is pixmap based
+// see https://doc-snapshots.qt.io/qt6-dev/qopenglwidget.html for help re-implementing
 #include <QWidget>
 #include <QTimer>
 
@@ -16,7 +19,8 @@ public:
 
 signals:
     void EntitySelected(const std::shared_ptr<Entity>& newSelection);
-    void Ticked();
+    void Ticked(double seconds);
+    void Painted(double seconds);
 
 public slots:
     /*
@@ -31,6 +35,7 @@ public slots:
     void SetLimitTickRate(bool limit);
     void SetTicksPaused(bool paused);
     void StepForwards(unsigned ticksToStep);
+    void SetDisplayDurationStats(bool display) { displayDurationStats_ = display; };
 
     void SelectFittestSwimmer();
     void SetTrackSelectedEntity(bool track) { trackSelected_ = track; }
@@ -62,6 +67,10 @@ private:
     bool ticksPaused_ = false;
     double ticksPerSecondTarget_ = 60.0;
 
+    Tril::WindowedRollingStatistics tickDuration_;
+    Tril::WindowedRollingStatistics paintDuration_;
+    bool displayDurationStats_ = false;
+
     // TODO update to using a matrix based transform
     qreal transformX_ = 0.0;
     qreal transformY_ = 0.0;
@@ -79,6 +88,7 @@ private:
     Point TransformLocalToSimCoords(const Point& local) const;
     Point TransformSimToLocalCoords(const Point& sim) const;
 
+    void Tick();
     void UpdateTps();
 };
 

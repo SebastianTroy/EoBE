@@ -15,7 +15,8 @@
 #include <nlohmann/json.hpp>
 #include <fmt/core.h>
 
-#include "QFileDialog"
+#include <QFileDialog>
+#include <QCheckBox>
 
 #include <fstream>
 
@@ -97,6 +98,9 @@ MainWindow::MainWindow(QWidget *parent)
             ui->graphs->removeTab(index);
         }
     });
+
+    /// Debug controlls
+    connect(ui->showPaintAndTickDurationsCheckbox, &QCheckBox::toggled, ui->universe, &UniverseWidget::SetDisplayDurationStats, Qt::QueuedConnection);
 
     ResetGraphs();
     emit UniverseReset(universe_);

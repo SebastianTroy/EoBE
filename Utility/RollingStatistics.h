@@ -16,6 +16,8 @@ public:
     double Min() const { return min_; };
     double Max() const { return max_; };
 
+    void Reset();
+
 private:
     uint64_t count_ = 0;
     double sumOfValues_ = 0.0;

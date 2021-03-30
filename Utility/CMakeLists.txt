@@ -5,6 +5,7 @@ set(UTILITY_SOURCES
     RangeConverter.cpp
     RollingStatistics.cpp
     Transform.cpp
+    WindowedRollingStatistics.cpp
 )
 
 set(UTILITY_HEADERS
@@ -25,6 +26,7 @@ set(UTILITY_HEADERS
     Shape.h
     Transform.h
     TypeName.h
+    WindowedRollingStatistics.h
 )
 
 add_library(Utility OBJECT

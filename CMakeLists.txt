@@ -18,8 +18,7 @@ endif()
 
 Message("${CMAKE_CXX_COMPILER_ID}")
 
-find_package(QT NAMES Qt6 COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
 
 include(FetchContent)
 

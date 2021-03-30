@@ -75,8 +75,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>243</width>
-              <height>628</height>
+              <width>235</width>
+              <height>631</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -254,6 +254,22 @@
                   <property name="checkable">
                    <bool>true</bool>
                   </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QGroupBox" name="debugSettingsGroup">
+                  <property name="title">
+                   <string>Debug</string>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout">
+                   <item>
+                    <widget class="QCheckBox" name="showPaintAndTickDurationsCheckbox">
+                     <property name="text">
+                      <string>Show Frame &amp;&amp; Tick times</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                </layout>
@@ -584,7 +600,7 @@
               <x>0</x>
               <y>0</y>
               <width>976</width>
-              <height>82</height>
+              <height>79</height>
              </rect>
             </property>
            </widget>

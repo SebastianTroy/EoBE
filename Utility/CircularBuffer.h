@@ -22,6 +22,30 @@ public:
     bool Full() const { return Size() == Capacity(); }
     bool Empty() const { return Size() == 0; }
 
+    T Oldest() const
+    {
+        if (!items_.empty()) {
+            return items_[next_];
+        } else {
+            return {};
+        }
+    }
+
+    T Newest() const
+    {
+        if (!items_.empty()) {
+            if (fill_ < items_.size()) {
+                return items_.front();
+            } else if (next_ > 0) {
+                return items_[next_ - 1];
+            } else {
+                return items_.back();
+            }
+        } else {
+            return {};
+        }
+    }
+
     void ForEach(const std::function<void(const T& item)>& action) const
     {
         auto iter = items_.cbegin();

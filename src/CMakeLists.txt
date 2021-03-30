@@ -149,7 +149,7 @@ target_include_directories(Trilobytes
 
 target_link_libraries(Trilobytes
     PRIVATE
-    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt6::Widgets
     nlohmann_json::nlohmann_json
     fmt::fmt
     Utility
