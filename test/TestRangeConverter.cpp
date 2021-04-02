@@ -3,6 +3,8 @@
 
 #include <catch2/catch.hpp>
 
+using namespace Tril;
+
 TEST_CASE("RangeConverter", "[Range]")
 {
     Random::Seed(42);
@@ -22,8 +24,8 @@ TEST_CASE("RangeConverter", "[Range]")
     {
 
         for (const auto& [ first, second ] : testRanges) {
-            Tril::Range<double> both(first, second);
-            Tril::RangeConverter bothTheSame(both, both);
+            Range<double> both(first, second);
+            RangeConverter bothTheSame(both, both);
 
             for (double testValue : Random::Numbers(10, both.Min(), both.Max())) {
                 REQUIRE_THAT(testValue, Catch::Matchers::WithinAbs(bothTheSame.Convert(testValue), 0.000001));
@@ -35,8 +37,8 @@ TEST_CASE("RangeConverter", "[Range]")
     SECTION("Clamping works")
     {
         for (const auto& [ first, second ] : testRanges) {
-            Tril::Range<double> both(first, second);
-            Tril::RangeConverter bothTheSame(both, both);
+            Range<double> both(first, second);
+            RangeConverter bothTheSame(both, both);
 
             for (double higherValue : Random::Numbers(10, both.Max(), testMax)) {
                 REQUIRE(higherValue > both.Max());

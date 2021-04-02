@@ -3,6 +3,7 @@ add_executable(Tests)
 target_sources(Tests
     PUBLIC
     main.cpp
+    TestCircularBuffer.cpp
     TestShape.cpp
     TestRangeConverter.cpp
     TestRollingStatistics.cpp
