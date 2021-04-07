@@ -15,8 +15,10 @@
 UniverseWidget::UniverseWidget(QWidget* parent)
     : QWidget(parent)
     , renderThread_(this)
-    , tickDuration_(100)
-    , paintDuration_(100)
+    , tickDurationStats_(100)
+    , paintDurationStats_(100)
+    , tickRateStats_(30)
+    , paintRateStats_(30)
 {
     setFocusPolicy(Qt::StrongFocus);
     setAutoFillBackground(true);
@@ -25,24 +27,15 @@ UniverseWidget::UniverseWidget(QWidget* parent)
     setPalette(p);
 
     renderThread_.setSingleShot(false);
-    renderThread_.connect(&renderThread_, &QTimer::timeout, [&]()
-    {
-        if (updateToRender_) {
-            update();
-        }
-    });
+    renderThread_.setTimerType(Qt::PreciseTimer);
+    renderThread_.connect(&renderThread_, &QTimer::timeout, this, &UniverseWidget::OnPaintTimerElapsed, Qt::QueuedConnection);
 
     tickThread_.setSingleShot(false);
-    tickThread_.connect(&tickThread_, &QTimer::timeout, [&]()
-    {
-        if (universe_ && !ticksPaused_) {
-            Tick();
-            updateToRender_ = true;
-        }
-    });
+    tickThread_.setTimerType(Qt::PreciseTimer);
+    tickThread_.connect(&tickThread_, &QTimer::timeout, this, &UniverseWidget::OnTickTimerElapsed, Qt::QueuedConnection);
 
+    SetTpsTarget(40);
     SetFpsTarget(40);
-    SetTpsTarget(60);
 }
 
 UniverseWidget::~UniverseWidget()
@@ -94,7 +87,6 @@ void UniverseWidget::StepForwards(unsigned ticksToStep)
     for (unsigned i = 0; i < ticksToStep; ++i) {
         Tick();
     }
-    updateToRender_ = true;
     update();
 
     if (tickThreadWasRunning) {
@@ -118,7 +110,6 @@ void UniverseWidget::SelectFittestSwimmer()
         }
     });
     emit EntitySelected(selectedEntity_);
-    updateToRender_ = true;
 }
 
 void UniverseWidget::RemoveAllSwimmers()
@@ -135,7 +126,6 @@ void UniverseWidget::wheelEvent(QWheelEvent* event)
 {
     double d = 1.0 + (0.001 * double(event->angleDelta().y()));
     transformScale_ *= d;
-    updateToRender_ = true;
     update();
 }
 
@@ -174,7 +164,6 @@ void UniverseWidget::mouseMoveEvent(QMouseEvent* event)
         transformY_ += ((event->pos().y() - dragY_) / transformScale_);
         dragX_ = event->pos().x();
         dragY_ = event->pos().y();
-        updateToRender_ = true;
         update();
     } else if (draggedEntity_) {
         Point simLocation = TransformLocalToSimCoords({ static_cast<double>(event->pos().x()), static_cast<double>(event->pos().y()) });
@@ -185,15 +174,12 @@ void UniverseWidget::mouseMoveEvent(QMouseEvent* event)
 
 void UniverseWidget::resizeEvent(QResizeEvent* /*event*/)
 {
-    updateToRender_ = true;
     update();
 }
 
 void UniverseWidget::paintEvent(QPaintEvent* event)
 {
     auto begin = std::chrono::steady_clock::now();
-
-    updateToRender_ = false;
 
     if (universe_) {
         if (trackSelected_ && selectedEntity_ && (selectedEntity_ != draggedEntity_)) {
@@ -221,20 +207,42 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
         }
 
         p.restore();
+        qreal textY = 15.0;
+        if (displayRateStats_ || !limitTickRate_) {
+            p.fillRect(QRect(0, textY - 15.0, displayDurationStats_ ? 110 : 80, 35), QColor(200, 255, 255));
+            p.drawText(QPointF(5.0, textY), QString("Tick (Hz): %1").arg(Random::Round(tickRateStats_.MeanHz())));
+            textY += 15.0;
+            p.drawText(QPointF(5.0, textY), QString("Paint (Hz): %1").arg(Random::Round(paintRateStats_.MeanHz())));
+            textY += 15.0;
+        }
         if (displayDurationStats_) {
-            p.fillRect(QRect(0, 0, 130, 35), Qt::white);
-            p.drawText(QPointF(5.0, 15.0), QString("Tick: %1 ns").arg(tickDuration_.Mean() * 1e9));
-            p.drawText(QPointF(5.0, 30.0), QString("Paint: %1 ns").arg(paintDuration_.Mean() * 1e9));
+            p.fillRect(QRect(0, textY - 15.0, 110, 35), QColor(200, 255, 255));
+            p.drawText(QPointF(5.0, textY), QString("Tick (ms): %1").arg(tickDurationStats_.Mean() * 1.e3));
+            textY += 15.0;
+            p.drawText(QPointF(5.0, textY), QString("Paint (ms): %1").arg(paintDurationStats_.Mean() * 1.e3));
+            textY += 15.0;
         }
     }
 
     // Only if we painted the whole region
     if (event->rect() == rect()) {
         auto end = std::chrono::steady_clock::now();
-        double seconds = std::chrono::duration<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - begin)).count() / 1e6;
-        paintDuration_.AddValue(seconds);
-        emit Painted(seconds);
+        double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count();
+        paintDurationStats_.AddValue(seconds);
+        paintRateStats_.AddValue();
     }
+}
+
+void UniverseWidget::OnTickTimerElapsed()
+{
+    if (universe_ && !ticksPaused_) {
+        Tick();
+    }
+}
+
+void UniverseWidget::OnPaintTimerElapsed()
+{
+    update();
 }
 
 Point UniverseWidget::TransformLocalToSimCoords(const Point& local) const
@@ -276,9 +284,10 @@ void UniverseWidget::Tick()
     universe_->Tick();
 
     auto end = std::chrono::steady_clock::now();
-    double seconds = std::chrono::duration<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - begin)).count() / 1e6;
-    tickDuration_.AddValue(seconds);
-    emit Ticked(seconds);
+    double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count();
+    tickDurationStats_.AddValue(seconds);
+    tickRateStats_.AddValue();
+    emit Ticked();
 }
 
 void UniverseWidget::UpdateTps()

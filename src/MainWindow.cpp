@@ -101,6 +101,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     /// Debug controlls
     connect(ui->showPaintAndTickDurationsCheckbox, &QCheckBox::toggled, ui->universe, &UniverseWidget::SetDisplayDurationStats, Qt::QueuedConnection);
+    connect(ui->showPaintAndTickFrequencyCheckbox, &QCheckBox::toggled, ui->universe, &UniverseWidget::SetDisplayRateStats, Qt::QueuedConnection);
 
     ResetGraphs();
     emit UniverseReset(universe_);
@@ -148,15 +149,15 @@ void MainWindow::SetupPlayControls()
     connect(ui->stepOneButton, &QPushButton::pressed, this, [&]()
     {
         ui->universe->StepForwards(1);
-    });
+    }, Qt::QueuedConnection);
     connect(ui->stepTenButton, &QPushButton::pressed, this, [&]()
     {
         ui->universe->StepForwards(10);
-    });
+    }, Qt::QueuedConnection);
     connect(ui->stepHundredButton, &QPushButton::pressed, this, [&]()
     {
         ui->universe->StepForwards(100);
-    });
+    }, Qt::QueuedConnection);
 
 }
 
@@ -390,15 +391,24 @@ void MainWindow::ResetGraphs()
             }
         }
     });
-    AddLineGraph("Performance", { { 0xFC02DF, "Ticks per Second (Mean)" } }, "Time (tick)", "TPS", [=, previous = std::chrono::steady_clock::now()](uint64_t tick, LineGraph& graph) mutable
+    AddLineGraph("Tick Performance", { { 0x0000FF, "Mean" }, { 0x00CF00, "StdDev lowerBound" }, { 0xCF3000, "StdDev upper bound" } }, "Time (tick)", "Tick Duration (ms)",
+    [=](uint64_t tick, LineGraph& graph)
     {
-        // TODO check every tick and examine interesting periodic perofrmance behaviour
         if (tick % 100 == 0) {
-            auto now = std::chrono::steady_clock::now();
-            double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous).count();
-            double tps = seconds > 0.0 ? 1.0 / (seconds / 100.0) : 0.0;
-            graph.AddPoint(0, tick, tps);
-            previous = now;
+            const Tril::WindowedRollingStatistics& stats = ui->universe->GetTickStats();
+            graph.AddPoint(0, tick, 1000.0 * stats.Mean());
+            graph.AddPoint(1, tick, 1000.0 * (stats.Mean() - stats.StandardDeviation()));
+            graph.AddPoint(2, tick, 1000.0 * (stats.Mean() + stats.StandardDeviation()));
+        }
+    });
+    AddLineGraph("Paint Performance", { { 0x0000FF, "Mean" }, { 0x00CF00, "StdDev lowerBound" }, { 0xCF3000, "StdDev upper bound" } }, "Time (tick)", "Paint Duration (ms)",
+                 [=](uint64_t tick, LineGraph& graph)
+    {
+        if (tick % 100 == 0) {
+            const Tril::WindowedRollingStatistics& stats = ui->universe->GetPaintStats();
+            graph.AddPoint(0, tick, 1000.0 * stats.Mean());
+            graph.AddPoint(1, tick, 1000.0 * (stats.Mean() - stats.StandardDeviation()));
+            graph.AddPoint(2, tick, 1000.0 * (stats.Mean() + stats.StandardDeviation()));
         }
     });
 

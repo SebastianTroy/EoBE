@@ -173,7 +173,7 @@ QPointF LineGraph::PaintAxes(QPainter& p) const
 
     // The bottem left of the graph, aka (minX, minY)
     // TODO (xLabelRect.height() * 2) is lazy, needs to be (xLabelRect.height() + keyHeight)
-    QPointF origin(std::max(yMinRect.width(), yMaxRect.width()) + yLabelRect.width(), height() - (xLabelRect.height() * 2));
+    QPointF origin(std::max(yMinRect.width(), yMaxRect.width()) + yLabelRect.height(), height() - (xLabelRect.height() * 2));
 
     yMinRect.moveBottomRight(QPointF(origin.x() - 1, origin.y()));
     yMaxRect.moveTopRight(QPointF(origin.x() - 1, 0.0));

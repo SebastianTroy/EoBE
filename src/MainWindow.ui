@@ -263,6 +263,13 @@
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout">
                    <item>
+                    <widget class="QCheckBox" name="showPaintAndTickFrequencyCheckbox">
+                     <property name="text">
+                      <string>Show Frame &amp;&amp; Tick rates</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <widget class="QCheckBox" name="showPaintAndTickDurationsCheckbox">
                      <property name="text">
                       <string>Show Frame &amp;&amp; Tick times</string>

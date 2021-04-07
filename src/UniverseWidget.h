@@ -4,6 +4,7 @@
 #include "Universe.h"
 
 #include <WindowedRollingStatistics.h>
+#include <WindowedFrequencyStatistics.h>
 #include <Shape.h>
 
 // TODO QOpenGLWidget allows QPainter painting, but its messed up, consider moving over once everything is pixmap based
@@ -19,8 +20,7 @@ public:
 
 signals:
     void EntitySelected(const std::shared_ptr<Entity>& newSelection);
-    void Ticked(double seconds);
-    void Painted(double seconds);
+    void Ticked();
 
 public slots:
     /*
@@ -35,7 +35,9 @@ public slots:
     void SetLimitTickRate(bool limit);
     void SetTicksPaused(bool paused);
     void StepForwards(unsigned ticksToStep);
+
     void SetDisplayDurationStats(bool display) { displayDurationStats_ = display; };
+    void SetDisplayRateStats(bool display) { displayRateStats_ = display; };
 
     void SelectFittestSwimmer();
     void SetTrackSelectedEntity(bool track) { trackSelected_ = track; }
@@ -49,6 +51,9 @@ public slots:
     void SetMeanChromosomeMutationCount(double mean) { universeParameters_.meanStructuralMutationCount_ = mean; }
     void SetChromosomeMutationStdDev(double stdDev) { universeParameters_.structuralMutationCountStdDev_ = stdDev; }
 
+    const Tril::WindowedRollingStatistics& GetTickStats() const { return tickDurationStats_; }
+    const Tril::WindowedRollingStatistics& GetPaintStats() const{ return paintDurationStats_; }
+
 protected:
     virtual void wheelEvent(QWheelEvent* event) override final;
     virtual void mouseReleaseEvent(QMouseEvent* event) override final;
@@ -59,16 +64,22 @@ protected:
 
     virtual void paintEvent(QPaintEvent* event) override final;
 
+private slots:
+    void OnTickTimerElapsed();
+    void OnPaintTimerElapsed();
+
 private:
     QTimer tickThread_;
     QTimer renderThread_;
-    bool updateToRender_ = false;
     bool limitTickRate_ = true;
     bool ticksPaused_ = false;
     double ticksPerSecondTarget_ = 60.0;
 
-    Tril::WindowedRollingStatistics tickDuration_;
-    Tril::WindowedRollingStatistics paintDuration_;
+    Tril::WindowedRollingStatistics tickDurationStats_;
+    Tril::WindowedRollingStatistics paintDurationStats_;
+    Tril::WindowedFrequencyStatistics tickRateStats_;
+    Tril::WindowedFrequencyStatistics paintRateStats_;
+    bool displayRateStats_ = false;
     bool displayDurationStats_ = false;
 
     // TODO update to using a matrix based transform
