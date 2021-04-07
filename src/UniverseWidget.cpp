@@ -122,6 +122,30 @@ void UniverseWidget::RemoveAllFood()
     universe_->ClearAllEntitiesOfType<FoodPellet>();
 }
 
+void UniverseWidget::ZoomIn()
+{
+    transformScale_ *= 1.0 + 0.01;
+    update();
+}
+
+void UniverseWidget::ZoomOut()
+{
+    transformScale_ *= 1.0 - 0.01;
+    update();
+}
+
+void UniverseWidget::ZoomReset()
+{
+    transformScale_ = 1.0;
+    update();
+}
+
+void UniverseWidget::PanReset()
+{
+    transformX_ = transformY_ = 0.0;
+    update();
+}
+
 void UniverseWidget::wheelEvent(QWheelEvent* event)
 {
     double d = 1.0 + (0.001 * double(event->angleDelta().y()));

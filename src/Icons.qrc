@@ -8,5 +8,8 @@
         <file>icons/skip-1.svg</file>
         <file>icons/skip-10.svg</file>
         <file>icons/skip-100.svg</file>
+        <file>icons/home.svg</file>
+        <file>icons/minus.svg</file>
+        <file>icons/plus.svg</file>
     </qresource>
 </RCC>

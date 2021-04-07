@@ -45,6 +45,11 @@ public slots:
     void RemoveAllSwimmers();
     void RemoveAllFood();
 
+    void ZoomIn();
+    void ZoomOut();
+    void ZoomReset();
+    void PanReset();
+
     // Universe params
     void SetMeanGeneMutationCount(double mean) { universeParameters_.meanGeneMutationCount_ = mean; }
     void SetGeneMutationStdDev(double stdDev) { universeParameters_.geneMutationCountStdDev_ = stdDev; }

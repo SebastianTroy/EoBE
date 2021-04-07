@@ -45,47 +45,56 @@ MainWindow::MainWindow(QWidget *parent)
     ui->horizontalSplitter->setSizes({ static_cast<int>(width() * 0.15), static_cast<int>(width() * 0.65), static_cast<int>(width() * 0.2) });
     ui->verticalSplitter->setSizes({ static_cast<int>(height() * 0.7), static_cast<int>(height() * 0.3) });
 
+    /// Zoom controlls
+    connect(ui->zoomInButton, &QPushButton::pressed, ui->universe, &UniverseWidget::ZoomIn, Qt::QueuedConnection);
+    connect(ui->zoomOutButton, &QPushButton::pressed, ui->universe, &UniverseWidget::ZoomOut, Qt::QueuedConnection);
+    connect(ui->zoomHomeButton, &QPushButton::pressed, ui->universe, [&]()
+    {
+        ui->universe->ZoomReset();
+        ui->universe->PanReset();
+    }, Qt::QueuedConnection);
+
     /// Global controlls
-    connect(ui->resetAllButton, &QPushButton::pressed, [&]()
+    connect(ui->resetAllButton, &QPushButton::pressed, this, [&]()
     {
         universe_ = std::make_shared<Universe>(Rect{ -500, -500, 500, 500 });
         emit UniverseReset(universe_);
         ResetGraphs();
-    });
-    connect(ui->removeAllSwimmersButton, &QPushButton::pressed, [&]()
+    }, Qt::QueuedConnection);
+    connect(ui->removeAllSwimmersButton, &QPushButton::pressed, this, [&]()
     {
         universe_->ClearAllEntitiesOfType<Swimmer, Egg>();
-    });
-    connect(ui->removeAllFoodButton, &QPushButton::pressed, [&]()
+    }, Qt::QueuedConnection);
+    connect(ui->removeAllFoodButton, &QPushButton::pressed, this, [&]()
     {
         universe_->ClearAllEntitiesOfType<FoodPellet, MeatChunk>();
-    });
-    connect(ui->addDefaultSwimmerButton, &QPushButton::pressed, [&]()
+    }, Qt::QueuedConnection);
+    connect(ui->addDefaultSwimmerButton, &QPushButton::pressed, this, [&]()
     {
         auto point = ApplyOffset({0, 0}, Random::Bearing(), Random::Number(0.0, 1000.0));
         universe_->AddEntity(std::make_shared<Swimmer>(300_mj, Transform{ point.x, point.y, Random::Bearing() }, GeneFactory::Get().GenerateDefaultGenome(NeuralNetwork::BRAIN_WIDTH)));
-    });
-    connect(ui->addRandomSwimmerButton, &QPushButton::pressed, [&]()
+    }, Qt::QueuedConnection);
+    connect(ui->addRandomSwimmerButton, &QPushButton::pressed, this, [&]()
     {
         auto point = ApplyOffset({0, 0}, Random::Bearing(), Random::Number(0.0, 1000.0));
         universe_->AddEntity(std::make_shared<Swimmer>(300_mj, Transform{ point.x, point.y, Random::Bearing() }, GeneFactory::Get().GenerateRandomGenome(NeuralNetwork::BRAIN_WIDTH)));
-    });
-    connect(ui->quadCapacitySpinner, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [&](int capacity)
+    }, Qt::QueuedConnection);
+    connect(ui->quadCapacitySpinner, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [&](int capacity)
     {
         universe_->SetEntityTargetPerQuad(capacity, ui->quadLeewaySpinner->value());
-    });
-    connect(ui->quadLeewaySpinner, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [&](int leeway)
+    }, Qt::QueuedConnection);
+    connect(ui->quadLeewaySpinner, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [&](int leeway)
     {
         universe_->SetEntityTargetPerQuad(ui->quadCapacitySpinner->value(), leeway);
-    });
+    }, Qt::QueuedConnection);
 
-    connect(ui->meanGeneMutationSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [&](double mean) { universe_->GetParameters().meanGeneMutationCount_ = mean; });
-    connect(ui->geneMutationStdDevSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [&](double stdDev) { universe_->GetParameters().geneMutationCountStdDev_ = stdDev; });
-    connect(ui->meanChromosomeMutationSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [&](double mean) { universe_->GetParameters().meanStructuralMutationCount_ = mean; });
-    connect(ui->chromosomeMutationStdDevSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [&](double stdDev) { universe_->GetParameters().structuralMutationCountStdDev_ = stdDev; });
+    connect(ui->meanGeneMutationSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [&](double mean) { universe_->GetParameters().meanGeneMutationCount_ = mean; }, Qt::QueuedConnection);
+    connect(ui->geneMutationStdDevSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [&](double stdDev) { universe_->GetParameters().geneMutationCountStdDev_ = stdDev; }, Qt::QueuedConnection);
+    connect(ui->meanChromosomeMutationSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [&](double mean) { universe_->GetParameters().meanStructuralMutationCount_ = mean; }, Qt::QueuedConnection);
+    connect(ui->chromosomeMutationStdDevSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [&](double stdDev) { universe_->GetParameters().structuralMutationCountStdDev_ = stdDev; }, Qt::QueuedConnection);
 
     /// Food Controlls
-    connect(ui->spawnFoodToggle, &QPushButton::toggled, [&](bool state) { universe_->GetParameters().foodSpawnRateModifier = state ? 1.0 : 0.0; });
+    connect(ui->spawnFoodToggle, &QPushButton::toggled, this, [&](bool state) { universe_->GetParameters().foodSpawnRateModifier = state ? 1.0 : 0.0; }, Qt::QueuedConnection);
 
     /// Selected Swimmer Controlls
     connect(ui->selectFittestButton, &QPushButton::pressed, ui->universe, &UniverseWidget::SelectFittestSwimmer, Qt::QueuedConnection);
