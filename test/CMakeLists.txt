@@ -7,6 +7,8 @@ target_sources(Tests
     TestShape.cpp
     TestRangeConverter.cpp
     TestRollingStatistics.cpp
+    TestWindowedFrequencyStatistics.cpp
+    TestWindowedRollingStatistics.cpp
 )
 
 target_include_directories(Tests

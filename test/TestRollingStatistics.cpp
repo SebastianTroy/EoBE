@@ -1,5 +1,5 @@
-#include "RollingStatistics.h"
-#include "Random.h"
+#include <RollingStatistics.h>
+#include <Random.h>
 
 #include <catch2/catch.hpp>
 

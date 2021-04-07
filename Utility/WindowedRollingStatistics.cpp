@@ -10,7 +10,7 @@ Tril::WindowedRollingStatistics::WindowedRollingStatistics(size_t windowSize)
 void Tril::WindowedRollingStatistics::AddValue(double newValue)
 {
     sumOfValues_ += newValue;
-    sumOfValuesSquared_ += newValue;
+    sumOfValuesSquared_ += std::pow(newValue, 2.0);
     min_ = std::min(min_, newValue);
     max_ = std::max(max_, newValue);
 
@@ -18,7 +18,7 @@ void Tril::WindowedRollingStatistics::AddValue(double newValue)
         double oldValue = values_.Oldest();
         sumOfValues_ -= oldValue;
         sumOfValuesSquared_ -= std::pow(oldValue, 2.0);
-        updateMinMax = (oldValue != newValue) && ((oldValue == min_) || (oldValue == max_));
+        updateMinMax_ = (oldValue != newValue) && ((oldValue == min_) || (oldValue == max_));
     }
 
     values_.PushBack(newValue);
@@ -31,12 +31,12 @@ void Tril::WindowedRollingStatistics::Reset()
     sumOfValuesSquared_ = 0.0;
     min_ = std::numeric_limits<double>::max();
     max_ = std::numeric_limits<double>::lowest();
-    updateMinMax = false;
+    updateMinMax_ = false;
 }
 
 double Tril::WindowedRollingStatistics::Min()
 {
-    if (updateMinMax) {
+    if (updateMinMax_) {
         UpdateMinMax();
     }
     return min_;
@@ -44,7 +44,7 @@ double Tril::WindowedRollingStatistics::Min()
 
 double Tril::WindowedRollingStatistics::Max()
 {
-    if (updateMinMax) {
+    if (updateMinMax_) {
         UpdateMinMax();
     }
     return max_;
@@ -61,7 +61,7 @@ double Tril::WindowedRollingStatistics::StandardDeviation() const
 
 void Tril::WindowedRollingStatistics::UpdateMinMax()
 {
-    updateMinMax = false;
+    updateMinMax_ = false;
     min_ = std::numeric_limits<double>::max();
     max_ = std::numeric_limits<double>::lowest();
     values_.ForEach([&](const double& value)

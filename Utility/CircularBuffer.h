@@ -25,7 +25,11 @@ public:
     T Oldest() const
     {
         if (!items_.empty()) {
-            return items_[next_];
+            if (Full()) {
+                return items_[next_];
+            } else {
+                return items_.front();
+            }
         } else {
             return {};
         }
@@ -34,9 +38,7 @@ public:
     T Newest() const
     {
         if (!items_.empty()) {
-            if (fill_ < items_.size()) {
-                return items_.front();
-            } else if (next_ > 0) {
+            if (next_ > 0) {
                 return items_[next_ - 1];
             } else {
                 return items_.back();
@@ -46,6 +48,7 @@ public:
         }
     }
 
+    // TODO implement an iterator!
     void ForEach(const std::function<void(const T& item)>& action) const
     {
         auto iter = items_.cbegin();
@@ -67,6 +70,7 @@ public:
             copy.PushBack(item);
         });
         items_ = std::move(copy.items_);
+        items_.resize(size);
         next_ = copy.next_;
         fill_ = copy.fill_;
     }

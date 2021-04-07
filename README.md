@@ -52,6 +52,12 @@ TODO
  - - Allows for effectors that improve cornering etc
  - - Allows for certain effectors to change the gliding ability
  - - Allows for certain effectors to transition the swimmer to a walker
+ - Collision friction? 
+ - - Each tick each entity checks for all colliding entities and applies their "collision friction" to itself
+ - - A swimmers own friction could be taken into account
+ - - Allows for effectors that increase / decrease a swimmers friction
+ - - Further penalty for colliding with spikes
+ - - Can add new entity types that add areas of friction, increasing environmental variety (-ve friction objects?)
 
 Next Steps
 ----------

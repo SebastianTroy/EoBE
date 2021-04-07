@@ -13,7 +13,7 @@ namespace Tril {
  */
 class WindowedRollingStatistics {
 public:
-    WindowedRollingStatistics(size_t windowSize);
+    explicit WindowedRollingStatistics(size_t windowSize);
 
     void AddValue(double newValue);
     void Reset();
@@ -33,7 +33,7 @@ private:
     double sumOfValuesSquared_;
     double min_;
     double max_;
-    bool updateMinMax;
+    bool updateMinMax_;
 
     void UpdateMinMax();
 };
