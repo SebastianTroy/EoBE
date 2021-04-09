@@ -8,7 +8,7 @@
 using namespace nlohmann;
 
 ChromosomePair::ChromosomePair(std::vector<std::shared_ptr<Gene> >&& genes)
-    : aChromosomeRange_(Random::Number<unsigned>(), Random::Number<unsigned>())
+    : aChromosomeRange_(Random::Number<unsigned>(0, std::numeric_limits<unsigned>::max() / 5), Random::Number<unsigned>(0, std::numeric_limits<unsigned>::max() / 5))
     , bChromosomeRange_(aChromosomeRange_)
 {
     for (auto& gene : genes) {
@@ -156,7 +156,7 @@ void ChromosomePair::MutateGene()
         }
     }
 }
-#include <iostream>
+
 void ChromosomePair::MutateStructure()
 {
     // All equally weighted for now

@@ -234,9 +234,9 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
         qreal textY = 15.0;
         if (displayRateStats_ || !limitTickRate_) {
             p.fillRect(QRect(0, textY - 15.0, displayDurationStats_ ? 110 : 80, 35), QColor(200, 255, 255));
-            p.drawText(QPointF(5.0, textY), QString("Tick (Hz): %1").arg(Random::Round(tickRateStats_.MeanHz())));
+            p.drawText(QPointF(5.0, textY), QString("Tick (Hz): %1").arg(std::round(tickRateStats_.MeanHz())));
             textY += 15.0;
-            p.drawText(QPointF(5.0, textY), QString("Paint (Hz): %1").arg(Random::Round(paintRateStats_.MeanHz())));
+            p.drawText(QPointF(5.0, textY), QString("Paint (Hz): %1").arg(std::round(paintRateStats_.MeanHz())));
             textY += 15.0;
         }
         if (displayDurationStats_) {

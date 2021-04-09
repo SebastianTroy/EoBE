@@ -190,7 +190,7 @@ TEST_CASE("CircularBuffer", "[container]")
     SECTION("Oldest / Newest")
     {
         constexpr size_t testSize = 15;
-        const std::vector<int> testValues = Random::Numbers<int>(testSize * 3);
+        const std::vector<int> testValues = Random::Numbers<int>(testSize * 3, -100000, 100000);
 
         CircularBuffer<int> testBuffer(testSize);
 

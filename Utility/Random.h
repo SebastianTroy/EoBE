@@ -65,7 +65,7 @@ public:
     }
 
     template<typename NumericType>
-    static NumericType Number(NumericType min = std::numeric_limits<NumericType>::lowest(), NumericType max = std::numeric_limits<NumericType>::max())
+    static NumericType Number(NumericType min, NumericType max)
     {
         if constexpr (std::is_integral<NumericType>::value) {
             static std::uniform_int_distribution<NumericType> distribution;
@@ -131,7 +131,7 @@ public:
     }
 
     template<typename NumericType>
-    static std::vector<NumericType> Numbers(typename std::vector<NumericType>::size_type count, NumericType min = std::numeric_limits<NumericType>::lowest(), NumericType max = std::numeric_limits<NumericType>::max())
+    static std::vector<NumericType> Numbers(typename std::vector<NumericType>::size_type count, NumericType min, NumericType max)
     {
         std::vector<NumericType> rands;
         rands.reserve(count);
