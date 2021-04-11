@@ -9,6 +9,64 @@ namespace Tril {
 template <typename T>
 class CircularBuffer {
 public:
+    struct Iterator
+    {
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = T;
+        using pointer           = T*;
+        using reference         = T&;
+
+        Iterator(std::vector<T>& items, size_t startIndex, size_t iterationCount)
+            : underlyingContainer_(items)
+            , iterationCount_(0)
+            , iterationWrapIndex_(items.size() - startIndex)
+            , iterationMax_(iterationCount)
+        {
+            if (iterationCount == 0) {
+                iter_ = std::end(underlyingContainer_);
+            } else {
+                iter_ = std::begin(underlyingContainer_);
+                std::advance(iter_, startIndex);
+            }
+        }
+
+        reference operator*() const { return *iter_; }
+        pointer operator->() { return iter_; }
+        Iterator& operator++()
+        {
+            ++iter_;
+            ++iterationCount_;
+            if (iterationCount_ >= iterationMax_) {
+                iter_ = std::end(underlyingContainer_);
+            } else if (iterationCount_ == iterationWrapIndex_) {
+                iter_ = std::begin(underlyingContainer_);
+            }
+            return *this;
+        }
+        Iterator operator++(int) { Iterator copy = *this; ++(*this); return copy; }
+        friend bool operator== (const Iterator& a, const Iterator& b) { return a.iter_ == b.iter_; };
+        friend bool operator!= (const Iterator& a, const Iterator& b) { return a.iter_ != b.iter_; };
+
+    private:
+        std::vector<T>& underlyingContainer_;
+        typename std::vector<T>::iterator iter_;
+        size_t iterationCount_; // counts up sequentially
+        const size_t iterationWrapIndex_; // count where dataPointer jumps from end of container to start
+        const size_t iterationMax_; // indication that we should equal end()
+    };
+
+    Iterator begin()
+    {
+        bool full = fill_ == items_.size();
+        size_t startIndex = full ? next_ : 0;
+        return Iterator(items_, startIndex, fill_);
+    }
+    Iterator end()
+    {
+        return Iterator(items_, items_.size(), 0);
+    }
+
     CircularBuffer(size_t capacity)
         : items_(capacity, T{})
         , next_(0)
@@ -34,7 +92,6 @@ public:
             return {};
         }
     }
-
     T Newest() const
     {
         if (!items_.empty()) {
@@ -48,33 +105,20 @@ public:
         }
     }
 
-    // TODO implement an iterator!
-    void ForEach(const std::function<void(const T& item)>& action) const
-    {
-        auto iter = items_.cbegin();
-        size_t startIndex = fill_ == items_.size() ? next_ : 0;
-        std::advance(iter, startIndex);
-        for (size_t count = 0; count < fill_; ++count) {
-            action(*iter++);
-            if (iter == items_.cend()) {
-                iter = items_.cbegin();
-            }
-        }
-    }
-
     void Resize(size_t size)
     {
-        CircularBuffer copy(size);
-        ForEach([&](const T& item)
-        {
-            copy.PushBack(item);
-        });
-        items_ = std::move(copy.items_);
-        items_.resize(size);
-        next_ = copy.next_;
-        fill_ = copy.fill_;
-    }
+        CircularBuffer copy(items_.size());
+        copy.items_.swap(items_);
+        copy.next_ = next_;
+        copy.fill_ = fill_;
 
+        items_.resize(size);
+        Clear();
+
+        for (const T& item : copy) {
+            PushBack(item);
+        }
+    }
     void PushBack(const T& item)
     {
         if (items_.size() > 0) {
@@ -87,7 +131,6 @@ public:
             }
         }
     }
-
     void Clear()
     {
         std::fill(std::begin(items_), std::end(items_), T{});

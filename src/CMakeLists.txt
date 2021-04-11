@@ -128,7 +128,7 @@ set(PROJECT_RESOURCE_FILES
     Images.qrc
 )
 
-qt_add_executable(Trilobytes
+qt6_add_executable(Trilobytes WIN32 MACOSX_BUNDLE
     ${PROJECT_SOURCES}
     ${PROJECT_HEADERS}
     ${PROJECT_DESIGNER_FILES}
@@ -159,10 +159,10 @@ add_dependencies(Trilobytes
     Tests
 )
 
-add_custom_command(TARGET Trilobytes POST_BUILD
-    COMMAND ${CMAKE_BINARY_DIR}/test/Tests
-    COMMENT "Running Tests..."
-)
+#add_custom_command(TARGET Trilobytes POST_BUILD
+#    COMMAND ${CMAKE_BINARY_DIR}/test/Tests
+#    COMMENT "Running Tests..."
+#)
 
 if (WIN32)
     # Retrieve the absolute path to qmake and then use that path to find

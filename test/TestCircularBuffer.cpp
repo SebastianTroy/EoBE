@@ -56,7 +56,9 @@ TEST_CASE("CircularBuffer", "[container]")
         REQUIRE(testBuffer.Oldest() == int{});
 
         unsigned count = 0;
-        testBuffer.ForEach([&](auto){ ++count; });
+        for (auto i : testBuffer) {
+            ++count;
+        }
 
         REQUIRE(count == 0);
         REQUIRE(testBuffer.Capacity() == 0);
@@ -110,10 +112,9 @@ TEST_CASE("CircularBuffer", "[container]")
             REQUIRE(testBuffer.Oldest() == valueToTest);
             REQUIRE(testBuffer.Newest() == valueToTest);
 
-            testBuffer.ForEach([&](int value)
-            {
+            for (int value : testBuffer) {
                 REQUIRE(value == valueToTest);
-            });
+            };
         }
 
     }
@@ -174,8 +175,9 @@ TEST_CASE("CircularBuffer", "[container]")
             size_t countPushedBack = 0;
             do {
                 size_t count = 0;
-                testBuffer.ForEach([&](auto){ ++count; });
-
+                for (int i : testBuffer) {
+                    ++count;
+                }
                 REQUIRE(count == countPushedBack);
                 REQUIRE(count == testBuffer.Size());
 
@@ -183,8 +185,6 @@ TEST_CASE("CircularBuffer", "[container]")
                 ++countPushedBack;
             } while (!testBuffer.Full());
         }
-
-
     }
 
     SECTION("Oldest / Newest")
@@ -214,7 +214,7 @@ TEST_CASE("CircularBuffer", "[container]")
 
     SECTION("Set Capacity - Capacity/Oldest/Newest/Full/Empty")
     {
-        for (size_t capacity : { 0, 1, 5, 10, 100, 250 }) {
+        for (size_t capacity : { 0, 1, 5, 10, 100, 250, 100, 10, 5, 1, 0, 250, 0 }) {
             CircularBuffer<int> testBuffer(0);
             testBuffer.Resize(capacity);
             REQUIRE(testBuffer.Capacity() == capacity);
@@ -235,6 +235,7 @@ TEST_CASE("CircularBuffer", "[container]")
         REQUIRE(testBuffer.Full());
 
         testBuffer.Resize(size + 1);
+        REQUIRE(testBuffer.Capacity() == size + 1);
 
         REQUIRE(testBuffer.Oldest() == values.front());
         REQUIRE(testBuffer.Newest() == values.back());
@@ -242,6 +243,7 @@ TEST_CASE("CircularBuffer", "[container]")
         REQUIRE(!testBuffer.Full());
 
         testBuffer.Resize(size * 2);
+        REQUIRE(testBuffer.Capacity() == size * 2);
 
         REQUIRE(testBuffer.Oldest() == values.front());
         REQUIRE(testBuffer.Newest() == values.back());
@@ -249,6 +251,7 @@ TEST_CASE("CircularBuffer", "[container]")
         REQUIRE(!testBuffer.Full());
 
         testBuffer.Resize(size);
+        REQUIRE(testBuffer.Capacity() == size);
 
         REQUIRE(testBuffer.Oldest() == values.front());
         REQUIRE(testBuffer.Newest() == values.back());
@@ -256,6 +259,7 @@ TEST_CASE("CircularBuffer", "[container]")
         REQUIRE(testBuffer.Full());
 
         testBuffer.Resize(size / 2);
+        REQUIRE(testBuffer.Capacity() == size / 2);
 
         REQUIRE(testBuffer.Oldest() == values.at((size / 2)));
         REQUIRE(testBuffer.Newest() == values.back());
@@ -263,6 +267,7 @@ TEST_CASE("CircularBuffer", "[container]")
         REQUIRE(testBuffer.Full());
 
         testBuffer.Resize(size);
+        REQUIRE(testBuffer.Capacity() == size);
 
         REQUIRE(testBuffer.Oldest() == values.at((size / 2)));
         REQUIRE(testBuffer.Newest() == values.back());
@@ -270,6 +275,7 @@ TEST_CASE("CircularBuffer", "[container]")
         REQUIRE(!testBuffer.Full());
 
         testBuffer.Resize(size / 2);
+        REQUIRE(testBuffer.Capacity() == size / 2);
 
         REQUIRE(testBuffer.Oldest() == values.at((size / 2)));
         REQUIRE(testBuffer.Newest() == values.back());
@@ -277,30 +283,59 @@ TEST_CASE("CircularBuffer", "[container]")
         REQUIRE(testBuffer.Full());
     }
 
+    SECTION("PushBack")
+    {
+        for (auto testSize : { 0, 1, 2, 11, 32, 64, 113 }) {
+            auto testValues = Random::Numbers<int>(1 + (testSize * 3), -10000, 10000);
+            CircularBuffer<int> testBuffer(testSize);
+
+            std::vector<int> pushedBack;
+            for (auto testValue : testValues) {
+                pushedBack.push_back(testValue);
+                testBuffer.PushBack(testValue);
+                // make sure that when circular buffer begins erasing values, we erase values from the test buffer
+                while (pushedBack.size() > testBuffer.Size()) {
+                    pushedBack.erase(std::begin(pushedBack));
+                }
+
+                std::vector<int> bufferCopy;
+                for (auto i : testBuffer) {
+                    bufferCopy.push_back(i);
+                }
+                REQUIRE(bufferCopy == pushedBack);
+            }
+        }
+    }
+
     SECTION("Set Capacity - Content order maintained")
     {
         constexpr size_t size = 40;
         auto testValues = Random::Numbers<int>(size, -10000, 10000);
         CircularBuffer<int> testBuffer(size);
+        for (size_t startIndex = 0; startIndex <= size; ++startIndex) {
+            // Add some random crap we are about to overwrite (Just want the test values in the buffer, but not aligned to the start)
+            // We want to test that no matter where our start index is within the circular buffer, it all works as planned
+            testBuffer.Clear();
+            for (size_t i = 0; i < startIndex; ++i) {
+                testBuffer.PushBack(42);
+            }
 
-        // Add some random crap we are about to overwrite (Just want the test values in the buffer, but not aligned to the start)
-        for (size_t i = 0; i < size / 3; ++i) {
-            testBuffer.PushBack(42);
+            for (auto value : testValues) {
+                testBuffer.PushBack(value);
+            }
+
+            do {
+                std::vector<int> copy;
+                for (int value : testBuffer) {
+                    copy.push_back(value);
+                }
+                REQUIRE(copy == testValues);
+                if (!testValues.empty()) {
+                    testValues.erase(std::begin(testValues));
+                    testBuffer.Resize(testValues.size());
+                    REQUIRE(testBuffer.Capacity() == testValues.size());
+                }
+            } while (!testValues.empty());
         }
-
-        for (auto value : testValues) {
-            testBuffer.PushBack(value);
-        }
-
-        do {
-            std::vector<int> copy;
-            testBuffer.ForEach([&](int value)
-            {
-                copy.push_back(value);
-            });
-            REQUIRE(copy == testValues);
-            testValues.erase(std::begin(testValues));
-            testBuffer.Resize(testBuffer.Size() - 1);
-        } while (!testValues.empty());
     }
 }

@@ -8,7 +8,7 @@
 using namespace nlohmann;
 
 ChromosomePair::ChromosomePair(std::vector<std::shared_ptr<Gene> >&& genes)
-    : aChromosomeRange_(Random::Number<unsigned>(0, std::numeric_limits<unsigned>::max() / 5), Random::Number<unsigned>(0, std::numeric_limits<unsigned>::max() / 5))
+    : aChromosomeRange_(Random::Number<unsigned>(0, 1000), Random::Number<unsigned>(0, 1000))
     , bChromosomeRange_(aChromosomeRange_)
 {
     for (auto& gene : genes) {

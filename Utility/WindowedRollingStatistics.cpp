@@ -64,9 +64,8 @@ void Tril::WindowedRollingStatistics::UpdateMinMax()
     updateMinMax_ = false;
     min_ = std::numeric_limits<double>::max();
     max_ = std::numeric_limits<double>::lowest();
-    values_.ForEach([&](const double& value)
-    {
+    for (const double& value : values_) {
         min_ = std::min(min_, value);
         max_ = std::max(max_, value);
-    });
+    }
 }

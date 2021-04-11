@@ -86,12 +86,11 @@ void LineGraph::RecalculateAxisBounds()
         (void) name; // unused
         (void) colour; // unused
         if (!hidden) {
-            points.ForEach([&](const auto& pair)
-            {
+            for (const auto& pair : points) {
                 const auto& [ dataX, dataY ] = pair;{}
                 xRange_.ExpandToContain(dataX);
                 yRange_.ExpandToContain(dataY);
-            });
+            }
         }
     }
     update();
@@ -132,15 +131,14 @@ void LineGraph::paintEvent(QPaintEvent* event)
         if (!hidden) {
             paint.setPen(colour);
             QPointF lastPoint = origin;
-            points.ForEach([&](const auto& pair)
-            {
+            for (const auto& pair : points) {
                 const auto& [ dataX, dataY ] = pair;{}
                 QPointF nextPoint(origin.x() + ( xAxisLength * ((dataX - xRange.Min()) / xRange.Range())), origin.y() - (yAxisLength * ((dataY - yRange.Min()) / yRange.Range())));
                 if (lastPoint != origin) {
                     paint.drawLine(lastPoint, nextPoint);
                 }
                 lastPoint = nextPoint;
-            });
+            }
         }
     }
 
@@ -263,9 +261,6 @@ void LineGraph::PaintGraticule(QPainter& painter, const QPointF& target, const Q
 
         // Weird bug where half the text doesn't render without expanding the rect!
         QRectF coordsRect = painter.boundingRect(QRectF(0, 0, 50, 50), Qt::AlignTop | Qt::AlignLeft, coordsText).adjusted(0, 0, 1, 0);
-
-        // Move the text away from the graticule slightly
-        qreal adjustment = 5.0;
 
         // Make sure we don't draw them off screen
         bool left = target.x() > width() / 2;
