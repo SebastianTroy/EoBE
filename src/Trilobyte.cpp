@@ -1,4 +1,4 @@
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
 #include "EntitySvgManager.h"
 #include "FoodPellet.h"
@@ -16,41 +16,41 @@
 #include <sstream>
 #include <math.h>
 
-Swimmer::Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome)
-    : Swimmer(energy, transform, genome, {})
+Trilobyte::Trilobyte(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome)
+    : Trilobyte(energy, transform, genome, {})
 {
 }
 
-Swimmer::Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, std::shared_ptr<Swimmer>&& parent)
-    : Swimmer(energy, transform, genome, genome->GetPhenoType(*this), std::move(parent))
+Trilobyte::Trilobyte(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, std::shared_ptr<Trilobyte>&& parent)
+    : Trilobyte(energy, transform, genome, genome->GetPhenoType(*this), std::move(parent))
 {
 }
 
-Swimmer::~Swimmer()
+Trilobyte::~Trilobyte()
 {
     if (closestLivingAncestor_) {
         closestLivingAncestor_->DescendantDied(generation_);
     }
 }
 
-std::string_view Swimmer::GetDescription() const
+std::string_view Trilobyte::GetDescription() const
 {
-    return "<p>A Swimmer is made up of a few important parts.</p>"
+    return "<p>A Trilobyte is made up of a few important parts.</p>"
            "<ul>"
-             "<li>It has senses, which are the only source of information a swimmer has about the simulation.</li>"
-             "<li>It has effectors, which are the only way a swimmer can do anything within the simulation.</li>"
+             "<li>It has senses, which are the only source of information a Trilobyte has about the simulation.</li>"
+             "<li>It has effectors, which are the only way a Trilobyte can do anything within the simulation.</li>"
              "<li>It has a brain in the form of a neural network, which is responsible for converting the input from the senses into actions performed by the effectors.</li>"
              "<li>And finally it has a genome, this contains all of the information required to create the brain, the senses and the effectors.</li>"
            "</ul>";
 }
 
-std::shared_ptr<Entity> Swimmer::GiveBirth(const std::shared_ptr<Genome>& other)
+std::shared_ptr<Entity> Trilobyte::GiveBirth(const std::shared_ptr<Genome>& other)
 {
     ++eggsLayed_;
     return std::make_shared<Egg>(shared_from_this(), TakeEnergy(100_mj), GetTransform(), genome_, other ? other : genome_, Random::Poisson(50u));
 }
 
-unsigned Swimmer::GetTotalDescendantsCount() const
+unsigned Trilobyte::GetTotalDescendantsCount() const
 {
     return std::accumulate(std::cbegin(totalDescentantCounts_), std::cend(totalDescentantCounts_), 0u, [](unsigned total, const auto& pair)
     {
@@ -58,7 +58,7 @@ unsigned Swimmer::GetTotalDescendantsCount() const
     });
 }
 
-unsigned Swimmer::GetLivingDescendantsCount() const
+unsigned Trilobyte::GetLivingDescendantsCount() const
 {
     return std::accumulate(std::cbegin(extantDescentantCounts_), std::cend(extantDescentantCounts_), 0u, [](unsigned total, const auto& pair)
     {
@@ -66,17 +66,17 @@ unsigned Swimmer::GetLivingDescendantsCount() const
     });
 }
 
-void Swimmer::AdjustVelocity(double adjustment)
+void Trilobyte::AdjustVelocity(double adjustment)
 {
     SetVelocity(GetVelocity() + adjustment);
 }
 
-void Swimmer::AdjustBearing(double adjustment)
+void Trilobyte::AdjustBearing(double adjustment)
 {
     SetBearing(GetTransform().rotation + adjustment);
 }
 
-void Swimmer::TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters)
+void Trilobyte::TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters)
 {
     if (closestLivingAncestor_ && !closestLivingAncestor_->Exists()) {
         closestLivingAncestor_ = FindClosestLivingAncestor();
@@ -84,20 +84,20 @@ void Swimmer::TickImpl(EntityContainerInterface& container, const UniverseParame
 
     if (health_ <= 0.0) {
         // explode into some chunks of meat
-        const Energy swimmerEnergy = GetEnergy();
-        const double swimmerSpeed = GetVelocity();
-        const Transform swimmerTransform = GetTransform();
+        const Energy TrilobyteEnergy = GetEnergy();
+        const double TrilobyteSpeed = GetVelocity();
+        const Transform TrilobyteTransform = GetTransform();
 
-        const int chunks = swimmerEnergy / 40_mj;
+        const int chunks = TrilobyteEnergy / 40_mj;
         // make sure we explode evenly outwards, and not all in one direction
         const double rotationOffset = Random::Bearing();
         const double rotationStep = Tril::Tau / chunks;
         for (int i = 0; i < chunks; i++) {
-            Vec2 swimmerMovement = GetMovementVector(swimmerTransform.rotation, swimmerSpeed);
+            Vec2 TrilobyteMovement = GetMovementVector(TrilobyteTransform.rotation, TrilobyteSpeed);
             Vec2 relativeMovement = GetMovementVector(rotationOffset + (i * rotationStep) + Random::Gaussian(0.0, Tril::Tau / 10), + Random::Gaussian(10.0, 2.5));
-            Vec2 chunkMovement = { swimmerMovement.x + relativeMovement.x, swimmerMovement.y + relativeMovement.y };
+            Vec2 chunkMovement = { TrilobyteMovement.x + relativeMovement.x, TrilobyteMovement.y + relativeMovement.y };
             auto [ rotation, speed ] = DeconstructMovementVector(chunkMovement);{}
-            Transform chunkTransform = { swimmerTransform.x + (chunkMovement.x / 10.0), swimmerTransform.y + (chunkMovement.y / 10.0), rotation };
+            Transform chunkTransform = { TrilobyteTransform.x + (chunkMovement.x / 10.0), TrilobyteTransform.y + (chunkMovement.y / 10.0), rotation };
             container.AddEntity(std::make_shared<MeatChunk>(40_mj, chunkTransform, speed));
         }
         Terminate();
@@ -130,7 +130,7 @@ void Swimmer::TickImpl(EntityContainerInterface& container, const UniverseParame
         container.ForEachCollidingWith(Circle{ GetTransform().x, GetTransform().y, GetRadius() }, [&](const std::shared_ptr<Entity>& other) -> void
         {
             if (other.get() != this) {
-                if (Swimmer* s = dynamic_cast<Swimmer*>(other.get())) {
+                if (Trilobyte* s = dynamic_cast<Trilobyte*>(other.get())) {
                     otherGenes = s->genome_;
                 }
             }
@@ -144,7 +144,7 @@ void Swimmer::TickImpl(EntityContainerInterface& container, const UniverseParame
     }
 }
 
-void Swimmer::DrawExtras(QPainter& paint)
+void Trilobyte::DrawExtras(QPainter& paint)
 {
     if (health_ < 100.0) {
         paint.fillRect(QRectF(GetTransform().x - (26.0), GetTransform().y - GetRadius() + 13, 52.0, 7), Qt::black);
@@ -163,7 +163,7 @@ void Swimmer::DrawExtras(QPainter& paint)
     }
 }
 
-Swimmer::Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, const Phenotype& phenotype, std::shared_ptr<Swimmer>&& mother)
+Trilobyte::Trilobyte(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, const Phenotype& phenotype, std::shared_ptr<Trilobyte>&& mother)
     : Entity(transform, 6.0, phenotype.colour, energy)
     , closestLivingAncestor_(std::move(mother))
     , generation_(closestLivingAncestor_ ? closestLivingAncestor_->generation_ + 1 : 0)
@@ -181,7 +181,7 @@ Swimmer::Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Geno
     }
 }
 
-std::vector<Property> Swimmer::CollectProperties() const
+std::vector<Property> Trilobyte::CollectProperties() const
 {
     return std::vector<Property>{
         {
@@ -198,7 +198,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             {
                 return fmt::format("{}", this->generation_);
             },
-            "When 0, this swimmer was spawned into the simulation artificially. Generation is equal to the generation of the swimmers mother + 1.",
+            "When 0, this Trilobyte was spawned into the simulation artificially. Generation is equal to the generation of the Trilobytes mother + 1.",
         },
         {
             "Metabolism",
@@ -206,7 +206,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             {
                 return fmt::format("{:.2f}μj", this->baseMetabolism_ / 1_uj);
             },
-            "The quantity of energy, in micro-joules, that the swimmer consumes each tick by default. A swimmer will consume more energy than this if it does any other action, e.g. moving.",
+            "The quantity of energy, in micro-joules, that the Trilobyte consumes each tick by default. A Trilobyte will consume more energy than this if it does any other action, e.g. moving.",
         },
         {
             "Health",
@@ -214,7 +214,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             {
                 return fmt::format("{:.2f}%", this->health_);
             },
-            "When less than 100% a swimmer will gradually convert energy into health. If a swimmer reaches 0% health it will die, and any remaining energy it had will be converted into meat chunks.",
+            "When less than 100% a Trilobyte will gradually convert energy into health. If a Trilobyte reaches 0% health it will die, and any remaining energy it had will be converted into meat chunks.",
         },
         {
             "Genome",
@@ -222,7 +222,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             {
                 return fmt::format("{}", *this->genome_);
             },
-            "The complete instructions used to create this swimmer.",
+            "The complete instructions used to create this Trilobyte.",
         },
         {
             "Brain",
@@ -230,7 +230,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             {
                 return fmt::format("{}", *this->brain_);
             },
-            "The neural network responsible for controlling actions of the swimmer.",
+            "The neural network responsible for controlling actions of the Trilobyte.",
         },
         {
             "Senses",
@@ -241,7 +241,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             [&]() -> std::string
             {
                 std::stringstream description;
-                description << "<p>Senses are required for a swimmer to detect anything within the simulation.</p><p>The swimmer has the following senses:</p><ul>";
+                description << "<p>Senses are required for a Trilobyte to detect anything within the simulation.</p><p>The Trilobyte has the following senses:</p><ul>";
                 for (const auto& sense : this->senses_) {
                     description << "<li>" << sense->GetName() << ": " << sense->GetDescription() << "</li>";
                 }
@@ -258,8 +258,8 @@ std::vector<Property> Swimmer::CollectProperties() const
             [&]() -> std::string
             {
                 std::stringstream description;
-                description << "<p>Effectors are required for a swimmer to do anything within the simulation.</p>"
-                               "<p>The swimmer has the following effectors:</p>"
+                description << "<p>Effectors are required for a Trilobyte to do anything within the simulation.</p>"
+                               "<p>The Trilobyte has the following effectors:</p>"
                                "<ul>";
                 for (const auto& effector : this->effectors_) {
                     description << "<li>" << effector ->GetName() << ": " << effector ->GetDescription() << "</li>";
@@ -274,7 +274,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             {
                 return fmt::format("{}", this->eggsLayed_);
             },
-            "The number of eggs the swimmer has laid. Not all of them will hatch, depending on the genetic compatibility of the father.",
+            "The number of eggs the Trilobyte has laid. Not all of them will hatch, depending on the genetic compatibility of the father.",
         },
         {
             "Living descendants",
@@ -282,7 +282,7 @@ std::vector<Property> Swimmer::CollectProperties() const
             {
                 return fmt::format("{}", this->GetLivingDescendantsCount());
             },
-            "The total number of descendants that this swimmer has had, which are currently still living.",
+            "The total number of descendants that this Trilobyte has had, which are currently still living.",
         },
         {
             "Total descendants",
@@ -290,21 +290,21 @@ std::vector<Property> Swimmer::CollectProperties() const
             {
                 return fmt::format("{}", this->GetTotalDescendantsCount());
             },
-            "The total number of descendants that this swimmer has had.",
+            "The total number of descendants that this Trilobyte has had.",
         },
     };
 }
 
-std::shared_ptr<Swimmer> Swimmer::FindClosestLivingAncestor() const
+std::shared_ptr<Trilobyte> Trilobyte::FindClosestLivingAncestor() const
 {
-    std::shared_ptr<Swimmer> ancestor = closestLivingAncestor_;
+    std::shared_ptr<Trilobyte> ancestor = closestLivingAncestor_;
     while (ancestor && !ancestor->Exists()) {
         ancestor = ancestor->closestLivingAncestor_;
     }
     return ancestor;
 }
 
-void Swimmer::DescendantBorn(unsigned generation)
+void Trilobyte::DescendantBorn(unsigned generation)
 {
     // record generations of descendants relative to this's generation
     ++totalDescentantCounts_[generation - generation_];
@@ -314,7 +314,7 @@ void Swimmer::DescendantBorn(unsigned generation)
     }
 }
 
-void Swimmer::DescendantDied(unsigned generation)
+void Trilobyte::DescendantDied(unsigned generation)
 {
     // record generations of descendants relative to this's generation
     --extantDescentantCounts_[generation - generation_];

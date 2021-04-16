@@ -100,9 +100,9 @@
                  </widget>
                 </item>
                 <item row="3" column="0">
-                 <widget class="QPushButton" name="addDefaultSwimmerButton">
+                 <widget class="QPushButton" name="addDefaultTrilobyteButton">
                   <property name="text">
-                   <string>Add Default Swimmer</string>
+                   <string>Add Default Trilobyte</string>
                   </property>
                  </widget>
                 </item>
@@ -143,9 +143,9 @@
                  </widget>
                 </item>
                 <item row="1" column="0">
-                 <widget class="QPushButton" name="removeAllSwimmersButton">
+                 <widget class="QPushButton" name="removeAllTrilobytesButton">
                   <property name="text">
-                   <string>Remove all Swimmers</string>
+                   <string>Remove all Trilobytes</string>
                   </property>
                  </widget>
                 </item>
@@ -179,9 +179,9 @@
                  </widget>
                 </item>
                 <item row="4" column="0">
-                 <widget class="QPushButton" name="addRandomSwimmerButton">
+                 <widget class="QPushButton" name="addRandomTrilobyteButton">
                   <property name="text">
-                   <string>Add Random Swimmer</string>
+                   <string>Add Random Trilobyte</string>
                   </property>
                  </widget>
                 </item>
@@ -234,9 +234,9 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="selectedSwimmerGroup">
+              <widget class="QGroupBox" name="selectedTrilobyteGroup">
                <property name="title">
-                <string>Selected Swimmer</string>
+                <string>Selected Trilobyte</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_8">
                 <item>
@@ -763,9 +763,9 @@
     </rect>
    </property>
   </widget>
-  <action name="actionSave_Selected_Swimmer">
+  <action name="actionSave_Selected_Trilobyte">
    <property name="text">
-    <string>Save Selected Swimmer</string>
+    <string>Save Selected Trilobyte</string>
    </property>
   </action>
  </widget>

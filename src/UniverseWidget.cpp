@@ -1,6 +1,6 @@
 #include "UniverseWidget.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "FoodPellet.h"
 #include "Egg.h"
 
@@ -97,12 +97,12 @@ void UniverseWidget::StepForwards(unsigned ticksToStep)
     }
 }
 
-void UniverseWidget::SelectFittestSwimmer()
+void UniverseWidget::SelectFittestTrilobyte()
 {
     unsigned mostLivingChildren = 0;
     universe_->ForEach([&](const std::shared_ptr<Entity>& e)
     {
-        if (const auto* s = dynamic_cast<const Swimmer*>(e.get())) {
+        if (const auto* s = dynamic_cast<const Trilobyte*>(e.get())) {
             if (s->GetLivingDescendantsCount(2) > mostLivingChildren) {
                 mostLivingChildren = s->GetLivingDescendantsCount(2);
                 selectedEntity_ = e;
@@ -112,9 +112,9 @@ void UniverseWidget::SelectFittestSwimmer()
     emit EntitySelected(selectedEntity_);
 }
 
-void UniverseWidget::RemoveAllSwimmers()
+void UniverseWidget::RemoveAllTrilobytes()
 {
-    universe_->ClearAllEntitiesOfType<Swimmer, Egg>();
+    universe_->ClearAllEntitiesOfType<Trilobyte, Egg>();
 }
 
 void UniverseWidget::RemoveAllFood()

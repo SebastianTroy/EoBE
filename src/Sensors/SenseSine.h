@@ -26,7 +26,7 @@ public:
         static const inline std::string KEY_X = "X";
     };
 
-    SenseSine(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, std::vector<SineWave>&& sineWaves);
+    SenseSine(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, std::vector<SineWave>&& sineWaves);
 
     virtual std::string_view GetName() const override { return "SineWaves"; }
     virtual std::string GetDescription() const override;

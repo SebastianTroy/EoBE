@@ -1,11 +1,11 @@
 #include "EffectorFilterMouth.h"
 
 #include "EntityContainerInterface.h"
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
 #include <QPainter>
 
-EffectorFilterMouth::EffectorFilterMouth(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner)
+EffectorFilterMouth::EffectorFilterMouth(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner)
     : Effector(network, inputConnections, owner)
 {
 }

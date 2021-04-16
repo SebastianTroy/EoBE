@@ -33,7 +33,7 @@ json GeneSenseLunarCycle::Serialise() const
     };
 }
 
-void GeneSenseLunarCycle::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneSenseLunarCycle::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.senses.push_back(std::make_shared<SenseLunarCycle>(GetNetwork(), GetOutputConnections(), owner));
     target.baseMetabolism += GetMetabolicCost();

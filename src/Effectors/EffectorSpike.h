@@ -6,7 +6,7 @@
 
 class EffectorSpike : public Effector {
 public:
-    EffectorSpike(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner, double bearing, double length);
+    EffectorSpike(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner, double bearing, double length);
     ~EffectorSpike() override;
 
     virtual std::string_view GetName() const override { return "Spike"; }

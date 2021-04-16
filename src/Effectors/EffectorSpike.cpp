@@ -1,13 +1,13 @@
 #include "EffectorSpike.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include <Shape.h>
 
 #include <QPainter>
 #include <QPainterPath>
 #include <QColor>
 
-EffectorSpike::EffectorSpike(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner, double bearing, double length)
+EffectorSpike::EffectorSpike(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner, double bearing, double length)
     : Effector(network, inputConnections, owner)
     , bearing_(bearing)
     , length_(length)
@@ -20,7 +20,7 @@ EffectorSpike::~EffectorSpike()
 
 std::string EffectorSpike::GetDescription() const
 {
-    return "<p>The spike applies damage to swimmers that are colliding with the"
+    return "<p>The spike applies damage to trilobytes that are colliding with the"
     " point. The quantity of damage is both speed and angle dependant, glancing"
     " or low speed collisions will not cause much damage, movements away from "
     "the point will cause no damage. Therefore it is safe to swim through a "
@@ -47,7 +47,7 @@ Energy EffectorSpike::PerformActions(const std::vector<double>& /*actionValues*/
 {
     entities.ForEachCollidingWith(GetTipOfSpike(), [&](const std::shared_ptr<Entity>& entity)
     {
-        if (Swimmer* victim = dynamic_cast<Swimmer*>(entity.get())) {
+        if (Trilobyte* victim = dynamic_cast<Trilobyte*>(entity.get())) {
             Vec2 spikeVec = GetMovementVector(bearing_ + owner_.GetTransform().rotation, owner_.GetVelocity());
             // FIXME entity rotation and direction of movement may not actually be the same! (they were when writing, but perhaps that should change!)
             Vec2 victimVec = GetMovementVector(entity->GetTransform().rotation, entity->GetVelocity());

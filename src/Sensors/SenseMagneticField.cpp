@@ -1,6 +1,6 @@
 #include "SenseMagneticField.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include <Shape.h>
 
 #include <MathConstants.h>
@@ -9,7 +9,7 @@
 
 #include <iomanip>
 
-SenseMagneticField::SenseMagneticField(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, const Point& target, const Tril::RangeConverter& distanceNormaliser, const Tril::Range<double>& frontBackNormaliser, const Tril::Range<double>& leftRightNormaliser)
+SenseMagneticField::SenseMagneticField(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, const Point& target, const Tril::RangeConverter& distanceNormaliser, const Tril::Range<double>& frontBackNormaliser, const Tril::Range<double>& leftRightNormaliser)
     : Sense(network, outputConnections, owner)
     , target_(target)
     , distanceNormaliser_(distanceNormaliser)

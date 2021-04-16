@@ -1,10 +1,10 @@
 #include "SenseTraitsSelf.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
 #include <iomanip>
 
-SenseTraitsSelf::SenseTraitsSelf(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, std::vector<SenseTraitsBase::TraitNormaliser>&& toDetect)
+SenseTraitsSelf::SenseTraitsSelf(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, std::vector<SenseTraitsBase::TraitNormaliser>&& toDetect)
     : SenseTraitsBase(network, outputConnections, owner, {}, std::move(toDetect))
 {
 }

@@ -1,6 +1,6 @@
 #include "GeneEffectorSpringTail.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "Effectors/EffectorSpringTail.h"
 
 using namespace nlohmann;
@@ -48,7 +48,7 @@ json GeneEffectorSpringTail::Serialise() const
     };
 }
 
-void GeneEffectorSpringTail::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneEffectorSpringTail::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.effectors.push_back(std::make_shared<EffectorSpringTail>(GetNetwork(), GetInputConnections(), owner, neuronExcitementToChargeRate_, storedEnergyCap_, triggerThreshold_));
     target.baseMetabolism += GetMetabolicCost();

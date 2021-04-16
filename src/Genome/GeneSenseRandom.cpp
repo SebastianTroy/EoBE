@@ -75,7 +75,7 @@ json GeneSenseRandom::Serialise() const
     };
 }
 
-void GeneSenseRandom::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneSenseRandom::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.senses.push_back(std::make_shared<SenseRandom>(GetNetwork(), GetOutputConnections(), owner, std::vector(filteredRandoms_)));
     target.baseMetabolism += GetMetabolicCost();

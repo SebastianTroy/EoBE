@@ -1,12 +1,12 @@
 #include "SenseTraitsInArea.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
 #include <QPainter>
 
 #include <iomanip>
 
-SenseTraitsInArea::SenseTraitsInArea(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, double radius, const Transform& transform, std::vector<TraitNormaliser>&& toDetect)
+SenseTraitsInArea::SenseTraitsInArea(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, double radius, const Transform& transform, std::vector<TraitNormaliser>&& toDetect)
     : SenseTraitsBase(network, outputConnections, owner, transform, std::move(toDetect))
     , senseRadius_(radius)
 {

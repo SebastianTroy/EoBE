@@ -25,7 +25,7 @@ std::optional<SenseRandom::FilteredRandom> SenseRandom::FilteredRandom::Deserial
     return std::nullopt;
 }
 
-SenseRandom::SenseRandom(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, std::vector<FilteredRandom>&& filteredRandoms)
+SenseRandom::SenseRandom(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, std::vector<FilteredRandom>&& filteredRandoms)
     : Sense(network, outputConnections, owner)
     , filteredRandoms_(std::move(filteredRandoms))
     , last_(filteredRandoms_.size(), 0.0)

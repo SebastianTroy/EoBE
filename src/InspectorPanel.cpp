@@ -1,7 +1,7 @@
 #include "InspectorPanel.h"
 #include "ui_InspectorPanel.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "Genome/Genome.h"
 
 #include <QFileDialog>
@@ -44,8 +44,8 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     /// File Menu Options
     connect(ui->saveGenomeButton, &QPushButton::pressed, [&]()
     {
-        if (auto swimmerPointer = std::dynamic_pointer_cast<Swimmer>(selectedEntity_)) {
-            if (auto genome = swimmerPointer->InspectGenome(); genome != nullptr) {
+        if (auto trilobytePointer = std::dynamic_pointer_cast<Trilobyte>(selectedEntity_)) {
+            if (auto genome = trilobytePointer->InspectGenome(); genome != nullptr) {
                 std::string saveFileName = QFileDialog::getSaveFileName(this, "Save Genome", "./SavedGenomes/", "Genome (*.genome)").toStdString();
                 nlohmann::json serialised = Genome::Serialise(genome);
                 // std::filesystem::create_directories(saveFileName);
@@ -83,11 +83,11 @@ void InspectorPanel::SetEntity(std::shared_ptr<Entity> selectedEntity)
         UpdateEntityTab();
 
         // Brain & Genome tabs
-        std::shared_ptr<Swimmer> swimmerPointer = std::dynamic_pointer_cast<Swimmer>(selectedEntity_);
-        setTabVisible(BRAIN_TAB_INDEX, swimmerPointer != nullptr);
-        setTabVisible(GENOME_TAB_INDEX, swimmerPointer != nullptr);
-        if (swimmerPointer || selectedEntity == nullptr) {
-            ui->brainInspector->SetSwimmer(swimmerPointer); // TODO switch to SetEntity and deal with non Swimmer entities in the tab itself
+        std::shared_ptr<Trilobyte> trilobytePointer = std::dynamic_pointer_cast<Trilobyte>(selectedEntity_);
+        setTabVisible(BRAIN_TAB_INDEX, trilobytePointer != nullptr);
+        setTabVisible(GENOME_TAB_INDEX, trilobytePointer != nullptr);
+        if (trilobytePointer || selectedEntity == nullptr) {
+            ui->brainInspector->SetTrilobyte(trilobytePointer); // TODO switch to SetEntity and deal with non Trilobyte entities in the tab itself
             ui->brainInspector->UpdateConnectionStrengths(universe_->GetEntityContainer(), universe_->GetParameters());
         }
 

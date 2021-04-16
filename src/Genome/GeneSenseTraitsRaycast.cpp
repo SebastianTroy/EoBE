@@ -16,7 +16,7 @@ std::shared_ptr<Gene> GeneSenseTraitsRaycast::Generate(unsigned brainWidth)
     unsigned hiddenLayers = Random::Number(size_t{ 0 }, traits.size());
     double distance = Random::Number(1.0, 50.0);
     double rotation = Random::Number(0.0, Tril::Tau);
-    // TODO allow the sense to start somewhere other than the centre of the swimmer
+    // TODO allow the sense to start somewhere other than the centre of the trilobyte
     return std::make_shared<GeneSenseTraitsRaycast>(std::move(traits), hiddenLayers, brainWidth, Transform{ 0, 0, 0 }, distance, rotation);
 }
 
@@ -49,7 +49,7 @@ json GeneSenseTraitsRaycast::Serialise() const
     };
 }
 
-void GeneSenseTraitsRaycast::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneSenseTraitsRaycast::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.senses.push_back(std::make_shared<SenseTraitsRaycast>(GetNetwork(), GetOutputConnections(), owner, std::vector(toDetect_), transform_, distance_, rotation_));
     target.baseMetabolism += GetMetabolicCost();

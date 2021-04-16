@@ -1,6 +1,6 @@
 #include "GeneSenseSine.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "Phenotype.h"
 
 using namespace nlohmann;
@@ -75,7 +75,7 @@ json GeneSenseSine::Serialise() const
     };
 }
 
-void GeneSenseSine::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneSenseSine::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.senses.push_back(std::make_shared<SenseSine>(GetNetwork(), GetOutputConnections(), owner, std::vector(sineWaves_)));
     target.baseMetabolism += GetMetabolicCost();

@@ -1,6 +1,6 @@
 #include "GenePigment.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include <Random.h>
 
 #include <QPixmap>
@@ -86,7 +86,7 @@ std::shared_ptr<Gene> GenePigment::Copy() const
     return std::make_shared<GenePigment>(a_, r_, g_, b_, GetDominance());
 }
 
-void GenePigment::ExpressGene(Swimmer& /*owner*/, Phenotype& target) const
+void GenePigment::ExpressGene(Trilobyte& /*owner*/, Phenotype& target) const
 {
     QPixmap canvas(1, 1);
     QPainter p(&canvas);

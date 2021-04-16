@@ -3,7 +3,7 @@
 
 #include "FoodPellet.h"
 #include "Egg.h"
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "MeatChunk.h"
 #include "LineGraphContainerWidget.h"
 #include "UniverseWidget.h"
@@ -61,23 +61,23 @@ MainWindow::MainWindow(QWidget *parent)
         emit UniverseReset(universe_);
         ResetGraphs();
     }, Qt::QueuedConnection);
-    connect(ui->removeAllSwimmersButton, &QPushButton::pressed, this, [&]()
+    connect(ui->removeAllTrilobytesButton, &QPushButton::pressed, this, [&]()
     {
-        universe_->ClearAllEntitiesOfType<Swimmer, Egg>();
+        universe_->ClearAllEntitiesOfType<Trilobyte, Egg>();
     }, Qt::QueuedConnection);
     connect(ui->removeAllFoodButton, &QPushButton::pressed, this, [&]()
     {
         universe_->ClearAllEntitiesOfType<FoodPellet, MeatChunk>();
     }, Qt::QueuedConnection);
-    connect(ui->addDefaultSwimmerButton, &QPushButton::pressed, this, [&]()
+    connect(ui->addDefaultTrilobyteButton, &QPushButton::pressed, this, [&]()
     {
         auto point = ApplyOffset({0, 0}, Random::Bearing(), Random::Number(0.0, 1000.0));
-        universe_->AddEntity(std::make_shared<Swimmer>(300_mj, Transform{ point.x, point.y, Random::Bearing() }, GeneFactory::Get().GenerateDefaultGenome(NeuralNetwork::BRAIN_WIDTH)));
+        universe_->AddEntity(std::make_shared<Trilobyte>(300_mj, Transform{ point.x, point.y, Random::Bearing() }, GeneFactory::Get().GenerateDefaultGenome(NeuralNetwork::BRAIN_WIDTH)));
     }, Qt::QueuedConnection);
-    connect(ui->addRandomSwimmerButton, &QPushButton::pressed, this, [&]()
+    connect(ui->addRandomTrilobyteButton, &QPushButton::pressed, this, [&]()
     {
         auto point = ApplyOffset({0, 0}, Random::Bearing(), Random::Number(0.0, 1000.0));
-        universe_->AddEntity(std::make_shared<Swimmer>(300_mj, Transform{ point.x, point.y, Random::Bearing() }, GeneFactory::Get().GenerateRandomGenome(NeuralNetwork::BRAIN_WIDTH)));
+        universe_->AddEntity(std::make_shared<Trilobyte>(300_mj, Transform{ point.x, point.y, Random::Bearing() }, GeneFactory::Get().GenerateRandomGenome(NeuralNetwork::BRAIN_WIDTH)));
     }, Qt::QueuedConnection);
     connect(ui->quadCapacitySpinner, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, [&](int capacity)
     {
@@ -96,8 +96,8 @@ MainWindow::MainWindow(QWidget *parent)
     /// Food Controlls
     connect(ui->spawnFoodToggle, &QPushButton::toggled, this, [&](bool state) { universe_->GetParameters().foodSpawnRateModifier = state ? 1.0 : 0.0; }, Qt::QueuedConnection);
 
-    /// Selected Swimmer Controlls
-    connect(ui->selectFittestButton, &QPushButton::pressed, ui->universe, &UniverseWidget::SelectFittestSwimmer, Qt::QueuedConnection);
+    /// Selected Trilobyte Controlls
+    connect(ui->selectFittestButton, &QPushButton::pressed, ui->universe, &UniverseWidget::SelectFittestTrilobyte, Qt::QueuedConnection);
     connect(ui->followSelectedToggle, &QPushButton::toggled, ui->universe, &UniverseWidget::SetTrackSelectedEntity, Qt::QueuedConnection);
 
     /// Graph Controlls
@@ -180,23 +180,23 @@ void MainWindow::ResetGraphs()
         ui->graphs->removeTab(1);
     }
 
-    // AddScatterGraph("Swimmer speciation", "", "", [=](uint64_t tick, ScatterGraph& graph)
+    // AddScatterGraph("Trilobyte speciation", "", "", [=](uint64_t tick, ScatterGraph& graph)
     // {
-    //     std::vector<std::shared_ptr<Swimmer>> swimmers;
+    //     std::vector<std::shared_ptr<Trilobyte>> trilobytes;
     //
     //     universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
     //     {
-    //         if (dynamic_cast<const Swimmer*>(e.get())) {
-    //             swimmers.push_back(std::dynamic_pointer_cast<Swimmer>(e));
+    //         if (dynamic_cast<const Trilobyte*>(e.get())) {
+    //             trilobytes.push_back(std::dynamic_pointer_cast<Trilobyte>(e));
     //         }
     //     });
     //
-    //     std::shared_ptr<Swimmer> swimmerA;
-    //     std::shared_ptr<Swimmer> swimmerB;
+    //     std::shared_ptr<Trilobyte> trilobyteA;
+    //     std::shared_ptr<Trilobyte> trilobyteB;
     //
-    //     for (auto& swimmer : swimmers) {
-    //         for (auto& otherSwimmer : swimmers) {
-    //             swimmerA->
+    //     for (auto& trilobyte : trilobytes) {
+    //         for (auto& otherTrilobyte : trilobytes) {
+    //             trilobyteA->
     //         }
     //     }
     //
@@ -210,12 +210,12 @@ void MainWindow::ResetGraphs()
     {
         graph.AddPoint(0, tick, 50 * (universe_->GetParameters().lunarCycle_ + 1));
     });
-    AddLineGraph("Population", { {0x00F100, "Food Pellet"}, {0xFF0000, "Meat Chunk"}, {0x3333FF, "Swimmer"}, {0xFF44FF, "Egg"} }, "Time (tick)", "Number of Entities", [=](uint64_t tick, LineGraph& graph)
+    AddLineGraph("Population", { {0x00F100, "Food Pellet"}, {0xFF0000, "Meat Chunk"}, {0x3333FF, "Trilobyte"}, {0xFF44FF, "Egg"} }, "Time (tick)", "Number of Entities", [=](uint64_t tick, LineGraph& graph)
     {
         if (tick % 100 == 0) {
             uint64_t foodCount = 0;
             uint64_t chunkCount = 0;
-            uint64_t swimmerCount = 0;
+            uint64_t trilobyteCount = 0;
             uint64_t eggCount = 0;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
@@ -223,24 +223,24 @@ void MainWindow::ResetGraphs()
                     ++foodCount;
                 } else if (dynamic_cast<const MeatChunk*>(e.get())) {
                     ++chunkCount;
-                } else if (dynamic_cast<const Swimmer*>(e.get())) {
-                    ++swimmerCount;
+                } else if (dynamic_cast<const Trilobyte*>(e.get())) {
+                    ++trilobyteCount;
                 } else if (dynamic_cast<const Egg*>(e.get())) {
                     ++eggCount;
                 }
             });
             graph.AddPoint(0, tick, foodCount);
             graph.AddPoint(1, tick, chunkCount);
-            graph.AddPoint(2, tick, swimmerCount);
+            graph.AddPoint(2, tick, trilobyteCount);
             graph.AddPoint(3, tick, eggCount);
         }
     });
-    AddLineGraph("Total Energy", { {0x00F100, "Food Pellet"}, {0xFF0000, "Meat Chunk"}, {0x3333FF, "Swimmer"}, {0xFF44FF, "Egg"} }, "Time (tick)", "Combined Energy (mj)", [=](uint64_t tick, LineGraph& graph)
+    AddLineGraph("Total Energy", { {0x00F100, "Food Pellet"}, {0xFF0000, "Meat Chunk"}, {0x3333FF, "Trilobyte"}, {0xFF44FF, "Egg"} }, "Time (tick)", "Combined Energy (mj)", [=](uint64_t tick, LineGraph& graph)
     {
         if (tick % 100 == 0) {
             Energy foodEnergy = 0;
             Energy chunkEnergy = 0;
-            Energy swimmerEnergy = 0;
+            Energy trilobyteEnergy = 0;
             Energy eggEnergy = 0;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
@@ -248,60 +248,60 @@ void MainWindow::ResetGraphs()
                     foodEnergy += e->GetEnergy();
                 } else if (dynamic_cast<const MeatChunk*>(e.get())) {
                     chunkEnergy += e->GetEnergy();
-                } else if (dynamic_cast<const Swimmer*>(e.get())) {
-                    swimmerEnergy += e->GetEnergy();
+                } else if (dynamic_cast<const Trilobyte*>(e.get())) {
+                    trilobyteEnergy += e->GetEnergy();
                 } else if (dynamic_cast<const Egg*>(e.get())) {
                     eggEnergy += e->GetEnergy();
                 }
             });
             graph.AddPoint(0, tick, foodEnergy / 1_mj);
             graph.AddPoint(1, tick, chunkEnergy / 1_mj);
-            graph.AddPoint(2, tick, swimmerEnergy / 1_mj);
+            graph.AddPoint(2, tick, trilobyteEnergy / 1_mj);
             graph.AddPoint(3, tick, eggEnergy / 1_mj);
         }
     });
-    AddLineGraph("Average Age", { {0x00FC00, "Food"}, {0x3333FF, "Swimmer"} }, "Time (tick)", "Age (tick)", [=](uint64_t tick, LineGraph& graph)
+    AddLineGraph("Average Age", { {0x00FC00, "Food"}, {0x3333FF, "Trilobyte"} }, "Time (tick)", "Age (tick)", [=](uint64_t tick, LineGraph& graph)
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics foodStats;
-            Tril::RollingStatistics swimmerStats;
+            Tril::RollingStatistics trilobyteStats;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
                 if (dynamic_cast<const FoodPellet*>(e.get())) {
                     foodStats.AddValue(e->GetAge());
-                } else if (dynamic_cast<const Swimmer*>(e.get())) {
-                    swimmerStats.AddValue(e->GetAge());
+                } else if (dynamic_cast<const Trilobyte*>(e.get())) {
+                    trilobyteStats.AddValue(e->GetAge());
                 }
             });
             graph.AddPoint(0, tick, foodStats.Mean());
-            graph.AddPoint(1, tick, swimmerStats.Mean());
+            graph.AddPoint(1, tick, trilobyteStats.Mean());
         }
     });
-    AddLineGraph("Max Age", { {0x00FC00, "Food"}, {0x3333FF, "Swimmer"} }, "Time (tick)", "Age (tick)", [=](uint64_t tick, LineGraph& graph)
+    AddLineGraph("Max Age", { {0x00FC00, "Food"}, {0x3333FF, "Trilobyte"} }, "Time (tick)", "Age (tick)", [=](uint64_t tick, LineGraph& graph)
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics foodStats;
-            Tril::RollingStatistics swimmerStats;
+            Tril::RollingStatistics trilobyteStats;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
                 if (dynamic_cast<const FoodPellet*>(e.get())) {
                     foodStats.AddValue(e->GetAge());
-                } else if (dynamic_cast<const Swimmer*>(e.get())) {
-                    swimmerStats.AddValue(e->GetAge());
+                } else if (dynamic_cast<const Trilobyte*>(e.get())) {
+                    trilobyteStats.AddValue(e->GetAge());
                 }
             });
             graph.AddPoint(0, tick, foodStats.Max());
-            graph.AddPoint(1, tick, swimmerStats.Max());
+            graph.AddPoint(1, tick, trilobyteStats.Max());
         }
     });
-    AddLineGraph("Health (%)", { { 0xFFDFDF, "Min (%)" }, { 0xFF0000, "Mean (%)" }, { 0xFFDFDF, "Max (%)" }, { 0x00CF00, "StdDev lowerBound" }, { 0xCF3000, "StdDev upper bound" } }, "Time (tick)", "Swimmer Health (%)", [=, previous = std::chrono::steady_clock::now()](uint64_t tick, LineGraph& graph) mutable
+    AddLineGraph("Health (%)", { { 0xFFDFDF, "Min (%)" }, { 0xFF0000, "Mean (%)" }, { 0xFFDFDF, "Max (%)" }, { 0x00CF00, "StdDev lowerBound" }, { 0xCF3000, "StdDev upper bound" } }, "Time (tick)", "Trilobyte Health (%)", [=, previous = std::chrono::steady_clock::now()](uint64_t tick, LineGraph& graph) mutable
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics stats;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
-                if (const Swimmer* swimmer = dynamic_cast<const Swimmer*>(e.get()); swimmer != nullptr) {
-                    stats.AddValue(swimmer->GetHealth());
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                    stats.AddValue(trilobyte->GetHealth());
                 }
             });
             if (stats.Count() > 0) {
@@ -315,14 +315,14 @@ void MainWindow::ResetGraphs()
             }
         }
     });
-    AddLineGraph("Generation", { { 0xDFDFDF, "Min" }, { 0x0000FF, "Mean" }, { 0xDFDFDF, "Max" }, { 0x00CF00, "StdDev lowerBound" }, { 0xCF3000, "StdDev upper bound" } }, "Time (tick)", "Swimmer Generation", [=, previous = std::chrono::steady_clock::now()](uint64_t tick, LineGraph& graph) mutable
+    AddLineGraph("Generation", { { 0xDFDFDF, "Min" }, { 0x0000FF, "Mean" }, { 0xDFDFDF, "Max" }, { 0x00CF00, "StdDev lowerBound" }, { 0xCF3000, "StdDev upper bound" } }, "Time (tick)", "Trilobyte Generation", [=, previous = std::chrono::steady_clock::now()](uint64_t tick, LineGraph& graph) mutable
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics stats;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
-                if (const Swimmer* swimmer = dynamic_cast<const Swimmer*>(e.get()); swimmer != nullptr) {
-                    stats.AddValue(swimmer->GetGeneration());
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                    stats.AddValue(trilobyte->GetGeneration());
                 }
             });
             if (stats.Count() > 0) {
@@ -343,9 +343,9 @@ void MainWindow::ResetGraphs()
             Tril::RollingStatistics chromosomeStats;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
-                if (const Swimmer* swimmer = dynamic_cast<const Swimmer*>(e.get()); swimmer != nullptr) {
-                    geneStats.AddValue(swimmer->GetGeneMutationCount());
-                    chromosomeStats.AddValue(swimmer->GetChromosomeMutationCount());
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                    geneStats.AddValue(trilobyte->GetGeneMutationCount());
+                    chromosomeStats.AddValue(trilobyte->GetChromosomeMutationCount());
                 }
             });
             if (geneStats.Count() > 0) {
@@ -363,8 +363,8 @@ void MainWindow::ResetGraphs()
             Tril::RollingStatistics stats;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
-                if (const Swimmer* swimmer = dynamic_cast<const Swimmer*>(e.get()); swimmer != nullptr) {
-                    stats.AddValue(swimmer->GetBaseMetabolism());
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                    stats.AddValue(trilobyte->GetBaseMetabolism());
                 }
             });
             if (stats.Count() > 0) {
@@ -378,15 +378,15 @@ void MainWindow::ResetGraphs()
             }
         }
     });
-    AddLineGraph("Swimmer Velocity", { { 0xDFDFDF, "Min" }, { 0x0000FF, "Mean" }, { 0xDFDFDF, "Max" }, { 0x00CF00, "StdDev lowerBound" }, { 0xCF3000, "StdDev upper bound" } }, "Time (tick)", "Velocity (pixels per tick)",
+    AddLineGraph("Trilobyte Velocity", { { 0xDFDFDF, "Min" }, { 0x0000FF, "Mean" }, { 0xDFDFDF, "Max" }, { 0x00CF00, "StdDev lowerBound" }, { 0xCF3000, "StdDev upper bound" } }, "Time (tick)", "Velocity (pixels per tick)",
     [=, previous = std::chrono::steady_clock::now()](uint64_t tick, LineGraph& graph) mutable
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics stats;
             universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
             {
-                if (const Swimmer* swimmer = dynamic_cast<const Swimmer*>(e.get()); swimmer != nullptr) {
-                    stats.AddValue(std::abs(swimmer->GetVelocity()));
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                    stats.AddValue(std::abs(trilobyte->GetVelocity()));
                 }
             });
             if (stats.Count() > 0) {

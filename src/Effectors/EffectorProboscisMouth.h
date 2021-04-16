@@ -6,7 +6,7 @@
 
 class EffectorProboscisMouth : public Effector {
 public:
-    EffectorProboscisMouth(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner, const double& proboscisLength);
+    EffectorProboscisMouth(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner, const double& proboscisLength);
     ~EffectorProboscisMouth();
 
     virtual std::string_view GetName() const override { return "Proboscis"; }

@@ -39,10 +39,10 @@ public slots:
     void SetDisplayDurationStats(bool display) { displayDurationStats_ = display; };
     void SetDisplayRateStats(bool display) { displayRateStats_ = display; };
 
-    void SelectFittestSwimmer();
+    void SelectFittestTrilobyte();
     void SetTrackSelectedEntity(bool track) { trackSelected_ = track; }
 
-    void RemoveAllSwimmers();
+    void RemoveAllTrilobytes();
     void RemoveAllFood();
 
     void ZoomIn();

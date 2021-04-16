@@ -10,11 +10,11 @@
 
 #include <memory>
 
-class Swimmer : public Entity, public std::enable_shared_from_this<Swimmer> {
+class Trilobyte : public Entity, public std::enable_shared_from_this<Trilobyte> {
 public:
-    Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome);
-    Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, std::shared_ptr<Swimmer>&& parent);
-    virtual ~Swimmer() override;
+    Trilobyte(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome);
+    Trilobyte(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, std::shared_ptr<Trilobyte>&& parent);
+    virtual ~Trilobyte() override;
 
     virtual std::string_view GetName() const override { return "Trilobyte"; }
     virtual std::string_view GetDescription() const override;
@@ -43,7 +43,7 @@ public:
     void ApplyDamage(double damage) { health_ -= std::min(health_, damage); }
 
 protected:
-    std::shared_ptr<Swimmer> closestLivingAncestor_;
+    std::shared_ptr<Trilobyte> closestLivingAncestor_;
 
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override final;
     virtual void DrawExtras(QPainter& paint) override final;
@@ -65,11 +65,11 @@ private:
     std::map<unsigned, unsigned> totalDescentantCounts_;
     std::map<unsigned, unsigned> extantDescentantCounts_;
 
-    Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, const Phenotype& phenotype, std::shared_ptr<Swimmer>&& mother);
+    Trilobyte(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, const Phenotype& phenotype, std::shared_ptr<Trilobyte>&& mother);
 
     virtual std::vector<Property> CollectProperties() const override;
 
-    std::shared_ptr<Swimmer> FindClosestLivingAncestor() const;
+    std::shared_ptr<Trilobyte> FindClosestLivingAncestor() const;
 
     void DescendantBorn(unsigned generation);
     void DescendantDied(unsigned generation);

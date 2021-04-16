@@ -5,7 +5,7 @@
 
 class EffectorTail : public Effector {
 public:
-    EffectorTail(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner);
+    EffectorTail(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner);
     virtual ~EffectorTail() override;
 
     virtual std::string_view GetName() const override { return "Tail"; }

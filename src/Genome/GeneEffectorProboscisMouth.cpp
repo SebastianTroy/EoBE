@@ -1,6 +1,6 @@
 #include "GeneEffectorProboscisMouth.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "Phenotype.h"
 #include "Effectors/EffectorProboscisMouth.h"
 
@@ -39,7 +39,7 @@ json GeneEffectorProboscisMouth::Serialise() const
     };
 }
 
-void GeneEffectorProboscisMouth::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneEffectorProboscisMouth::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.effectors.push_back(std::make_shared<EffectorProboscisMouth>(GetNetwork(), GetInputConnections(), owner, proboscisLength_));
     target.baseMetabolism += GetMetabolicCost();

@@ -11,14 +11,14 @@
 
 #include <vector>
 
-class Swimmer;
+class Trilobyte;
 class EntityContainerInterface;
 class UniverseInfoStructRef;
 class QPainter;
 
 class Effector {
 public:
-    Effector(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner);
+    Effector(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner);
     virtual ~Effector();
 
     virtual std::string_view GetName() const = 0;
@@ -33,7 +33,7 @@ public:
     const NeuralNetworkConnector& InspectConnection() const { return *inputConnections_; }
 
 protected:
-    Swimmer& owner_;
+    Trilobyte& owner_;
 
 private:
     std::shared_ptr<NeuralNetwork> network_;

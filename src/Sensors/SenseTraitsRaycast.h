@@ -5,7 +5,7 @@
 
 class SenseTraitsRaycast final : public SenseTraitsBase {
 public:
-    SenseTraitsRaycast(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, std::vector<TraitNormaliser>&& toDetect, const Transform& transform, double maxDistance, double angle);
+    SenseTraitsRaycast(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, std::vector<TraitNormaliser>&& toDetect, const Transform& transform, double maxDistance, double angle);
     virtual ~SenseTraitsRaycast() override {}
 
     virtual std::string_view GetName() const override { return "TraitsRaycast"; }

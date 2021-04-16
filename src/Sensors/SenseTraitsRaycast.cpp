@@ -1,6 +1,6 @@
 #include "SenseTraitsRaycast.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "EntityContainerInterface.h"
 
 #include <QPainter>
@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <sstream>
 
-SenseTraitsRaycast::SenseTraitsRaycast(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, std::vector<TraitNormaliser>&& toDetect, const Transform& transform, double maxDistance, double angle)
+SenseTraitsRaycast::SenseTraitsRaycast(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, std::vector<TraitNormaliser>&& toDetect, const Transform& transform, double maxDistance, double angle)
     : SenseTraitsBase(network, outputConnections, owner, transform, std::move(toDetect))
     , rayCastDistance_(maxDistance)
     , rayCastAngle_(angle)

@@ -1,10 +1,10 @@
 #include "Egg.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
 #include <QPainter>
 
-Egg::Egg(std::shared_ptr<Swimmer>&& mother, Energy energy, const Transform& transform, std::shared_ptr<Genome> genomeOne, std::shared_ptr<Genome> genomeTwo, unsigned hatchingDelay)
+Egg::Egg(std::shared_ptr<Trilobyte>&& mother, Energy energy, const Transform& transform, std::shared_ptr<Genome> genomeOne, std::shared_ptr<Genome> genomeTwo, unsigned hatchingDelay)
     : Entity(transform, 3.5, QColor::fromRgb(125, 57, 195), energy, mother->GetVelocity())
     , mother_(std::move(mother))
     , genomeOne_(genomeOne)
@@ -19,8 +19,8 @@ Egg::~Egg()
 
 std::string_view Egg::GetDescription() const
 {
-    return "<p>Swimmers can lay eggs. "
-           "When creating an egg, the genetics of up to two swimmers can be combined to create the genetics passed onto the egg.</p>";
+    return "<p>Trilobytes can lay eggs. "
+           "When creating an egg, the genetics of up to two trilobytes can be combined to create the genetics passed onto the egg.</p>";
 }
 
 void Egg::TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters)
@@ -38,7 +38,7 @@ void Egg::TickImpl(EntityContainerInterface& container, const UniverseParameters
         // cross with self for now
         std::shared_ptr<Genome> genome = Genome::CreateOffspring(*genomeOne_, *genomeTwo_, universeParameters);
         if (genome) {
-            container.AddEntity(std::make_shared<Swimmer>(GetEnergy(), GetTransform(), genome, std::move(mother_)));
+            container.AddEntity(std::make_shared<Trilobyte>(GetEnergy(), GetTransform(), genome, std::move(mother_)));
         }
         Terminate();
     }

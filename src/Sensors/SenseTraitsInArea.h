@@ -6,7 +6,7 @@
 
 class SenseTraitsInArea final : public SenseTraitsBase {
 public:
-    SenseTraitsInArea(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, double radius, const Transform& transform, std::vector<TraitNormaliser>&& toDetect);
+    SenseTraitsInArea(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, double radius, const Transform& transform, std::vector<TraitNormaliser>&& toDetect);
     virtual ~SenseTraitsInArea() override {}
 
     virtual std::string_view GetName() const override { return "TraitsInArea"; }

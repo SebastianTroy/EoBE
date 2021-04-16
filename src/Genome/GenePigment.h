@@ -19,7 +19,7 @@ public:
 
 protected:
     virtual std::shared_ptr<Gene> Copy() const override;
-    virtual void ExpressGene(Swimmer& owner, Phenotype& target) const override;
+    virtual void ExpressGene(Trilobyte& owner, Phenotype& target) const override;
 
 private:
     static const inline std::string KEY_A = "a";

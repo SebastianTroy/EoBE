@@ -8,7 +8,7 @@
 
 #include <memory>
 
-class Swimmer;
+class Trilobyte;
 class NeuralNetwork;
 class EntityContainerInterface;
 
@@ -18,8 +18,8 @@ class NeuralNetworkInspector : public QWidget {
 public:
     explicit NeuralNetworkInspector(QWidget *parent);
 
-    void SetSwimmer(std::shared_ptr<Swimmer> toInspect);
-    std::shared_ptr<Swimmer> GetSwimmer() const { return inspectedSwimmer_; }
+    void SetTrilobyte(std::shared_ptr<Trilobyte> toInspect);
+    std::shared_ptr<Trilobyte> GetTrilobyte() const { return inspectedTrilobyte_; }
     void UpdateConnectionStrengths(const EntityContainerInterface& container, const UniverseParameters& universeParameters);
 
     void SetUpdateLive(bool update);
@@ -78,7 +78,7 @@ private:
     double dragY_;
     bool dragging_ = false;
 
-    std::shared_ptr<Swimmer> inspectedSwimmer_;
+    std::shared_ptr<Trilobyte> inspectedTrilobyte_;
     bool liveUpdate_ = false;
 
     QPointF TransformLocalToSimCoords(const QPointF& local) const;

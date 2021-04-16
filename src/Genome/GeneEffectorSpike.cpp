@@ -1,6 +1,6 @@
 #include "GeneEffectorSpike.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "Effectors/EffectorSpike.h"
 
 using namespace nlohmann;
@@ -43,7 +43,7 @@ json GeneEffectorSpike::Serialise() const
     };
 }
 
-void GeneEffectorSpike::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneEffectorSpike::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.effectors.push_back(std::make_shared<EffectorSpike>(GetNetwork(), GetInputConnections(), owner, bearing_, length_));
     target.baseMetabolism += GetMetabolicCost();

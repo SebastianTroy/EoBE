@@ -53,7 +53,7 @@ set(PROJECT_SOURCES
     Sensors/SenseTraitsSelf.cpp
     Sensors/SenseTraitsTouching.cpp
     Spike.cpp
-    Swimmer.cpp
+    Trilobyte.cpp
     Universe.cpp
     UniverseWidget.cpp
 )
@@ -114,7 +114,7 @@ set(PROJECT_HEADERS
     Sensors/SenseTraitsSelf.h
     Sensors/SenseTraitsTouching.h
     Spike.h
-    Swimmer.h
+    Trilobyte.h
     Universe.h
     UniverseParameters.h
     UniverseWidget.h

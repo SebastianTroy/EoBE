@@ -1,10 +1,10 @@
 #include "EffectorTail.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
 #include <QPainter>
 
-EffectorTail::EffectorTail(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner)
+EffectorTail::EffectorTail(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner)
     : Effector(network, inputConnections, owner)
 {
 }
@@ -16,7 +16,7 @@ EffectorTail::~EffectorTail()
 std::string EffectorTail::GetDescription() const
 {
     // TODO prevent backwards swimming with tail, or at least make it slower for more energy
-    return "<p>The tail allows a swimmer to accelerate either forwards or "
+    return "<p>The tail allows a trilobyte to accelerate either forwards or "
            "backwards, and turn either left or right.</p>"
            "<p>Outputs:<ol>"
              "<li>Forward(+ve)/Backward(-ve) acceleration.</li>"

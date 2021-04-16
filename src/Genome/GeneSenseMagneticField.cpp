@@ -88,7 +88,7 @@ json GeneSenseMagneticField::Serialise() const
     };
 }
 
-void GeneSenseMagneticField::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneSenseMagneticField::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.senses.push_back(std::make_shared<SenseMagneticField>(GetNetwork(), GetOutputConnections(), owner, target_, distanceNormaliser_, frontBackNormaliser_, leftRightNormaliser_));
     target.baseMetabolism += GetMetabolicCost();

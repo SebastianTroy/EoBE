@@ -23,7 +23,7 @@ std::optional<SenseSine::SineWave> SenseSine::SineWave::Deserialise(const json& 
     return std::nullopt;
 }
 
-SenseSine::SenseSine(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, std::vector<SenseSine::SineWave>&& sineWaves)
+SenseSine::SenseSine(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, std::vector<SenseSine::SineWave>&& sineWaves)
     : Sense(network, outputConnections, owner)
     , sineWaves_(sineWaves)
 {

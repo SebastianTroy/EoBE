@@ -1,12 +1,12 @@
 #include "SenseTraitsTouching.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
 #include <QPainter>
 
 #include <iomanip>
 
-SenseTraitsTouching::SenseTraitsTouching(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, Transform transform, std::vector<TraitNormaliser>&& toDetect)
+SenseTraitsTouching::SenseTraitsTouching(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, Transform transform, std::vector<TraitNormaliser>&& toDetect)
     : SenseTraitsBase(network, outputConnections, owner, transform, std::move(toDetect))
 {
 }

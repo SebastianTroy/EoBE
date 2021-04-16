@@ -1,6 +1,6 @@
 #include "GeneEffectorFilterMouth.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "Phenotype.h"
 #include "Effectors/EffectorFilterMouth.h"
 
@@ -36,7 +36,7 @@ json GeneEffectorFilterMouth::Serialise() const
     };
 }
 
-void GeneEffectorFilterMouth::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneEffectorFilterMouth::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.effectors.push_back(std::make_shared<EffectorFilterMouth>(GetNetwork(), GetInputConnections(), owner));
     target.baseMetabolism += GetMetabolicCost();

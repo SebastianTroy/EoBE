@@ -23,7 +23,7 @@ public:
     static nlohmann::json Serialise(const std::shared_ptr<Genome>& genome);
     // static std::shared_ptr<Genome> Deserialise(const nlohmann::json& serialisedGenome);
 
-    Phenotype GetPhenoType(Swimmer& owner) const;
+    Phenotype GetPhenoType(Trilobyte& owner) const;
 
     uint64_t GetChromosomeCount() const { return chromosomes_.size(); }
     uint64_t GetGeneCount() const;

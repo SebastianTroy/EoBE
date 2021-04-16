@@ -18,7 +18,7 @@ public:
 
     virtual std::string GetName() const override { return Name(); }
     virtual nlohmann::json Serialise() const override;
-    virtual void ExpressGene(Swimmer& owner, Phenotype& target) const override;
+    virtual void ExpressGene(Trilobyte& owner, Phenotype& target) const override;
 
 protected:
     virtual std::shared_ptr<Gene> Copy() const override;

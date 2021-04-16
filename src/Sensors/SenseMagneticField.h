@@ -7,7 +7,7 @@
 #include <memory>
 
 /**
- * This sense gves a swimmer a way to gauge its distance from a specific point,
+ * This sense gves a trilobyte a way to gauge its distance from a specific point,
  * and also a sense of whether it is facing towards/away from it, and if it is
  * to the left or the right.
  *
@@ -16,7 +16,7 @@
  */
 class SenseMagneticField final : public Sense {
 public:
-    SenseMagneticField(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, const Point& target, const Tril::RangeConverter& distanceNormaliser, const Tril::Range<double>& frontBackNormaliser, const Tril::Range<double>& leftRightNormaliser);
+    SenseMagneticField(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, const Point& target, const Tril::RangeConverter& distanceNormaliser, const Tril::Range<double>& frontBackNormaliser, const Tril::Range<double>& leftRightNormaliser);
     virtual ~SenseMagneticField() override {}
 
     virtual std::string_view GetName() const override { return "MagneticField"; }

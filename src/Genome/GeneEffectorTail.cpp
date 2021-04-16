@@ -1,6 +1,6 @@
 #include "GeneEffectorTail.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "Effectors/EffectorTail.h"
 
 using namespace nlohmann;
@@ -32,7 +32,7 @@ json GeneEffectorTail::Serialise() const
     };
 }
 
-void GeneEffectorTail::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneEffectorTail::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.effectors.push_back(std::make_shared<EffectorTail>(GetNetwork(), GetInputConnections(), owner));
     target.baseMetabolism += GetMetabolicCost();

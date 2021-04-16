@@ -1,6 +1,6 @@
 #include "NeuralNetworkInspector.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "EntityContainerInterface.h"
 
 #include <NeuralNetwork.h>
@@ -16,20 +16,20 @@ NeuralNetworkInspector::NeuralNetworkInspector(QWidget* parent)
     setMouseTracking(true);
 }
 
-void NeuralNetworkInspector::SetSwimmer(std::shared_ptr<Swimmer> toInspect)
+void NeuralNetworkInspector::SetTrilobyte(std::shared_ptr<Trilobyte> toInspect)
 {
-    if (inspectedSwimmer_ != toInspect) {
-        inspectedSwimmer_ = toInspect;
+    if (inspectedTrilobyte_ != toInspect) {
+        inspectedTrilobyte_ = toInspect;
         sensorGroups_.clear();
         effectorGroups_.clear();
         brainGroup_ = {};
 
-        if (inspectedSwimmer_ != nullptr) {
-            if (inspectedSwimmer_->InspectBrain()) {
-                brainGroup_ = CreateGroup(*inspectedSwimmer_->InspectBrain(), "Brain", GetBrainDescription());
+        if (inspectedTrilobyte_ != nullptr) {
+            if (inspectedTrilobyte_->InspectBrain()) {
+                brainGroup_ = CreateGroup(*inspectedTrilobyte_->InspectBrain(), "Brain", GetBrainDescription());
             }
 
-            for (auto& sense : inspectedSwimmer_->InspectSenses()) {
+            for (auto& sense : inspectedTrilobyte_->InspectSenses()) {
                 sensorGroups_.push_back(CreateGroup(sense->Inspect(), std::string(sense->GetName()), sense->GetDescription()));
                 Group& senseGroup = sensorGroups_.back();
 
@@ -57,7 +57,7 @@ void NeuralNetworkInspector::SetSwimmer(std::shared_ptr<Swimmer> toInspect)
                 }
             }
 
-            for (auto& effector : inspectedSwimmer_->InspectEffectors()) {
+            for (auto& effector : inspectedTrilobyte_->InspectEffectors()) {
                 effectorGroups_.push_back(CreateGroup(effector->Inspect(), std::string(effector->GetName()), std::string(effector->GetDescription())));
                 Group& effectorGroup = effectorGroups_.back();
 
@@ -93,7 +93,7 @@ void NeuralNetworkInspector::SetSwimmer(std::shared_ptr<Swimmer> toInspect)
 
 void NeuralNetworkInspector::UpdateConnectionStrengths(const EntityContainerInterface& container, const UniverseParameters& universeParameters)
 {
-    if (inspectedSwimmer_ && liveUpdate_) {
+    if (inspectedTrilobyte_ && liveUpdate_) {
         // zeroise every input value everywhere
         ForEachGroup([](GroupType /*type*/, Group& group)
         {
@@ -103,7 +103,7 @@ void NeuralNetworkInspector::UpdateConnectionStrengths(const EntityContainerInte
             }
         });
 
-        Tril::IterateBoth<std::shared_ptr<Sense>, Group>(inspectedSwimmer_->InspectSenses(), sensorGroups_, [&](const std::shared_ptr<Sense>& sense, NeuralNetworkInspector::Group& senseGroup)
+        Tril::IterateBoth<std::shared_ptr<Sense>, Group>(inspectedTrilobyte_->InspectSenses(), sensorGroups_, [&](const std::shared_ptr<Sense>& sense, NeuralNetworkInspector::Group& senseGroup)
         {
             std::vector<double> inputs(senseGroup.horizontalNodes);
             sense->PrimeInputs(inputs, container, universeParameters);

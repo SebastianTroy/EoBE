@@ -8,7 +8,7 @@
 
 class Egg : public Entity {
 public:
-    Egg(std::shared_ptr<Swimmer>&& parent, Energy energy, const Transform& transform, std::shared_ptr<Genome> genomeOne, std::shared_ptr<Genome> genomeTwo, unsigned hatchingDelay);
+    Egg(std::shared_ptr<Trilobyte>&& parent, Energy energy, const Transform& transform, std::shared_ptr<Genome> genomeOne, std::shared_ptr<Genome> genomeTwo, unsigned hatchingDelay);
     virtual ~Egg() override;
 
     virtual std::string_view GetName() const override { return "Egg"; }
@@ -19,7 +19,7 @@ protected:
     virtual void DrawExtras(QPainter& paint) override;
 
 private:
-    std::shared_ptr<Swimmer> mother_;
+    std::shared_ptr<Trilobyte> mother_;
     std::shared_ptr<Genome> genomeOne_;
     std::shared_ptr<Genome> genomeTwo_;
     unsigned hatchingDelay_;

@@ -6,14 +6,14 @@
  * easily obtain an expandable selection of user controlled settings, without
  * expanding the function signature repeatedly.
  *
- * These settings are things that interact with swimmers, i.e. can be sensed or
+ * These settings are things that interact with trilobytes, i.e. can be sensed or
  * have a direct effect on behaviour (physics, food spawning etc)
  *
  * TODO going forward use this to save/load user settings
  */
 class UniverseParameters {
 public:
-    /// A value that can hopefully be used by swimmers to coordinate behaviour
+    /// A value that can hopefully be used by trilobytes to coordinate behaviour
     /// through time
     double lunarCycle_ = 0.0;
     /// These mutations will result in behavioral/ability changes but will not

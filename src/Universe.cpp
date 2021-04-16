@@ -1,6 +1,6 @@
 #include "Universe.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "FeedDispenser.h"
 #include "FoodPellet.h"
 #include "Egg.h"
@@ -33,9 +33,9 @@ Universe::Universe(Rect startingQuad)
         for (unsigned i = 0; i < std::max(size_t{ 1 }, 25 / feedDispensers_.size()); i++) {
             double rotation = Random::Number(0.0, Tril::Tau);
             double distance = std::sqrt(Random::Number(0.0, 1.0)) * feeder->GetRadius();
-            double swimmerX = feeder->GetX() + distance * std::cos(rotation);
-            double swimmerY = feeder->GetY() + distance * std::sin(rotation);
-            rootNode_.AddEntity(std::make_shared<Swimmer>(300_mj, Transform{ swimmerX, swimmerY, Random::Bearing() }, GeneFactory::Get().GenerateDefaultGenome(NeuralNetwork::BRAIN_WIDTH)));
+            double trilobyteX = feeder->GetX() + distance * std::cos(rotation);
+            double trilobyteY = feeder->GetY() + distance * std::sin(rotation);
+            rootNode_.AddEntity(std::make_shared<Trilobyte>(300_mj, Transform{ trilobyteX, trilobyteY, Random::Bearing() }, GeneFactory::Get().GenerateDefaultGenome(NeuralNetwork::BRAIN_WIDTH)));
         }
     }
 }

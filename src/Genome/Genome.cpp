@@ -61,7 +61,7 @@ json Genome::Serialise(const std::shared_ptr<Genome>& genome)
     };
 }
 
-Phenotype Genome::GetPhenoType(Swimmer& owner) const
+Phenotype Genome::GetPhenoType(Trilobyte& owner) const
 {
     Phenotype phenotype;
     ForEach([&](const Gene& gene)

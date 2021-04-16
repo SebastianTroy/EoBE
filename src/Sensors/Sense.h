@@ -14,14 +14,14 @@ class QPainter;
 #include <string_view>
 #include <memory>
 
-class Swimmer;
+class Trilobyte;
 
 /**
  * All senses contain a small Neural network which is propogated each tick.
  */
 class Sense {
 public:
-    Sense(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner);
+    Sense(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner);
     virtual ~Sense();
 
     virtual std::string_view GetName() const = 0;
@@ -38,7 +38,7 @@ public:
     const NeuralNetworkConnector& InspectConnection() const { return *outputConnections_; }
 
 protected:
-    const Swimmer& owner_;
+    const Trilobyte& owner_;
 
 private:
     std::shared_ptr<NeuralNetwork> network_;

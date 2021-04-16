@@ -8,7 +8,7 @@
 #include <memory>
 #include <functional>
 
-class Swimmer;
+class Trilobyte;
 struct Phenotype;
 
 class Gene {
@@ -31,8 +31,8 @@ public:
 
     std::shared_ptr<Gene> Copy(unsigned mutationCount) const;
 
-    // MAYBE ExpressCodominantGene(Swimmer& owner, Phenotype& target, Gene& other)
-    virtual void ExpressGene(Swimmer& owner, Phenotype& target) const = 0;
+    // MAYBE ExpressCodominantGene(Trilobyte& owner, Phenotype& target, Gene& other)
+    virtual void ExpressGene(Trilobyte& owner, Phenotype& target) const = 0;
 
     // MAYBE Splice (implement a function that will create a new Gene by splicing two parent genes together)
     double GetDominance() const { return dominance_; }

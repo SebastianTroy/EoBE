@@ -26,7 +26,7 @@ public:
         static const inline std::string KEY_BETA = "Beta";
     };
 
-    SenseRandom(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, std::vector<FilteredRandom>&& filteredRandoms);
+    SenseRandom(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, std::vector<FilteredRandom>&& filteredRandoms);
     virtual ~SenseRandom() override {}
 
     virtual std::string_view GetName() const override { return "Random"; }

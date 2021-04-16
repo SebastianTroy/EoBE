@@ -53,7 +53,7 @@ json GeneBrain::Serialise() const
     };
 }
 
-void GeneBrain::ExpressGene(Swimmer& /*owner*/, Phenotype& target) const
+void GeneBrain::ExpressGene(Trilobyte& /*owner*/, Phenotype& target) const
 {
     target.brain = brain_;
     target.baseMetabolism += (1 + brain_->GetLayerCount()) * brain_->GetLayerWidth() * 0.15_uj;

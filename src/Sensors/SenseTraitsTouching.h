@@ -8,7 +8,7 @@ class QPainter;
 
 class SenseTraitsTouching final : public SenseTraitsBase {
 public:
-    SenseTraitsTouching(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, Transform transform, std::vector<TraitNormaliser>&& toDetect);
+    SenseTraitsTouching(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, Transform transform, std::vector<TraitNormaliser>&& toDetect);
     virtual ~SenseTraitsTouching() override {}
 
     virtual std::string_view GetName() const override { return "TraitsTouching"; }

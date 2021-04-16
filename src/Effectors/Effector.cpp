@@ -1,8 +1,8 @@
 #include "Effector.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
-Effector::Effector(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner)
+Effector::Effector(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner)
     : owner_(owner)
     , network_(network)
     , inputConnections_(inputConnections)

@@ -21,7 +21,6 @@ TODO
 -----
  - Need to display some properties about the sim in another tab on the inspector side
  - - Requires moving the Entity stuff into its own designer-widget class
- - Need to refactor Swimmer into Trilobyte
  - Need to move QuadTree into utility, which will require some simple base class for entity to extend
  - - Then particle can also extend new base class, (FeedDispenser could also be a particle?)
  - More GUI controlls
@@ -35,7 +34,7 @@ TODO
  - Matrix based coordinate system/collisions
  - More entities (pheremones? poisons? more food types?)
  - tabs in left GUI to split up settings
- -  - Allow adding multiple swimmers at a time
+ -  - Allow adding multiple trilobytes at a time
  -  - Move feed dispenser
  -  - adjust feed dispenser pellet energy/frequency
  -  - Add feed dispenser
@@ -45,17 +44,17 @@ TODO
  - - add images for each sense and effector
  - - add gene for image decals
  - add gene for egg size
- - allow laid eggs to be fertilised by passing swimmers (optional, let genetics decide)
+ - allow laid eggs to be fertilised by passing trilobytes (optional, let genetics decide)
  - brain inspector needs ability to adjust line culling (i.e. don't show connections below x strength...) etc
  - Would be very insightful to record which mutations have been accumulated over the generations (could be useful to refine mutations and detect anything too lethal to be useful)
  - MAYBE "Aerodynamics" aspect of entities to control how they interact with friction, and a seperate momentum transform from location transform, so that facing & moving direction aren't always the same
  - - Allows for effectors that improve cornering etc
  - - Allows for certain effectors to change the gliding ability
- - - Allows for certain effectors to transition the swimmer to a walker
+ - - Allows for certain effectors to transition the trilobyte to a walker
  - Collision friction? 
  - - Each tick each entity checks for all colliding entities and applies their "collision friction" to itself
- - - A swimmers own friction could be taken into account
- - - Allows for effectors that increase / decrease a swimmers friction
+ - - A trilobytes own friction could be taken into account
+ - - Allows for effectors that increase / decrease a trilobytes friction
  - - Further penalty for colliding with spikes
  - - Can add new entity types that add areas of friction, increasing environmental variety (-ve friction objects?)
  - Want a generic "spawner" type that can spawn in food pellets the same way they currently are, but also be used to spawn spikes etc, so that
@@ -80,10 +79,10 @@ Need a seperate momentumTransform, which is not just affected by friction and in
  - Add global control for friction
 
 Add 3 mouth types,
- - ToothedMouth (circle touching body somewhere, pellets @ ~50% & eggs/meat chunks at ~75%, can bite swimmers for damage) perhaps it can only eat a fixed ammount per tick, with smaller bites being more energy efficient but doing less damage?
+ - ToothedMouth (circle touching body somewhere, pellets @ ~50% & eggs/meat chunks at ~75%, can bite trilobytes for damage) perhaps it can only eat a fixed ammount per tick, with smaller bites being more energy efficient but doing less damage?
 
 Add some effectors
- - Vortex generator, moves entities near to swimmer in a vortex pattern
+ - Vortex generator, moves entities near to trilobyte in a vortex pattern
 
 Add adjustable friction cooeficient (speed *= friction) so friction is between 0.0 and 1.0
 

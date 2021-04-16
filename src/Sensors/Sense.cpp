@@ -1,11 +1,11 @@
 #include "Sense.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "EntityContainerInterface.h"
 
 #include <QPainter>
 
-Sense::Sense(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner)
+Sense::Sense(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner)
     : owner_(owner)
     , network_(network)
     , outputConnections_(outputConnections)

@@ -1,13 +1,13 @@
 #include "EffectorProboscisMouth.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 #include "Egg.h"
 
 #include <QPainter>
 
 #include <iomanip>
 
-EffectorProboscisMouth::EffectorProboscisMouth(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Swimmer& owner, const double& proboscisLength)
+EffectorProboscisMouth::EffectorProboscisMouth(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& inputConnections, Trilobyte& owner, const double& proboscisLength)
     : Effector(network, inputConnections, owner)
     , proboscisLength_(proboscisLength)
 {
@@ -21,7 +21,7 @@ std::string EffectorProboscisMouth::GetDescription() const
 {
     std::stringstream desc;
     desc << "<p>The proboscis allows an entity to leech energy directly from "
-    "other swimmers, or eggs. Energy is consumed with 100% efficiency but the "
+    "other trilobytes, or eggs. Energy is consumed with 100% efficiency but the "
     "rate at which energy is stolen is limited.</p>";
     desc << std::fixed << std::setprecision(1);
     desc << "<p>Length: " << proboscisLength_ << "</p>";
@@ -41,7 +41,7 @@ Energy EffectorProboscisMouth::PerformActions(const std::vector<double>& /*actio
     std::shared_ptr<Entity> victim;
     entities.ForEachCollidingWith(proboscis.b, [&](const std::shared_ptr<Entity>& entity)
     {
-        if (dynamic_cast<Swimmer*>(entity.get()) || dynamic_cast<Egg*>(entity.get())) {
+        if (dynamic_cast<Trilobyte*>(entity.get()) || dynamic_cast<Egg*>(entity.get())) {
             if (!victim || entity->GetEnergy() > victim->GetEnergy()) {
                 victim = entity;
             }

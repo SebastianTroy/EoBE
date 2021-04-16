@@ -1,6 +1,6 @@
 #include "SenseTraitsBase.h"
 
-#include "Swimmer.h"
+#include "Trilobyte.h"
 
 #include <Algorithm.h>
 
@@ -69,7 +69,7 @@ SenseTraitsBase::TraitNormaliser SenseTraitsBase::DefaultNormalisation(const Sen
     return { Trait{ -1 }, { Tril::Range(0.0, 0.0), Tril::Range(0.0, Random::Sign(1.0)) }};
 }
 
-SenseTraitsBase::SenseTraitsBase(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Swimmer& owner, const Transform& transform, std::vector<TraitNormaliser>&& toDetect)
+SenseTraitsBase::SenseTraitsBase(const std::shared_ptr<NeuralNetwork>& network, const std::shared_ptr<NeuralNetworkConnector>& outputConnections, const Trilobyte& owner, const Transform& transform, std::vector<TraitNormaliser>&& toDetect)
     : Sense(network, outputConnections, owner)
     , transform_(transform)
     , toDetect_(std::move(toDetect))
@@ -113,8 +113,8 @@ double SenseTraitsBase::GetTraitFrom(const Entity& target, Trait trait) const
         return GetDistance({ senseLocation.x, senseLocation.y }, target.GetLocation());
     }
     case Trait::Health :
-        if (const Swimmer* targetSwimmer = dynamic_cast<const Swimmer*>(&target)) {
-            return targetSwimmer->GetHealth();
+        if (const Trilobyte* targetTrilobyte = dynamic_cast<const Trilobyte*>(&target)) {
+            return targetTrilobyte->GetHealth();
         } else {
             return 0.0;
         }

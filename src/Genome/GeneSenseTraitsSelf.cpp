@@ -39,7 +39,7 @@ json GeneSenseTraitsSelf::Serialise() const
     };
 }
 
-void GeneSenseTraitsSelf::ExpressGene(Swimmer& owner, Phenotype& target) const
+void GeneSenseTraitsSelf::ExpressGene(Trilobyte& owner, Phenotype& target) const
 {
     target.senses.push_back(std::make_shared<SenseTraitsSelf>(GetNetwork(), GetOutputConnections(), owner, std::vector(toDetect_)));
     target.baseMetabolism += GetMetabolicCost();
