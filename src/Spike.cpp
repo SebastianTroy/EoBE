@@ -34,13 +34,8 @@ void Spike::TickImpl(EntityContainerInterface& container, const UniverseParamete
     });
 }
 
-void Spike::DrawImpl(QPainter& paint)
+void Spike::DrawExtras(QPainter& /*paint*/)
 {
-    for (double rotation = 0.0; rotation < Tril::Tau; rotation += Tril::Tau / 17) {
-        Point tip = ApplyOffset({ GetLocation().x, GetLocation().y }, rotation, GetRadius());
-        paint.drawLine(QLineF(GetLocation().x, GetLocation().y, tip.x, tip.y));
-    }
-    paint.drawEllipse(QPointF(GetLocation().x, GetLocation().y), GetRadius() / 2, GetRadius() / 2);
 }
 
 std::vector<Property> Spike::CollectProperties() const

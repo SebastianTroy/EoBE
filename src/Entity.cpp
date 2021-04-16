@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include "EntitySvgManager.h"
 
 #include <Random.h>
 #include <Algorithm.h>
@@ -113,10 +114,37 @@ bool Entity::Tick(EntityContainerInterface& container, const UniverseParameters&
 
 void Entity::Draw(QPainter& paint)
 {
+    if (!pixmap_) {
+        pixmap_ = EntitySvgManager::GetPixmap(GetName(), colour_, 250.0);
+    }
+
     paint.save();
-    paint.setBrush(colour_);
-    DrawImpl(paint);
+    QPointF centre(GetLocation().x, GetLocation().y);
+    const qreal scale = (GetRadius() * 2) / std::max(pixmap_->width(), pixmap_->height());
+
+    QRectF imageRect(pixmap_->rect());
+    QRectF targetRect(imageRect.topLeft(), imageRect.size() * scale);
+    targetRect.translate(centre - QPointF(targetRect.width() / 2, targetRect.height() / 2));
+
+    if (paint.transform().map(QLineF(centre + QPointF(-radius_, 0), centre + QPointF(radius_, 0))).length() < 12.0) {
+        QPen pen(Qt::black);
+        pen.setCosmetic(true);
+        paint.setPen(pen);
+        paint.setBrush(colour_);
+        paint.drawEllipse(centre, radius_, radius_);
+    } else {
+        // Rotate the painter so it looks like our pixmap has been rotated
+        paint.translate(centre);
+        // FIXME I think the below indicates there are issues with how angle is treated elsewhere...
+        paint.rotate(((Tril::Pi - GetTransform().rotation) * (360.0 / Tril::Tau)));
+        paint.translate(-centre);
+
+        paint.drawPixmap(targetRect, *pixmap_, pixmap_->rect());
+    }
+
     paint.restore();
+
+    DrawExtras(paint);
 }
 
 Energy Entity::TakeEnergy(Energy quantity)
@@ -147,5 +175,3 @@ bool Entity::Move()
     }
     return false;
 }
-
-

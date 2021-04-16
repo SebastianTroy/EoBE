@@ -16,7 +16,7 @@ public:
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override;
-    virtual void DrawImpl(QPainter& paint) override;
+    virtual void DrawExtras(QPainter& paint) override;
 
 private:
     std::shared_ptr<Swimmer> mother_;

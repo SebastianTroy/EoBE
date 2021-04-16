@@ -31,9 +31,7 @@ TODO
  - - More environmental effects (localised friction? e.t.c.)
  - More effectors (body armor? reproductive organs? pheremone creators? poison creators? decoy creators? food creators? Egg layers?)
  - Genes that encode more than a single effector or sensor (Pair of antenna? pair of eyes? memory/flip-flop (loop output to input)?
- - Improve rendering (image based? decals? OpenGL?)
  - Genes inspector view
- - More graphs & configurable graphs
  - Matrix based coordinate system/collisions
  - More entities (pheremones? poisons? more food types?)
  - tabs in left GUI to split up settings
@@ -42,8 +40,10 @@ TODO
  -  - adjust feed dispenser pellet energy/frequency
  -  - Add feed dispenser
  -  - resize feed dispenser
- - add images for each sense and effector and body
- - add gene for image decals
+ - Image based rendering
+ - - Replace placeholder images with coherently styled ones
+ - - add images for each sense and effector
+ - - add gene for image decals
  - add gene for egg size
  - allow laid eggs to be fertilised by passing swimmers (optional, let genetics decide)
  - brain inspector needs ability to adjust line culling (i.e. don't show connections below x strength...) etc
@@ -58,6 +58,12 @@ TODO
  - - Allows for effectors that increase / decrease a swimmers friction
  - - Further penalty for colliding with spikes
  - - Can add new entity types that add areas of friction, increasing environmental variety (-ve friction objects?)
+ - Want a generic "spawner" type that can spawn in food pellets the same way they currently are, but also be used to spawn spikes etc, so that
+ - Look into ChaiScript
+ - - These would require exposing a lot of the C++ to ChaiScript so this should be a feature explored when the APIs are more stable
+ - - - Could make an EntityChaiScript, so scripted entities  could exist
+ - - - Could make an Sense/EffectorChaiScript, so scripted senses and abilities could be scripted
+ - - - Could make a ChaiScriptGraph, so scripted graphs could be added
 
 Next Steps
 ----------
@@ -67,8 +73,6 @@ Entity needs some generic introspection so that classes don't need to do a bunch
    - Perhaps a pure virtual GetType() which returns Animal, Vegetable, or Mineral
    - Perhaps a pure virtual GetAlive() (Animal, Egg & MeatChunk are all animal, but MeatChunks are not alive)
    - There must be a way to do this in a single function, perhaps something akin to a tag system? Would allow entities to mix and match qualities
-
-Now we have upgraded to Qt 6, look into Qt 3D (for realtime 2D graphical aspect)
 
 Need a seperate momentumTransform, which is not just affected by friction and input from tail etc but also factors in the direction faced, with perhaps EffectorDorsalFin or the like improving the efficiency of the conversion of the movement transform to match the facing transform
  - Add Effectors that increase / decrease friction

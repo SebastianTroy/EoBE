@@ -16,7 +16,7 @@ public:
     Swimmer(Energy energy, const Transform& transform, std::shared_ptr<Genome> genome, std::shared_ptr<Swimmer>&& parent);
     virtual ~Swimmer() override;
 
-    virtual std::string_view GetName() const override { return "Swimmer"; }
+    virtual std::string_view GetName() const override { return "Trilobyte"; }
     virtual std::string_view GetDescription() const override;
 
     std::shared_ptr<Entity> GiveBirth(const std::shared_ptr<Genome>& other);
@@ -46,7 +46,7 @@ protected:
     std::shared_ptr<Swimmer> closestLivingAncestor_;
 
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override final;
-    virtual void DrawImpl(QPainter& paint) override final;
+    virtual void DrawExtras(QPainter& paint) override final;
 
 private:
     const uint64_t generation_;

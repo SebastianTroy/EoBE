@@ -28,7 +28,6 @@ std::string_view FoodPellet::GetDescription() const
            "The can be eaten by swimmers as a source of energy.</p>";
 }
 
-void FoodPellet::DrawImpl(QPainter& paint)
+void FoodPellet::DrawExtras(QPainter& /*paint*/)
 {
-    paint.drawEllipse(QPointF{ GetTransform().x, GetTransform().y }, GetRadius(), GetRadius());
 }

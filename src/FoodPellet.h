@@ -21,7 +21,7 @@ private:
     const std::shared_ptr<FeedDispenser> spawner_;
 
     virtual void TickImpl(EntityContainerInterface& /*container*/, const UniverseParameters& /*universeParameters*/) override final {}
-    virtual void DrawImpl(QPainter& paint) override final;
+    virtual void DrawExtras(QPainter& paint) override final;
 
 private:
     virtual std::vector<Property> CollectProperties() const override { return {}; }

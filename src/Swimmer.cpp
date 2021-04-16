@@ -1,12 +1,17 @@
 #include "Swimmer.h"
 
+#include "EntitySvgManager.h"
 #include "FoodPellet.h"
 #include "MeatChunk.h"
 #include "Egg.h"
 #include "Genome/GeneFactory.h"
+
 #include <Random.h>
 
 #include <QPainter>
+#include <QFile>
+#include <QtXml/QDomDocument>
+#include <QtSvg/QSvgRenderer>
 
 #include <sstream>
 #include <math.h>
@@ -139,16 +144,12 @@ void Swimmer::TickImpl(EntityContainerInterface& container, const UniverseParame
     }
 }
 
-void Swimmer::DrawImpl(QPainter& paint)
+void Swimmer::DrawExtras(QPainter& paint)
 {
-    paint.save();
-    paint.setBrush(GetColour());
-    paint.drawEllipse({ GetTransform().x, GetTransform().y }, GetRadius(), GetRadius());
     if (health_ < 100.0) {
         paint.fillRect(QRectF(GetTransform().x - (26.0), GetTransform().y - GetRadius() + 13, 52.0, 7), Qt::black);
         paint.fillRect(QRectF(GetTransform().x - (25.0), GetTransform().y - GetRadius() + 14, 50.0 * health_ / 100.0, 5), Qt::red);
     }
-    paint.restore();
 
     for (auto& sense : senses_) {
         paint.save();

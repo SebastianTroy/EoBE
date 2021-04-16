@@ -10,6 +10,7 @@ set(PROJECT_SOURCES
     Egg.cpp
     Entity.cpp
     EntityPropertyTableModel.cpp
+    EntitySvgManager.cpp
     FeedDispenser.cpp
     FoodPellet.cpp
     Genome/ChromosomePair.cpp
@@ -69,6 +70,7 @@ set(PROJECT_HEADERS
     Entity.h
     EntityContainerInterface.h
     EntityPropertyTableModel.h
+    EntitySvgManager.h
     FeedDispenser.h
     FoodPellet.h
     Genome/ChromosomePair.h
@@ -150,6 +152,8 @@ target_include_directories(Trilobytes
 target_link_libraries(Trilobytes
     PRIVATE
     Qt6::Widgets
+    Qt6::Svg
+    Qt6::Xml
     nlohmann_json::nlohmann_json
     fmt::fmt
     Utility

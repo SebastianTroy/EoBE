@@ -18,7 +18,7 @@ endif()
 
 Message("${CMAKE_CXX_COMPILER_ID}")
 
-find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Svg Xml REQUIRED)
 
 include(FetchContent)
 

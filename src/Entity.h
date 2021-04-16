@@ -9,6 +9,7 @@
 #include <Transform.h>
 
 #include <QColor>
+#include <QPixmap>
 
 #include <string_view>
 #include <array>
@@ -56,7 +57,7 @@ public:
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) = 0;
-    virtual void DrawImpl(QPainter& paint) = 0;
+    virtual void DrawExtras(QPainter& paint) = 0;
 
     void UseEnergy(Energy quantity) { energy_ -= quantity; }
     Energy TakeEnergy(Energy quantity);
@@ -75,6 +76,7 @@ private:
     double speed_;
     uint64_t age_;
     QColor colour_;
+    std::shared_ptr<QPixmap> pixmap_;
 
     virtual std::vector<Property> CollectProperties() const = 0;
 

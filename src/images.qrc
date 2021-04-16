@@ -1,8 +1,9 @@
 <RCC>
     <qresource prefix="/images">
-        <file>images/foodPellet.svg</file>
-        <file>images/spikeBall.svg</file>
-        <file>images/trilobite.svg</file>
-        <file>images/meatChunk.svg</file>
+        <file>images/FoodPellet.svg</file>
+        <file>images/Spike.svg</file>
+        <file>images/Trilobyte.svg</file>
+        <file>images/MeatChunk.svg</file>
+        <file>images/Egg.svg</file>
     </qresource>
 </RCC>

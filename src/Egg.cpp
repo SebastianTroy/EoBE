@@ -5,7 +5,7 @@
 #include <QPainter>
 
 Egg::Egg(std::shared_ptr<Swimmer>&& mother, Energy energy, const Transform& transform, std::shared_ptr<Genome> genomeOne, std::shared_ptr<Genome> genomeTwo, unsigned hatchingDelay)
-    : Entity(transform, 7, QColor::fromRgb(125, 57, 195), energy, mother->GetVelocity())
+    : Entity(transform, 3.5, QColor::fromRgb(125, 57, 195), energy, mother->GetVelocity())
     , mother_(std::move(mother))
     , genomeOne_(genomeOne)
     , genomeTwo_(genomeTwo)
@@ -44,9 +44,8 @@ void Egg::TickImpl(EntityContainerInterface& container, const UniverseParameters
     }
 }
 
-void Egg::DrawImpl(QPainter& paint)
+void Egg::DrawExtras(QPainter& /*paint*/)
 {
-    paint.drawEllipse(QPointF(GetTransform().x, GetTransform().y), GetRadius() / 2.0, GetRadius() / 3.0);
 }
 
 std::vector<Property> Egg::CollectProperties() const
