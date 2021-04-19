@@ -1,6 +1,5 @@
 #include "FoodPellet.h"
 
-#include "FeedDispenser.h"
 #include <RangeConverter.h>
 
 #include <QPainter>
@@ -11,15 +10,9 @@ double FoodPellet::GetPelletRadius(const Energy& energy)
     return energyToSize.Convert(energy);
 }
 
-FoodPellet::FoodPellet(const std::shared_ptr<FeedDispenser>& spawner, Energy energy, const Transform& transform)
+FoodPellet::FoodPellet(Energy energy, const Transform& transform)
     : Entity(transform, GetPelletRadius(energy), QColor::fromRgb(15, 235, 15), energy)
-    , spawner_(spawner)
 {
-}
-
-FoodPellet::~FoodPellet()
-{
-    spawner_->PelletEaten();
 }
 
 std::string_view FoodPellet::GetDescription() const

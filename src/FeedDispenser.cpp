@@ -7,6 +7,7 @@
 
 #include <QPainter>
 
+#include <memory>
 
 FeedDispenser::FeedDispenser(QuadTree& entityContainer, double x, double y, double radius, double pelletDensity)
     : entityContainer_(entityContainer)
@@ -53,7 +54,14 @@ void FeedDispenser::SpawnPellet()
 {
     Point foodLocation = Random::PointInCircle({ x_, y_, radius_ });
     if (entityContainer_.CountEntities(Circle{ foodLocation.x, foodLocation.y, FoodPellet::GetPelletRadius(pelletEnergyContent_) }) == 0) {
-        entityContainer_.AddEntity(std::make_shared<FoodPellet>(shared_from_this(), pelletEnergyContent_, Transform{ foodLocation.x, foodLocation.y, Random::Bearing() }));
+
+        auto deleter = [dispenser = shared_from_this()](FoodPellet* pellet)
+        {
+            --dispenser->currentPelletCount_;
+            delete pellet;
+        };
+
+        entityContainer_.AddEntity(std::shared_ptr<FoodPellet>(new FoodPellet(pelletEnergyContent_, Transform{ foodLocation.x, foodLocation.y, Random::Bearing() }), deleter));
         ++currentPelletCount_;
         auto proportion = double(currentPelletCount_) / double(maxPellets_);
         ticksTillNext_ += 10.0 * ((-0.8 * (std::pow(proportion, 2.0) * -std::pow(proportion - 2, 2.0))) + 0.1);
