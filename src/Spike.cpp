@@ -34,10 +34,6 @@ void Spike::TickImpl(EntityContainerInterface& container, const UniverseParamete
     });
 }
 
-void Spike::DrawExtras(QPainter& /*paint*/)
-{
-}
-
 std::vector<Property> Spike::CollectProperties() const
 {
     return std::vector<Property>{

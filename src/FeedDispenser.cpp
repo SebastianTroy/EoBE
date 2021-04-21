@@ -20,13 +20,15 @@ FeedDispenser::FeedDispenser(QuadTree& entityContainer, double x, double y, doub
 {
 }
 
-void FeedDispenser::Draw(QPainter& paint)
+void FeedDispenser::Draw(QPainter& paint, const DrawSettings& options)
 {
-    paint.save();
-    paint.setPen(QColor(0, 205, 90, 255));
-    paint.setBrush(QColor(0, 205, 90, 190).lighter());
-    paint.drawEllipse({x_, y_}, GetRadius(), GetRadius());
-    paint.restore();
+    if (options.showFoodSpawners_) {
+        paint.save();
+        paint.setPen(QColor(0, 205, 90, 255));
+        paint.setBrush(QColor(0, 205, 90, 190).lighter());
+        paint.drawEllipse({x_, y_}, GetRadius(), GetRadius());
+        paint.restore();
+    }
 }
 
 void FeedDispenser::Tick(const UniverseParameters& params)

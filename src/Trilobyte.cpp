@@ -9,9 +9,6 @@
 #include <Random.h>
 
 #include <QPainter>
-#include <QFile>
-#include <QtXml/QDomDocument>
-#include <QtSvg/QSvgRenderer>
 
 #include <sstream>
 #include <math.h>
@@ -144,22 +141,24 @@ void Trilobyte::TickImpl(EntityContainerInterface& container, const UniversePara
     }
 }
 
-void Trilobyte::DrawExtras(QPainter& paint)
+void Trilobyte::DrawExtras(QPainter& paint, const DrawSettings& options)
 {
-    if (health_ < 100.0) {
-        paint.fillRect(QRectF(GetTransform().x - (26.0), GetTransform().y - GetRadius() + 13, 52.0, 7), Qt::black);
-        paint.fillRect(QRectF(GetTransform().x - (25.0), GetTransform().y - GetRadius() + 14, 50.0 * health_ / 100.0, 5), Qt::red);
-    }
+    if (options.showTrilobyteDebug_) {
+        if (health_ < 100.0) {
+            paint.fillRect(QRectF(GetTransform().x - (26.0), GetTransform().y - GetRadius() + 13, 52.0, 7), Qt::black);
+            paint.fillRect(QRectF(GetTransform().x - (25.0), GetTransform().y - GetRadius() + 14, 50.0 * health_ / 100.0, 5), Qt::red);
+        }
 
-    for (auto& sense : senses_) {
-        paint.save();
-        sense->Draw(paint);
-        paint.restore();
-    }
-    for (auto& effector : effectors_) {
-        paint.save();
-        effector->Draw(paint);
-        paint.restore();
+        for (auto& sense : senses_) {
+            paint.save();
+            sense->Draw(paint);
+            paint.restore();
+        }
+        for (auto& effector : effectors_) {
+            paint.save();
+            effector->Draw(paint);
+            paint.restore();
+        }
     }
 }
 

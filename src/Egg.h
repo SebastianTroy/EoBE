@@ -16,7 +16,6 @@ public:
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override;
-    virtual void DrawExtras(QPainter& paint) override;
 
 private:
     std::shared_ptr<Trilobyte> mother_;

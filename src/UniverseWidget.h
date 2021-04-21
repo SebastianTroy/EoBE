@@ -36,6 +36,8 @@ public slots:
     void SetTicksPaused(bool paused);
     void StepForwards(unsigned ticksToStep);
 
+    DrawSettings& DrawOptions() { return drawOptions_; }
+
     void SetDisplayDurationStats(bool display) { displayDurationStats_ = display; };
     void SetDisplayRateStats(bool display) { displayRateStats_ = display; };
 
@@ -56,8 +58,8 @@ public slots:
     void SetMeanChromosomeMutationCount(double mean) { universeParameters_.meanStructuralMutationCount_ = mean; }
     void SetChromosomeMutationStdDev(double stdDev) { universeParameters_.structuralMutationCountStdDev_ = stdDev; }
 
-    const Tril::WindowedRollingStatistics& GetTickStats() const { return tickDurationStats_; }
-    const Tril::WindowedRollingStatistics& GetPaintStats() const{ return paintDurationStats_; }
+    const Tril::WindowedRollingStatistics& GetTickDurationStats() const { return tickDurationStats_; }
+    const Tril::WindowedRollingStatistics& GetDrawDurationStats() const{ return drawDurationStats_; }
 
 protected:
     virtual void wheelEvent(QWheelEvent* event) override final;
@@ -71,19 +73,19 @@ protected:
 
 private slots:
     void OnTickTimerElapsed();
-    void OnPaintTimerElapsed();
+    void OnDrawTimerElapsed();
 
 private:
     QTimer tickThread_;
-    QTimer renderThread_;
+    QTimer drawThread_;
     bool limitTickRate_ = true;
     bool ticksPaused_ = false;
     double ticksPerSecondTarget_ = 60.0;
 
     Tril::WindowedRollingStatistics tickDurationStats_;
-    Tril::WindowedRollingStatistics paintDurationStats_;
+    Tril::WindowedRollingStatistics drawDurationStats_;
     Tril::WindowedFrequencyStatistics tickRateStats_;
-    Tril::WindowedFrequencyStatistics paintRateStats_;
+    Tril::WindowedFrequencyStatistics drawRateStats_;
     bool displayRateStats_ = false;
     bool displayDurationStats_ = false;
 
@@ -100,6 +102,8 @@ private:
     bool trackSelected_ = false;
     std::shared_ptr<Entity> selectedEntity_;
     std::shared_ptr<Entity> draggedEntity_;
+
+    DrawSettings drawOptions_;
 
     Point TransformLocalToSimCoords(const Point& local) const;
     Point TransformSimToLocalCoords(const Point& sim) const;

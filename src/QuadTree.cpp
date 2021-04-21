@@ -26,18 +26,18 @@ void QuadTree::Tick(const UniverseParameters& universeParameters)
     root_->ResolveRecursive();
 }
 
-void QuadTree::Draw(QPainter& paint, const Rect& renderArea) const
+void QuadTree::Draw(QPainter& paint, const DrawSettings& options, const Rect& drawArea) const
 {
-    double minX = renderArea.left - Entity::MAX_RADIUS;
-    double maxX = renderArea.right + Entity::MAX_RADIUS;
-    double minY = renderArea.top - Entity::MAX_RADIUS;
-    double maxY = renderArea.bottom + Entity::MAX_RADIUS;
+    double minX = drawArea.left - Entity::MAX_RADIUS;
+    double maxX = drawArea.right + Entity::MAX_RADIUS;
+    double minY = drawArea.top - Entity::MAX_RADIUS;
+    double maxY = drawArea.bottom + Entity::MAX_RADIUS;
     /*
      * Expand the area slightly to catch edge cases where entites overlap into
      * the visible area from quads that do not intersect the visible area.
      */
     Rect expandedArea { minX, minY, maxX, maxY };
-    root_->DrawRecursive(paint, expandedArea);
+    root_->DrawRecursive(paint, options, expandedArea);
 }
 
 void QuadTree::SetEntityTargetPerQuad(uint64_t target, uint64_t leeway)
@@ -204,22 +204,24 @@ void QuadTree::Quad::ResolveRecursive()
     }
 }
 
-void QuadTree::Quad::DrawRecursive(QPainter& paint, const Rect& renderArea) const
+void QuadTree::Quad::DrawRecursive(QPainter& paint, const DrawSettings& options, const Rect& drawArea) const
 {
-    if (Collides(rect_, renderArea)) {
-        paint.save();
-        QPen quadPen(Qt::black);
-        quadPen.setCosmetic(true);
-        paint.setPen(quadPen);
-        paint.drawRect(QRectF(QPointF(rect_.left, rect_.top), QPointF(rect_.right, rect_.bottom)));
-        paint.restore();
+    if (Collides(rect_, drawArea)) {
+        if (options.showQuadTreeGrid_) {
+            paint.save();
+            QPen quadPen(Qt::black);
+            quadPen.setCosmetic(true);
+            paint.setPen(quadPen);
+            paint.drawRect(QRectF(QPointF(rect_.left, rect_.top), QPointF(rect_.right, rect_.bottom)));
+            paint.restore();
+        }
         if (!children_.empty()) {
             for (auto& child : children_) {
-                child->DrawRecursive(paint, renderArea);
+                child->DrawRecursive(paint, options, drawArea);
             }
         } else {
             for (auto e : entities_) {
-                e->Draw(paint);
+                e->Draw(paint, options);
             }
         }
     }

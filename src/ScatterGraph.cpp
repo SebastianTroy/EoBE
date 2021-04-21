@@ -177,7 +177,7 @@ void ScatterGraph::PaintGraticule(QPainter& painter, const QPointF& target, cons
         // Display axis values
         QString coordsText = QString("(%1, %2)").arg(xValueAtCrosshair).arg(yValueAtCrosshair);
 
-        // Weird bug where half the text doesn't render without expanding the rect!
+        // Weird bug where half the text doesn't draw without expanding the rect!
         QRectF coordsRect = painter.boundingRect(QRectF(0, 0, 50, 50), Qt::AlignTop | Qt::AlignLeft, coordsText).adjusted(0, 0, 1, 0);
 
         // Make sure we don't draw them off screen

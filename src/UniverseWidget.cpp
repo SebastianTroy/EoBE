@@ -14,11 +14,11 @@
 
 UniverseWidget::UniverseWidget(QWidget* parent)
     : QWidget(parent)
-    , renderThread_(this)
+    , drawThread_(this)
     , tickDurationStats_(100)
-    , paintDurationStats_(100)
+    , drawDurationStats_(100)
     , tickRateStats_(30)
-    , paintRateStats_(30)
+    , drawRateStats_(30)
 {
     setFocusPolicy(Qt::StrongFocus);
     setAutoFillBackground(true);
@@ -26,9 +26,9 @@ UniverseWidget::UniverseWidget(QWidget* parent)
     p.setColor(QPalette::ColorRole::Window, QColor(200, 255, 255));
     setPalette(p);
 
-    renderThread_.setSingleShot(false);
-    renderThread_.setTimerType(Qt::PreciseTimer);
-    renderThread_.connect(&renderThread_, &QTimer::timeout, this, &UniverseWidget::OnPaintTimerElapsed, Qt::QueuedConnection);
+    drawThread_.setSingleShot(false);
+    drawThread_.setTimerType(Qt::PreciseTimer);
+    drawThread_.connect(&drawThread_, &QTimer::timeout, this, &UniverseWidget::OnDrawTimerElapsed, Qt::QueuedConnection);
 
     tickThread_.setSingleShot(false);
     tickThread_.setTimerType(Qt::PreciseTimer);
@@ -51,11 +51,11 @@ void UniverseWidget::SetUniverse(std::shared_ptr<Universe> universe)
 void UniverseWidget::SetFpsTarget(double fps)
 {
     if (fps <= 0.0) {
-        renderThread_.stop();
-    } else if (renderThread_.isActive()) {
-        renderThread_.setInterval(1000.0 / fps);
+        drawThread_.stop();
+    } else if (drawThread_.isActive()) {
+        drawThread_.setInterval(1000.0 / fps);
     } else {
-        renderThread_.start(1000.0 / fps);
+        drawThread_.start(1000.0 / fps);
     }
 }
 
@@ -80,9 +80,9 @@ void UniverseWidget::SetTicksPaused(bool paused)
 void UniverseWidget::StepForwards(unsigned ticksToStep)
 {
     bool tickThreadWasRunning = tickThread_.isActive();
-    bool renderThreadWasRunning = renderThread_.isActive();
+    bool drawThreadWasRunning = drawThread_.isActive();
     tickThread_.stop();
-    renderThread_.stop();
+    drawThread_.stop();
 
     for (unsigned i = 0; i < ticksToStep; ++i) {
         Tick();
@@ -92,8 +92,8 @@ void UniverseWidget::StepForwards(unsigned ticksToStep)
     if (tickThreadWasRunning) {
         tickThread_.start();
     }
-    if (renderThreadWasRunning) {
-        renderThread_.start();
+    if (drawThreadWasRunning) {
+        drawThread_.start();
     }
 }
 
@@ -220,11 +220,11 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
 
         Point topLeft = TransformLocalToSimCoords(Point{ 0, 0 });
         Point bottomRight = TransformLocalToSimCoords(Point{ static_cast<double>(width()), static_cast<double>(height()) });
-        universe_->Render(p, Rect{ topLeft.x, topLeft.y, bottomRight.x, bottomRight.y });
+        universe_->Draw(p, drawOptions_, Rect{ topLeft.x, topLeft.y, bottomRight.x, bottomRight.y });
 
         if (draggedEntity_) {
             // TODO draw dragged entity slightly bigger and offset, with a shadow so it looks like it is above the sim
-            draggedEntity_->Draw(p);
+            draggedEntity_->Draw(p, drawOptions_);
             p.setPen(Qt::GlobalColor::darkYellow);
             p.setBrush(Qt::BrushStyle::NoBrush);
             p.drawEllipse(QPointF(draggedEntity_->GetTransform().x, draggedEntity_->GetTransform().y), draggedEntity_->GetRadius(), draggedEntity_->GetRadius());
@@ -236,14 +236,14 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
             p.fillRect(QRect(0, textY - 15.0, displayDurationStats_ ? 110 : 80, 35), QColor(200, 255, 255));
             p.drawText(QPointF(5.0, textY), QString("Tick (Hz): %1").arg(std::round(tickRateStats_.MeanHz())));
             textY += 15.0;
-            p.drawText(QPointF(5.0, textY), QString("Paint (Hz): %1").arg(std::round(paintRateStats_.MeanHz())));
+            p.drawText(QPointF(5.0, textY), QString("Paint (Hz): %1").arg(std::round(drawRateStats_.MeanHz())));
             textY += 15.0;
         }
         if (displayDurationStats_) {
             p.fillRect(QRect(0, textY - 15.0, 110, 35), QColor(200, 255, 255));
             p.drawText(QPointF(5.0, textY), QString("Tick (ms): %1").arg(tickDurationStats_.Mean() * 1.e3));
             textY += 15.0;
-            p.drawText(QPointF(5.0, textY), QString("Paint (ms): %1").arg(paintDurationStats_.Mean() * 1.e3));
+            p.drawText(QPointF(5.0, textY), QString("Paint (ms): %1").arg(drawDurationStats_.Mean() * 1.e3));
             textY += 15.0;
         }
     }
@@ -252,8 +252,8 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
     if (event->rect() == rect()) {
         auto end = std::chrono::steady_clock::now();
         double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count();
-        paintDurationStats_.AddValue(seconds);
-        paintRateStats_.AddValue();
+        drawDurationStats_.AddValue(seconds);
+        drawRateStats_.AddValue();
     }
 }
 
@@ -264,7 +264,7 @@ void UniverseWidget::OnTickTimerElapsed()
     }
 }
 
-void UniverseWidget::OnPaintTimerElapsed()
+void UniverseWidget::OnDrawTimerElapsed()
 {
     update();
 }

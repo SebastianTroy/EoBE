@@ -44,10 +44,6 @@ void Egg::TickImpl(EntityContainerInterface& container, const UniverseParameters
     }
 }
 
-void Egg::DrawExtras(QPainter& /*paint*/)
-{
-}
-
 std::vector<Property> Egg::CollectProperties() const
 {
     return std::vector<Property>{

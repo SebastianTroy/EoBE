@@ -3,6 +3,7 @@
 
 #include "EntityContainerInterface.h"
 #include "UniverseParameters.h"
+#include "DrawSettings.h"
 
 #include <Shape.h>
 #include <Energy.h>
@@ -53,11 +54,11 @@ public:
 
     // returns true if the entity has moved
     bool Tick(EntityContainerInterface& container, const UniverseParameters& universeParameters);
-    void Draw(QPainter& paint);
+    void Draw(QPainter& paint, const DrawSettings& options);
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) = 0;
-    virtual void DrawExtras(QPainter& paint) = 0;
+    virtual void DrawExtras(QPainter& paint, const DrawSettings& options) { /* Nothing by default */ }
 
     void UseEnergy(Energy quantity) { energy_ -= quantity; }
     Energy TakeEnergy(Energy quantity);
@@ -78,7 +79,7 @@ private:
     QColor colour_;
     std::shared_ptr<QPixmap> pixmap_;
 
-    virtual std::vector<Property> CollectProperties() const = 0;
+    virtual std::vector<Property> CollectProperties() const { return {}; /* No extra properties by default */ }
 
     // returns true if the entity has moved
     bool Move();

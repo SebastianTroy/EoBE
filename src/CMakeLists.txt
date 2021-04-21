@@ -60,6 +60,7 @@ set(PROJECT_SOURCES
 
 set(PROJECT_HEADERS
     MainWindow.h
+    DrawSettings.h
     Effectors/Effector.h
     Effectors/EffectorFilterMouth.h
     Effectors/EffectorProboscisMouth.h

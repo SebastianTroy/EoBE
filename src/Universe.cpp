@@ -66,14 +66,12 @@ Tril::Handle Universe::AddTask(std::function<void (uint64_t tick)>&& task)
     return perTickTasks_.PushBack(std::move(task));
 }
 
-void Universe::Render(QPainter& p, const Rect& renderArea) const
+void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawArea) const
 {
-    // TODO RenderSettings struct to contain such as showQuads, showSenseRanges, showPole, showFoodSpawnArea
     for (auto& dispenser : feedDispensers_) {
-        dispenser->Draw(p);
+        dispenser->Draw(p, options);
     }
-    // TODO fix edge cases where partially on screen entities are not rendered
-    rootNode_.Draw(p, renderArea);
+    rootNode_.Draw(p, options, drawArea);
 }
 
 void Universe::Tick()

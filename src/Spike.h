@@ -13,7 +13,6 @@ public:
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override;
-    virtual void DrawExtras(QPainter& paint) override;
 
 private:
     virtual std::vector<Property> CollectProperties() const override;

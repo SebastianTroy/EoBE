@@ -4,6 +4,8 @@
 #include "EntityContainerInterface.h"
 #include "Entity.h"
 #include "UniverseParameters.h"
+#include "DrawSettings.h"
+
 #include <Shape.h>
 
 #include <memory>
@@ -20,7 +22,7 @@ public:
 
     // Ticks all containing entities and resolves any entities moving from one quad to another
     void Tick(const UniverseParameters& universeParameters);
-    void Draw(QPainter& paint, const Rect& renderArea) const;
+    void Draw(QPainter& paint, const DrawSettings& options, const Rect& drawArea) const;
 
     void SetEntityTargetPerQuad(uint64_t target, uint64_t leeway);
 
@@ -86,7 +88,7 @@ private:
 
         void TickRecursive(const UniverseParameters& universeParameters);
         void ResolveRecursive();
-        void DrawRecursive(QPainter& paint, const Rect& renderArea) const;
+        void DrawRecursive(QPainter& paint, const DrawSettings& options, const Rect& drawArea) const;
         void RehomeRecursive(const std::shared_ptr<Entity>& entity, bool delayed);
         std::shared_ptr<Entity> PickRecursive(const Rect& searchArea, const Point& location, bool remove);
         template <typename T>

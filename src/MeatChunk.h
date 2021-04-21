@@ -13,7 +13,6 @@ public:
 
 protected:
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override final;
-    virtual void DrawExtras(QPainter& paint) override final;
 
 private:
     static double GetMeatChunkRadius(const Energy& energy);

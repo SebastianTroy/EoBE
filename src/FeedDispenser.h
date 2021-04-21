@@ -1,6 +1,8 @@
 #ifndef FEEDDISPENSER_H
 #define FEEDDISPENSER_H
 
+#include "DrawSettings.h"
+
 #include <Energy.h>
 #include <Shape.h>
 
@@ -20,7 +22,7 @@ public:
     unsigned GetMaxPellets() const { return maxPellets_; }
     Circle GetCollide() const { return Circle{ x_, y_, radius_ }; };
 
-    void Draw(QPainter& paint);
+    void Draw(QPainter& paint, const DrawSettings& options);
     void Tick(const UniverseParameters& params);
     void PelletEaten();
     void AddPelletsImmediately(unsigned pelletCount);

@@ -1,6 +1,7 @@
 #ifndef UNIVERSE_H
 #define UNIVERSE_H
 
+#include "DrawSettings.h"
 #include "FeedDispenser.h"
 #include "LineGraph.h"
 #include "QuadTree.h"
@@ -49,7 +50,7 @@ public:
 
 
     void Tick();
-    void Render(QPainter& painter, const Rect& renderArea) const;
+    void Draw(QPainter& painter, const DrawSettings& options, const Rect& drawArea) const;
 
 private:
     QuadTree rootNode_;

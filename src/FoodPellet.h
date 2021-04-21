@@ -18,10 +18,7 @@ public:
     std::string_view GetDescription() const override;
 
 private:
-
     void TickImpl(EntityContainerInterface& /*container*/, const UniverseParameters& /*universeParameters*/) override final {}
-    void DrawExtras(QPainter& paint) override final;
-    std::vector<Property> CollectProperties() const override { return {}; }
 };
 
 #endif // FOODPELLET_H

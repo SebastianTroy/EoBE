@@ -112,7 +112,7 @@ bool Entity::Tick(EntityContainerInterface& container, const UniverseParameters&
     return Move(/* TODO user adjustable coefficient of friction */);
 }
 
-void Entity::Draw(QPainter& paint)
+void Entity::Draw(QPainter& paint, const DrawSettings& options)
 {
     if (!pixmap_) {
         pixmap_ = EntitySvgManager::GetPixmap(GetName(), colour_, 250.0);
@@ -126,7 +126,9 @@ void Entity::Draw(QPainter& paint)
     QRectF targetRect(imageRect.topLeft(), imageRect.size() * scale);
     targetRect.translate(centre - QPointF(targetRect.width() / 2, targetRect.height() / 2));
 
-    if (paint.transform().map(QLineF(centre + QPointF(-radius_, 0), centre + QPointF(radius_, 0))).length() < 12.0) {
+    if (!options.showEntityImages_
+        // Hack to cover up render bug (https://stackoverflow.com/questions/67099367/qpainter-rotation-prevents-correct-qpixmap-rendering)
+        || paint.transform().map(QLineF(centre + QPointF(-radius_, 0), centre + QPointF(radius_, 0))).length() < 12.0) {
         QPen pen(Qt::black);
         pen.setCosmetic(true);
         paint.setPen(pen);
@@ -144,7 +146,7 @@ void Entity::Draw(QPainter& paint)
 
     paint.restore();
 
-    DrawExtras(paint);
+    DrawExtras(paint, options);
 }
 
 Energy Entity::TakeEnergy(Energy quantity)

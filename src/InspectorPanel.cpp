@@ -29,6 +29,12 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     ui->splitter->setStretchFactor(2, 3);
     connect(ui->splitter, &QSplitter::splitterMoved, this, &InspectorPanel::UpdateEntityTab, Qt::QueuedConnection);
 
+    /// TODO draw option controlls
+    // Only interested in Trilobyte based draw settings for this view
+    // (unless there is the option to render the Universe in the view, centred
+    //  on the selected entity, then the other options are emaningful)
+    drawSettings_.showTrilobyteDebug_ = true;
+
     /// Entity Inspector controlls
     connect(&entityPropertyModel_, &EntityPropertyTableModel::DescriptionRequested, [&](QString description)
     {
@@ -127,7 +133,7 @@ void InspectorPanel::UpdateEntityPreview()
         paint.translate(ui->entityPreview->width() / 2.0, ui->entityPreview->height() / 2.0);
         paint.scale(scale, scale);
         paint.translate(-entityTransform.x, -entityTransform.y);
-        selectedEntity_->Draw(paint);
+        selectedEntity_->Draw(paint, drawSettings_);
 
         ui->entityPreview->setPixmap(previewPixmap_);
     } else {

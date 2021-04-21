@@ -39,7 +39,7 @@ TODO
  -  - adjust feed dispenser pellet energy/frequency
  -  - Add feed dispenser
  -  - resize feed dispenser
- - Image based rendering
+ - Image based drawing
  - - Replace placeholder images with coherently styled ones
  - - add images for each sense and effector
  - - add gene for image decals

@@ -20,7 +20,3 @@ std::string_view FoodPellet::GetDescription() const
     return "<p>Food pellets are spawned into the game by 'Feed Dispensers'. "
            "The can be eaten by trilobytes as a source of energy.</p>";
 }
-
-void FoodPellet::DrawExtras(QPainter& /*paint*/)
-{
-}

@@ -46,7 +46,7 @@ protected:
     std::shared_ptr<Trilobyte> closestLivingAncestor_;
 
     virtual void TickImpl(EntityContainerInterface& container, const UniverseParameters& universeParameters) override final;
-    virtual void DrawExtras(QPainter& paint) override final;
+    virtual void DrawExtras(QPainter& paint, const DrawSettings& options) override final;
 
 private:
     const uint64_t generation_;

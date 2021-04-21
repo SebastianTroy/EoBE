@@ -4,6 +4,7 @@
 #include "Universe.h"
 #include "Entity.h"
 #include "EntityPropertyTableModel.h"
+#include "DrawSettings.h"
 
 #include <QTabWidget>
 
@@ -29,6 +30,7 @@ private:
 
     Ui::InspectorPanel *ui;
     QPixmap previewPixmap_;
+    DrawSettings drawSettings_;
 
     std::shared_ptr<Universe> universe_;
     std::shared_ptr<Entity> selectedEntity_;

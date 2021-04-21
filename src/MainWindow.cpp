@@ -108,6 +108,17 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
+    /// Draw controlls
+    connect(ui->showGridCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showQuadTreeGrid_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->showFeedDispensersCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showFoodSpawners_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->useImagesCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showEntityImages_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->trilobyteDegugCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showTrilobyteDebug_ = enabled; }, Qt::QueuedConnection);
+
+    ui->showGridCheckbox->setChecked(false);
+    ui->showFeedDispensersCheckbox->setChecked(true);
+    ui->useImagesCheckbox->setChecked(true);
+    ui->trilobyteDegugCheckbox->setChecked(true);
+
     /// Debug controlls
     connect(ui->showPaintAndTickDurationsCheckbox, &QCheckBox::toggled, ui->universe, &UniverseWidget::SetDisplayDurationStats, Qt::QueuedConnection);
     connect(ui->showPaintAndTickFrequencyCheckbox, &QCheckBox::toggled, ui->universe, &UniverseWidget::SetDisplayRateStats, Qt::QueuedConnection);
@@ -404,7 +415,7 @@ void MainWindow::ResetGraphs()
     [=](uint64_t tick, LineGraph& graph)
     {
         if (tick % 100 == 0) {
-            const Tril::WindowedRollingStatistics& stats = ui->universe->GetTickStats();
+            const Tril::WindowedRollingStatistics& stats = ui->universe->GetTickDurationStats();
             graph.AddPoint(0, tick, 1000.0 * stats.Mean());
             graph.AddPoint(1, tick, 1000.0 * (stats.Mean() - stats.StandardDeviation()));
             graph.AddPoint(2, tick, 1000.0 * (stats.Mean() + stats.StandardDeviation()));
@@ -414,7 +425,7 @@ void MainWindow::ResetGraphs()
                  [=](uint64_t tick, LineGraph& graph)
     {
         if (tick % 100 == 0) {
-            const Tril::WindowedRollingStatistics& stats = ui->universe->GetPaintStats();
+            const Tril::WindowedRollingStatistics& stats = ui->universe->GetDrawDurationStats();
             graph.AddPoint(0, tick, 1000.0 * stats.Mean());
             graph.AddPoint(1, tick, 1000.0 * (stats.Mean() - stats.StandardDeviation()));
             graph.AddPoint(2, tick, 1000.0 * (stats.Mean() + stats.StandardDeviation()));

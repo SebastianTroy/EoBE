@@ -29,10 +29,6 @@ void MeatChunk::TickImpl(EntityContainerInterface& /*container*/, const Universe
     }
 }
 
-void MeatChunk::DrawExtras(QPainter& /*paint*/)
-{
-}
-
 double MeatChunk::GetMeatChunkRadius(const Energy& energy)
 {
     // Size range 0.5->3.5 scaling linearly with energy quantity

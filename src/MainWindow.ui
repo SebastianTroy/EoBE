@@ -74,9 +74,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
-              <width>235</width>
-              <height>631</height>
+              <y>-139</y>
+              <width>288</width>
+              <height>703</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -256,27 +256,64 @@
                   </property>
                  </widget>
                 </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="drawSettingsGroup">
+               <property name="title">
+                <string>Draw</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_3">
                 <item>
-                 <widget class="QGroupBox" name="debugSettingsGroup">
-                  <property name="title">
-                   <string>Debug</string>
+                 <widget class="QCheckBox" name="showGridCheckbox">
+                  <property name="text">
+                   <string>Show Grid</string>
                   </property>
-                  <layout class="QVBoxLayout" name="verticalLayout">
-                   <item>
-                    <widget class="QCheckBox" name="showPaintAndTickFrequencyCheckbox">
-                     <property name="text">
-                      <string>Show Frame &amp;&amp; Tick rates</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QCheckBox" name="showPaintAndTickDurationsCheckbox">
-                     <property name="text">
-                      <string>Show Frame &amp;&amp; Tick times</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="useImagesCheckbox">
+                  <property name="text">
+                   <string>Use Images</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="trilobyteDegugCheckbox">
+                  <property name="text">
+                   <string>Show Senses</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="showFeedDispensersCheckbox">
+                  <property name="text">
+                   <string>Show Food Spawners</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="debugSettingsGroup">
+               <property name="title">
+                <string>Debug</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout">
+                <item>
+                 <widget class="QCheckBox" name="showPaintAndTickFrequencyCheckbox">
+                  <property name="text">
+                   <string>Show Frame &amp;&amp; Tick rates</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="showPaintAndTickDurationsCheckbox">
+                  <property name="text">
+                   <string>Show Frame &amp;&amp; Tick times</string>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -740,7 +777,7 @@
               <x>0</x>
               <y>0</y>
               <width>976</width>
-              <height>79</height>
+              <height>146</height>
              </rect>
             </property>
            </widget>
