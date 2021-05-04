@@ -54,7 +54,7 @@ void FeedDispenser::AddPelletsImmediately(unsigned pelletCount)
 
 void FeedDispenser::SpawnPellet()
 {
-    Point foodLocation = Random::PointInCircle({ x_, y_, radius_ });
+    Point foodLocation = Random::PointIn(Circle{ x_, y_, radius_ });
     if (entityContainer_.CountEntities(Circle{ foodLocation.x, foodLocation.y, FoodPellet::GetPelletRadius(pelletEnergyContent_) }) == 0) {
 
         auto deleter = [dispenser = shared_from_this()](FoodPellet* pellet)

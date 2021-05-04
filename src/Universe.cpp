@@ -23,7 +23,7 @@ Universe::Universe(Rect startingQuad)
     }
 
     for (unsigned i = 0; i < 75u; ++i) {
-        Point spikeLocation = Random::PointInCircle({ feedDispensers_.front()->GetX(), feedDispensers_.front()->GetY(), feedDispensers_.front()->GetRadius() });
+        Point spikeLocation = Random::PointIn(Circle{ feedDispensers_.front()->GetX(), feedDispensers_.front()->GetY(), feedDispensers_.front()->GetRadius() });
         rootNode_.AddEntity(std::make_shared<Spike>(Transform{ spikeLocation.x, spikeLocation.y, Random::Bearing() }));
     }
 

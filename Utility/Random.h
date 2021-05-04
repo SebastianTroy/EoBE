@@ -55,12 +55,25 @@ public:
         return Boolean() ? value : -value;
     }
 
-    static Point PointInCircle(const Circle& circle)
+    static Point PointIn(const Line& line)
     {
-        const double rotation = Random::Number(0.0, Tril::Tau);
-        const double distance = std::sqrt(Random::Number(0.0, 1.0)) * circle.radius;
-        const double x = circle.x + distance * std::cos(rotation);
-        const double y = circle.y + distance * std::sin(rotation);
+        double proportion = Random::Proportion();
+        double deltaX = (line.b.x - line.a.x) * proportion;
+        double deltaY = (line.b.y - line.a.y) * proportion;
+        return { line.a.x + deltaX, line.a.y + deltaY };
+    }
+
+    static Point PointIn(const Rect& rect)
+    {
+        return { Random::Number(Tril::Range(rect.left, rect.right)), Random::Number(Tril::Range(rect.bottom, rect.top)) };
+    }
+
+    static Point PointIn(const Circle& circle)
+    {
+        double rotation = Random::Number(0.0, Tril::Tau);
+        double distance = std::sqrt(Random::Number(0.0, 1.0)) * circle.radius;
+        double x = circle.x + distance * std::cos(rotation);
+        double y = circle.y + distance * std::sin(rotation);
         return { x, y };
     }
 
@@ -90,6 +103,11 @@ public:
     {
         std::discrete_distribution<size_t> d(std::move(weights));
         return Generate(d);
+    }
+
+    static double Proportion()
+    {
+        return Number(0.0, 1.0);
     }
 
     static double Percent()
