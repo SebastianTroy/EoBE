@@ -28,6 +28,8 @@ TODO
  - - More hazards
  - - More food types
  - - More environmental effects (localised friction? e.t.c.)
+ - More senses
+ - - Pedometer (distance travelled since last reset)
  - More effectors (body armor? reproductive organs? pheremone creators? poison creators? decoy creators? food creators? Egg layers?)
  - Genes that encode more than a single effector or sensor (Pair of antenna? pair of eyes? memory/flip-flop (loop output to input)?
  - Genes inspector view
