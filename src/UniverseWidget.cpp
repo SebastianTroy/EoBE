@@ -26,6 +26,11 @@ UniverseWidget::UniverseWidget(QWidget* parent)
     p.setColor(QPalette::ColorRole::Window, QColor(200, 255, 255));
     setPalette(p);
 
+    drawOptions_.showQuadTreeGrid_ = false;
+    drawOptions_.showEntityImages_ = true;
+    drawOptions_.showFoodSpawners_ = true;
+    drawOptions_.showTrilobyteDebug_ = true;
+
     drawThread_.setSingleShot(false);
     drawThread_.setTimerType(Qt::PreciseTimer);
     drawThread_.connect(&drawThread_, &QTimer::timeout, this, &UniverseWidget::OnDrawTimerElapsed, Qt::QueuedConnection);
