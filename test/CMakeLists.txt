@@ -5,6 +5,7 @@ target_sources(Tests
     main.cpp
     TestCircularBuffer.cpp
     TestShape.cpp
+    TestQuadTree.cpp
     TestRangeConverter.cpp
     TestRollingStatistics.cpp
     TestWindowedFrequencyStatistics.cpp

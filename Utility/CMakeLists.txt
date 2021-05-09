@@ -2,6 +2,7 @@ set(UTILITY_SOURCES
     JsonHelpers.cpp
     NeuralNetwork.cpp
     NeuralNetworkConnector.cpp
+    QuadTree.cpp
     RangeConverter.cpp
     RollingStatistics.cpp
     Transform.cpp
@@ -20,6 +21,7 @@ set(UTILITY_HEADERS
     MinMax.h
     NeuralNetwork.h
     NeuralNetworkConnector.h
+    QuadTree.h
     Random.h
     Range.h
     RangeConverter.h
