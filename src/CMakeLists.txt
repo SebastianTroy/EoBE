@@ -164,10 +164,10 @@ add_dependencies(Trilobytes
     Tests
 )
 
-#add_custom_command(TARGET Trilobytes POST_BUILD
-#    COMMAND ${CMAKE_BINARY_DIR}/test/Tests
-#    COMMENT "Running Tests..."
-#)
+add_custom_command(TARGET Trilobytes POST_BUILD
+    COMMAND ${CMAKE_BINARY_DIR}/test/Tests
+    COMMENT "Running Tests..."
+)
 
 if (WIN32)
     # Retrieve the absolute path to qmake and then use that path to find
