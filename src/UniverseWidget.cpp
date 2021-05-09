@@ -218,6 +218,7 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
         }
         QPainter p(this);
         p.save();
+        p.setRenderHint(QPainter::RenderHint::SmoothPixmapTransform);
         p.setClipRegion(event->region());
         p.translate(width() / 2, height() / 2);
         p.scale(transformScale_, transformScale_);

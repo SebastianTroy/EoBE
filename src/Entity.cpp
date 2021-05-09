@@ -126,9 +126,7 @@ void Entity::Draw(QPainter& paint, const DrawSettings& options)
     QRectF targetRect(imageRect.topLeft(), imageRect.size() * scale);
     targetRect.translate(centre - QPointF(targetRect.width() / 2, targetRect.height() / 2));
 
-    if (!options.showEntityImages_
-        // Hack to cover up render bug (https://stackoverflow.com/questions/67099367/qpainter-rotation-prevents-correct-qpixmap-rendering)
-        || paint.transform().map(QLineF(centre + QPointF(-radius_, 0), centre + QPointF(radius_, 0))).length() < 12.0) {
+    if (!options.showEntityImages_) {
         QPen pen(Qt::black);
         pen.setCosmetic(true);
         paint.setPen(pen);
