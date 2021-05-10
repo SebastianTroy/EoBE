@@ -31,6 +31,7 @@ TODO
  - More senses
  - - Pedometer (distance travelled since last reset)
  - More effectors (body armor? reproductive organs? pheremone creators? poison creators? decoy creators? food creators? Egg layers?)
+ - - Vortex generator, moves entities near to trilobyte in a vortex pattern
  - Genes that encode more than a single effector or sensor (Pair of antenna? pair of eyes? memory/flip-flop (loop output to input)?
  - Genes inspector view
  - Matrix based coordinate system/collisions
@@ -65,11 +66,22 @@ TODO
  - - - Could make an EntityChaiScript, so scripted entities  could exist
  - - - Could make an Sense/EffectorChaiScript, so scripted senses and abilities could be scripted
  - - - Could make a ChaiScriptGraph, so scripted graphs could be added
+ - Tests for all Utility classes
 
 Next Steps
 ----------
-Tests for all Utility classes
+Benchmark current src/QuadTree impl and new Utility/QuadTree impl and move over to new one if not much worse
 
+Revamp spawners and how they are interacted with, giving movement, size, speed, count... e.t.c. user controls
+ - Spawn more than just food pellets?
+ - - Toxins?
+ - - Spikes/Rocks/Environmental hazards
+ - - Requires
+
+Ability to add/remove spikes/other entities manually
+
+Needs more thought
+------------------
 Entity needs some generic introspection so that classes don't need to do a bunch of dynamic casts to see if they'll interact or not
    - Perhaps a pure virtual GetType() which returns Animal, Vegetable, or Mineral
    - Perhaps a pure virtual GetAlive() (Animal, Egg & MeatChunk are all animal, but MeatChunks are not alive)
@@ -78,14 +90,9 @@ Entity needs some generic introspection so that classes don't need to do a bunch
 Need a seperate momentumTransform, which is not just affected by friction and input from tail etc but also factors in the direction faced, with perhaps EffectorDorsalFin or the like improving the efficiency of the conversion of the movement transform to match the facing transform
  - Add Effectors that increase / decrease friction
  - Add Effectors that change how quickly the direction faced becomes the direction of movement (also friction dependant)
- - Add global control for friction
+ - Add global control for friction ((speed *= friction) so friction is between 0.0 and 1.0?)
 
-Add 3 mouth types,
- - ToothedMouth (circle touching body somewhere, pellets @ ~50% & eggs/meat chunks at ~75%, can bite trilobytes for damage) perhaps it can only eat a fixed ammount per tick, with smaller bites being more energy efficient but doing less damage?
+More mouth types, or rework of how mouths work
+ - Want to prevent evolving multiple mouths to get around consumption/rate limits
+ - Want to prevent having one of each mouth type
 
-Add some effectors
- - Vortex generator, moves entities near to trilobyte in a vortex pattern
-
-Add adjustable friction cooeficient (speed *= friction) so friction is between 0.0 and 1.0
-
-Ability to add/remove spikes
