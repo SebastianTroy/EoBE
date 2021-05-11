@@ -67,11 +67,10 @@ TODO
  - - - Could make an Sense/EffectorChaiScript, so scripted senses and abilities could be scripted
  - - - Could make a ChaiScriptGraph, so scripted graphs could be added
  - Tests for all Utility classes
+ - Perhaps when zoomed way out and showing spawners, draw a large icon of the thing(s) they are spawning in the middle of their circle
 
 Next Steps
 ----------
-Benchmark current src/QuadTree impl and new Utility/QuadTree impl and move over to new one if not much worse
-
 Revamp spawners and how they are interacted with, giving movement, size, speed, count... e.t.c. user controls
  - Spawn more than just food pellets?
  - - Toxins?
@@ -96,3 +95,39 @@ More mouth types, or rework of how mouths work
  - Want to prevent evolving multiple mouths to get around consumption/rate limits
  - Want to prevent having one of each mouth type
 
+Big Idea
+---------
+One Mouth/Tail... e.t.c.
+ - 2D Phenotype map with circles representing (Filter mouth/ Toothed mouth/ suction mouth...), when phenotype point is within a circle it is allowed to hav
+ - - Each circle represents a specific strategy, they can overlap, allowing traits of multiple strategies, but shouldn't overlap much? (or maybe they need to overlap almost to their centres to allow evolution? Perhaps some phenotype traits should be allowed to be entirely contained)
+ - - Each circle will have a list of acceptible modifier genes
+ - - Each phenotype could have more than one circle (define in one place but might be possible to have the same features in more than one place)
+ - Basic gene for each that does default behaviour & owns neural network (which may do nothing, might want to require that the phenotype location is within a phenotypic circle somewhere)
+ - - Need to work out how to enable the major basic phenotypes here without hard coding them, want to allow the addition of other phenotypes somehow
+ - Phenotype location modifier genes that change the "location" of the organism phenotype for a particular part (e.g. mouth or tail... e.t.c.)
+ - - Allows neat graphical representation showing where each swimmer is on the phenotype map
+ - - The location will change which circle the phenotype lies within, must be within a circle somewhere to 
+ - Genes that add functionality and/or modify basic functionality to the base gene
+ - - (adding columns to the network will require a special type that knows the index of the column added for the gene, perhaps assign it in the constructor that takes a list of these things, and the constructor can set it)
+ - Modding! If ChaiScript is used, then 
+ - - Represent the phenotype landscape in json, and load it (plus mods from mod directory to allow custom genes to be included in phenotype circle whitelists)
+ - - scrip-t should already have access to phenotype, should be able to just use basic scripted gene to do any of this
+ - Complex phenotype entries for each, with construction modifiers and custom tick operations
+ - - Idea is to filter which modifiers are allowed based on the phenotype map (circle(s) currently in allow these modifications?)
+ - - Scale down modifications in response to how close they are to the centre of the nearest containing circle that allows them to have an effect
+ 
+ - Mouth
+ - - Feeding
+ - - - Needs to include % chance food in mouth is caught (low efficiency filtering e.g.)
+ - - - Needs to allow damage (teeth, overlapping jaw mouth perhaps?)
+ - - - Needs to include damage dealt, energy extraction rate/efficiency
+
+ - Tail
+ - - Movement
+ - - - Has usual tail, and stop/start/jump tail overlapping
+ - - - Needs to include acceleration curve, energy store, jump trigger threshold
+ 
+ - Fins (just one Fins per swimmer? or allow multiple fins in different places like real life?)
+ - - Steering
+ - - - Overlaps "legs" phenotype to right, to allow low energy high inertia movement to evolve seperately to tail
+ - - - Overlaps "damage" phenotype to left, to allow "scalpel fish" type behaviour
