@@ -15,6 +15,7 @@ class QuadTreeItem {
 public:
     virtual ~QuadTreeItem();
     virtual const Point& GetLocation() const = 0;
+    virtual const Circle& GetCollide() const = 0;
 };
 
 class QuadTree {
@@ -22,9 +23,26 @@ public:
     QuadTree(const Rect& startArea, size_t itemCountTarget, size_t itemCountLeeway, double minQuadDiameter);
 
     void Insert(std::shared_ptr<QuadTreeItem> item);
-
     void Clear();
     void RemoveIf(const std::function<bool(const QuadTreeItem& item)> predicate);
+
+    template <typename T>
+    std::shared_ptr<T> PickFirstOf(const Point& location, bool remove)
+    {
+        std::shared_ptr<T> picked;
+        ForEachNode(*root_, location, [&](Quad& node)
+        {
+            node.items_.erase(std::remove_if(std::begin(node.items_), std::end(node.items_), [&](const std::shared_ptr<QuadTreeItem>& item) -> bool
+            {
+                if (std::shared_ptr<T> castItem = std::dynamic_pointer_cast<T>(item); !picked && castItem && Contains(item->GetCollide(), location)) {
+                    picked = castItem;
+                    return remove;
+                }
+                return false;
+            }), std::end(node.items_));
+        });
+        return picked;
+    }
 
     /**
      * Performs an action for each item, as this is not const it assumes any
@@ -41,18 +59,19 @@ public:
      * @param predicate If this returns false for an item, it will be removed
      * from the quad tree, by default will return true for all items.
      */
-    void ForEach(const std::function<void(QuadTreeItem& item)>& action, const std::function<bool(const QuadTreeItem&)>& predicate = [](const QuadTreeItem&){ return true; });
-    void ForEach(const std::function<void(const QuadTreeItem& item)>& action) const;
+    void ForEach(const std::function<void(const std::shared_ptr<QuadTreeItem>& item)>& action, std::optional<Rect>&& collide = {}, const std::function<bool(const QuadTreeItem&)>& predicate = [](const QuadTreeItem&){ return true; });
+    void ForEach(const std::function<void(const QuadTreeItem& item)>& action, std::optional<Rect>&& collide = {}) const;
 
     template <typename T>
-    void ForEach(const std::function<void(T& item)>& action, const std::function<bool(const T&)>& predicate = [](const T&){ return true; })
+    void ForEach(const std::function<void(const std::shared_ptr<T>& item)>& action, std::optional<Rect>&& collide = {}, const std::function<bool(const T&)>& predicate = [](const T&){ return true; })
     {
-        ForEach([&](QuadTreeItem& item)
+        ForEach([&](const std::shared_ptr<QuadTreeItem>& item)
         {
-            if (T* castItem = dynamic_cast<T*>(&item)) {
-                action(*castItem);
+            if (std::shared_ptr<T> castItem = std::dynamic_pointer_cast<T>(item)) {
+                action(castItem);
             }
         },
+        std::move(collide),
         [&](const QuadTreeItem& item) -> bool
         {
             const T* castItem = dynamic_cast<const T*>(&item);
@@ -60,14 +79,15 @@ public:
         });
     }
     template <typename T>
-    void ForEach(const std::function<void(const QuadTreeItem& item)>& action) const
+    void ForEach(const std::function<void(const T& item)>& action, std::optional<Rect>&& collide = {}) const
     {
-        ForEach([&](QuadTreeItem& item)
+        ForEach([&](const QuadTreeItem& item)
         {
             if (const T* castItem = dynamic_cast<const T*>(&item)) {
                 action(*castItem);
             }
-        });
+        },
+        std::move(collide));
     }
 
     void SetItemCountTaregt(unsigned target);
@@ -106,7 +126,7 @@ private:
     {
         if (node.children_.has_value()) {
             for (auto& child : node.children_.value()) {
-                if (Collides(node.rect_, collide)) {
+                if (Collides(child->rect_, collide)) {
                     ForEachNode(*child, collide, action);
                 }
             }
@@ -120,7 +140,7 @@ private:
     {
         if (node.children_.has_value()) {
             for (const auto& child : node.children_.value()) {
-                if (Collides(node.rect_, collide)) {
+                if (Collides(child->rect_, collide)) {
                     ForEachNode(*child, collide, action);
                 }
             }

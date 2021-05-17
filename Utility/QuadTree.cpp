@@ -35,7 +35,7 @@ void QuadTree::RemoveIf(const std::function<bool (const QuadTreeItem&)> predicat
     {
         node.items_.erase(std::remove_if(std::begin(node.items_), std::end(node.items_), [&](const auto& item) -> bool
         {
-            return !predicate(*item);
+            return predicate(*item);
         }), std::end(node.items_));
 
         requiresRebalance_ = requiresRebalance_ || static_cast<size_t>(std::abs(static_cast<int64_t>(itemCountTarget_)) - static_cast<int64_t>(node.items_.size())) > itemCountLeeway_;
@@ -46,51 +46,74 @@ void QuadTree::RemoveIf(const std::function<bool (const QuadTreeItem&)> predicat
     }
 }
 
-void QuadTree::ForEach(const std::function<void (QuadTreeItem&)>& action, const std::function<bool (const QuadTreeItem&)>& predicate)
+void QuadTree::ForEach(const std::function<void (const std::shared_ptr<QuadTreeItem>&)>& action, std::optional<Rect>&& collide, const std::function<bool (const QuadTreeItem&)>& predicate)
 {
-    assert(!currentlyIterating_ && "Cannot non-const iterate during another non-const iteration!");
-
-    // Guard this block because a user may try adding items mid iteration
+    bool wasIteratingAlready = currentlyIterating_;
     currentlyIterating_ = true;
 
-    ForEachNode(*root_, [&](const Quad& node)
-    {
-        for (auto& item : node.items_) {
-            action(*item);
-        }
-    });
-
-    currentlyIterating_ = false;
-
-    ForEachNode(*root_, [&](Quad& node)
-    {
-        node.items_.erase(std::remove_if(std::begin(node.items_), std::end(node.items_), [&](const auto& item) -> bool
+    if (collide.has_value()) {
+        ForEachNode(*root_, collide.value(), [&](const Quad& node)
         {
-            bool removeFromTree = !predicate(*item);
-            bool removeFromNode = !Contains(node.rect_, item->GetLocation());
-
-            if (!removeFromTree && removeFromNode) {
-                AddItem(node, item, true);
+            for (auto& item : node.items_) {
+                if (Collides(collide.value(), item->GetCollide())) {
+                    action(item);
+                }
             }
+        });
+    } else {
+        ForEachNode(*root_, [&](const Quad& node)
+        {
+            for (auto& item : node.items_) {
+                action(item);
+            }
+        });
+    }
 
-            return removeFromTree || removeFromNode;
-        }), std::end(node.items_));
+    // Let the very first non-const iteration deal with all of the re-balancing
+    if (!wasIteratingAlready) {
+        currentlyIterating_ = false;
 
-        std::move(std::begin(node.entering_), std::end(node.entering_), std::back_inserter(node.items_));
-        node.entering_.clear();
-    });
+        ForEachNode(*root_, [&](Quad& node)
+        {
+            node.items_.erase(std::remove_if(std::begin(node.items_), std::end(node.items_), [&](const auto& item) -> bool
+            {
+                bool removeFromTree = !predicate(*item);
+                bool removeFromNode = !Contains(node.rect_, item->GetLocation());
 
-    Rebalance();
+                if (!removeFromTree && removeFromNode) {
+                    AddItem(node, item, true);
+                }
+
+                return removeFromTree || removeFromNode;
+            }), std::end(node.items_));
+
+            std::move(std::begin(node.entering_), std::end(node.entering_), std::back_inserter(node.items_));
+            node.entering_.clear();
+        });
+
+        Rebalance();
+    }
 }
 
-void QuadTree::ForEach(const std::function<void (const QuadTreeItem&)>& action) const
+void QuadTree::ForEach(const std::function<void (const QuadTreeItem&)>& action, std::optional<Rect>&& collide) const
 {
-    ForEachNode(*root_, [&](const Quad& node)
-    {
-        for (const auto& item : node.items_) {
-            action(*item);
-        }
-    });
+    if (collide.has_value()) {
+        ForEachNode(*root_, collide.value(), [&](const Quad& node)
+        {
+            for (const auto& item : node.items_) {
+                if (Collides(collide.value(), item->GetCollide())) {
+                    action(*item);
+                }
+            }
+        });
+    } else {
+        ForEachNode(*root_, [&](const Quad& node)
+        {
+            for (const auto& item : node.items_) {
+                action(*item);
+            }
+        });
+    }
 }
 
 void QuadTree::SetItemCountTaregt(unsigned target)
@@ -134,6 +157,10 @@ bool QuadTree::Validate() const
             valid = false;
         }
     };
+
+    // The following will not work if we are non-const looping, but we may want
+    // to validate mid const loop, or make sure the const version is being called
+    Require(!currentlyIterating_);
 
     ForEachNode(*root_, [&](const Quad& node) -> void
     {

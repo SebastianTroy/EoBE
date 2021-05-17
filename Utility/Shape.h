@@ -43,6 +43,11 @@ struct Rect {
     double bottom;
 };
 
+inline bool operator!=(const Point& p1, const Point& p2)
+{
+    return p1.x != p2.x || p1.y != p2.y;
+}
+
 inline bool operator==(const Point& p1, const Point& p2)
 {
     return p1.x == p2.x && p1.y == p2.y;
@@ -130,8 +135,8 @@ inline Rect BoundingRect(const Rect& rect, double margin = 0.0)
     assert(margin >= 0.0);
     double minX = rect.left   - margin;
     double maxX = rect.right  + margin;
-    double minY = rect.bottom - margin;
-    double maxY = rect.top    + margin;
+    double minY = rect.top    - margin;
+    double maxY = rect.bottom + margin;
     return Rect{ minX, minY, maxX, maxY };
 }
 

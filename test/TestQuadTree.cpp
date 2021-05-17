@@ -10,15 +10,22 @@ namespace {
 class TestType : public QuadTreeItem {
 public:
     Point location_;
+    Circle collide_;
 
     TestType(const Point& location)
         : location_(location)
+        , collide_{ location.x, location.y, 0 }
     {
     }
 
     virtual const Point& GetLocation() const override
     {
         return location_;
+    }
+
+    virtual const Circle& GetCollide() const override
+    {
+        return collide_;
     }
 };
 
@@ -214,7 +221,7 @@ TEST_CASE("QuadTree", "[container]")
 
         auto removeTopItemsPredicate = [=](const QuadTreeItem& item)
         {
-            return Contains(bottomArea, item.GetLocation());
+            return Contains(topArea, item.GetLocation());
         };
 
         for (size_t i = 0; i < itemCount / 2; ++i) {
@@ -237,10 +244,10 @@ TEST_CASE("QuadTree", "[container]")
 
         SECTION("ForEach predicate")
         {
-            tree.ForEach([](QuadTreeItem& /*item*/)
+            tree.ForEach([](const std::shared_ptr<QuadTreeItem>& /*item*/)
             {
                 // Do nothing
-            }, removeTopItemsPredicate);
+            }, std::nullopt, std::not_fn(removeTopItemsPredicate));
 
             tree.ForEach([bottomArea](const QuadTreeItem& item)
             {
@@ -248,6 +255,84 @@ TEST_CASE("QuadTree", "[container]")
             });
 
             REQUIRE(tree.Size() == itemCount / 2);
+            REQUIRE(tree.Validate());
+        }
+    }
+    SECTION("ForEach with collide")
+    {
+        const Rect area{ 0, 0, 10, 10 };
+        const Rect topArea{ 0, 0, 10, 5 };
+        const Rect bottomArea{ 0, 5, 10, 10 };
+        size_t targetCount = 1;
+        size_t countLeeway = 0;
+        const double minQuadSize = 1.0;
+        const size_t itemCount = 50;
+        const size_t topItemCount = itemCount / 3;
+        const size_t bottomItemCount = itemCount - topItemCount;
+        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+
+        for (size_t i = 0; i < std::max(topItemCount, bottomItemCount); ++i) {
+            if (i < topItemCount) {
+                tree.Insert(std::make_shared<TestType>(Random::PointIn(topArea)));
+            }
+            if (i < bottomItemCount) {
+                tree.Insert(std::make_shared<TestType>(Random::PointIn(bottomArea)));
+            }
+        }
+
+        SECTION("non-const")
+        {
+            size_t totalCount = 0;
+            tree.ForEach([&](const std::shared_ptr<QuadTreeItem>& /*item*/)
+            {
+                ++totalCount;
+            }, area);
+            REQUIRE(totalCount == itemCount);
+
+            size_t topCount = 0;
+            tree.ForEach([&](const std::shared_ptr<QuadTreeItem>& item)
+            {
+                REQUIRE(Contains(topArea, item->GetLocation()));
+                ++topCount;
+            }, topArea);
+            REQUIRE(topCount == topItemCount);
+
+            size_t bottomCount = 0;
+            tree.ForEach([&](const std::shared_ptr<QuadTreeItem>& item)
+            {
+                REQUIRE(Contains(bottomArea, item->GetLocation()));
+                ++bottomCount;
+            }, bottomArea);
+            REQUIRE(bottomCount == bottomItemCount);
+
+            REQUIRE(tree.Size() == itemCount);
+            REQUIRE(tree.Validate());
+        }
+
+        SECTION("const")
+        {
+            size_t totalCount = 0;
+            tree.ForEach([&](const QuadTreeItem& /*item*/)
+            {
+                ++totalCount;
+            }, area);
+            REQUIRE(totalCount == itemCount);
+
+            size_t topCount = 0;
+            tree.ForEach([&](const QuadTreeItem& /*item*/)
+            {
+                ++topCount;
+            }, topArea);
+            REQUIRE(topCount == topItemCount);
+
+            size_t bottomCount = 0;
+            tree.ForEach([&](const QuadTreeItem& /*item*/)
+            {
+                ++bottomCount;
+            }, bottomArea);
+            REQUIRE(bottomCount == bottomItemCount);
+
+            REQUIRE(tree.Size() == itemCount);
             REQUIRE(tree.Validate());
         }
     }
@@ -275,9 +360,9 @@ TEST_CASE("QuadTree", "[container]")
                 tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
             }
 
-            tree.ForEach<TestType>([=](TestType& item)
+            tree.ForEach<TestType>([=](const std::shared_ptr<TestType>& item)
             {
-                item.location_ = Random::PointIn(area);
+                item->location_ = Random::PointIn(area);
             });
 
             REQUIRE(tree.Validate());
@@ -313,10 +398,11 @@ TEST_CASE("QuadTree", "[container]")
                     tree.Insert(std::make_shared<TestType>(Random::PointIn(startArea)));
                 }
 
-                tree.ForEach<TestType>([=](TestType& item)
+                tree.ForEach<TestType>([=](const std::shared_ptr<TestType>& item)
                 {
-                    item.location_ = Random::PointIn(movementArea);
+                    item->location_ = Random::PointIn(movementArea);
                 },
+                std::nullopt,
                 [](const TestType& /*item*/) -> bool
                 {
                     return Random::Boolean();
@@ -348,5 +434,39 @@ TEST_CASE("QuadTree", "[container]")
 
         REQUIRE(tree.Validate());
         REQUIRE(tree.Size() == itemCount * 2);
+    }
+
+    SECTION("Const iteration")
+    {
+        const Rect area{ 0, 0, 10, 10 };
+        const size_t targetCount = 1;
+        const size_t countLeeway = 0;
+        const double minQuadSize = 1.0;
+        const size_t itemCount = 25;
+        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+
+        for (size_t i = 0; i < itemCount; ++i) {
+            tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
+        }
+
+        tree.ForEach([&](const std::shared_ptr<QuadTreeItem>& /*item*/)
+        {
+            REQUIRE(!tree.Validate());
+        });
+
+        tree.ForEach([&](const QuadTreeItem& /*item*/)
+        {
+            REQUIRE(tree.Validate());
+        });
+
+        tree.ForEach<TestType>([&](const std::shared_ptr<TestType>& /*item*/)
+        {
+            REQUIRE(!tree.Validate());
+        });
+
+        tree.ForEach<TestType>([&](const TestType& /*item*/)
+        {
+            REQUIRE(tree.Validate());
+        });
     }
 }
