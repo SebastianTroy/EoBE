@@ -69,11 +69,11 @@ TEST_CASE("QuadTree", "[container]")
         REQUIRE(testItem->GetLocation() == testLoc);
 
         size_t count = 0;
-        tree.ForEach([&](const QuadTreeItem& item)
+        tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& item)
         {
             ++count;
             REQUIRE(item.GetLocation() == testLoc);
-        });
+        }));
 
         REQUIRE(count == 1);
     }
@@ -100,11 +100,11 @@ TEST_CASE("QuadTree", "[container]")
         std::vector<Point> itemLocations;
 
         size_t itemCount = 0;
-        tree.ForEach([&](const QuadTreeItem& item)
+        tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& item)
         {
             ++itemCount;
             itemLocations.push_back(item.GetLocation());
-        });
+        }));
 
         std::sort(std::begin(testLocations), std::end(testLocations), PointComparator);
         std::sort(std::begin(itemLocations), std::end(itemLocations), PointComparator);
@@ -132,11 +132,11 @@ TEST_CASE("QuadTree", "[container]")
         REQUIRE(tree.Size() == count);
 
         size_t itemCount = 0;
-        tree.ForEach([&](const QuadTreeItem& item)
+        tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& item)
         {
             ++itemCount;
             REQUIRE(item.GetLocation() == testLoc);
-        });
+        }));
 
         REQUIRE(itemCount == count);
     }
@@ -233,10 +233,10 @@ TEST_CASE("QuadTree", "[container]")
         {
             tree.RemoveIf(removeTopItemsPredicate);
 
-            tree.ForEach([bottomArea](const QuadTreeItem& item)
+            tree.ForEachItem(ConstQuadTreeIterator([bottomArea](const QuadTreeItem& item)
             {
                 REQUIRE(Contains(bottomArea, item.GetLocation()));
-            });
+            }));
 
             REQUIRE(tree.Size() == itemCount / 2);
             REQUIRE(tree.Validate());
@@ -244,15 +244,15 @@ TEST_CASE("QuadTree", "[container]")
 
         SECTION("ForEach predicate")
         {
-            tree.ForEach([](const std::shared_ptr<QuadTreeItem>& /*item*/)
+            tree.ForEachItem(QuadTreeIterator([](std::shared_ptr<QuadTreeItem> /*item*/)
             {
                 // Do nothing
-            }, std::nullopt, std::not_fn(removeTopItemsPredicate));
+            }).SetRemoveItemPredicate(removeTopItemsPredicate));
 
-            tree.ForEach([bottomArea](const QuadTreeItem& item)
+            tree.ForEachItem(ConstQuadTreeIterator([bottomArea](const QuadTreeItem& item)
             {
                 REQUIRE(Contains(bottomArea, item.GetLocation()));
-            });
+            }));
 
             REQUIRE(tree.Size() == itemCount / 2);
             REQUIRE(tree.Validate());
@@ -283,26 +283,26 @@ TEST_CASE("QuadTree", "[container]")
         SECTION("non-const")
         {
             size_t totalCount = 0;
-            tree.ForEach([&](const std::shared_ptr<QuadTreeItem>& /*item*/)
+            tree.ForEachItem(QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> /*item*/)
             {
                 ++totalCount;
-            }, area);
+            }).SetItemFilter(area));
             REQUIRE(totalCount == itemCount);
 
             size_t topCount = 0;
-            tree.ForEach([&](const std::shared_ptr<QuadTreeItem>& item)
+            tree.ForEachItem(QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> item)
             {
                 REQUIRE(Contains(topArea, item->GetLocation()));
                 ++topCount;
-            }, topArea);
+            }).SetItemFilter(topArea));
             REQUIRE(topCount == topItemCount);
 
             size_t bottomCount = 0;
-            tree.ForEach([&](const std::shared_ptr<QuadTreeItem>& item)
+            tree.ForEachItem(QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> item)
             {
                 REQUIRE(Contains(bottomArea, item->GetLocation()));
                 ++bottomCount;
-            }, bottomArea);
+            }).SetItemFilter(bottomArea));
             REQUIRE(bottomCount == bottomItemCount);
 
             REQUIRE(tree.Size() == itemCount);
@@ -312,24 +312,24 @@ TEST_CASE("QuadTree", "[container]")
         SECTION("const")
         {
             size_t totalCount = 0;
-            tree.ForEach([&](const QuadTreeItem& /*item*/)
+            tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& /*item*/)
             {
                 ++totalCount;
-            }, area);
+            }).SetItemFilter(area));
             REQUIRE(totalCount == itemCount);
 
             size_t topCount = 0;
-            tree.ForEach([&](const QuadTreeItem& /*item*/)
+            tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& /*item*/)
             {
                 ++topCount;
-            }, topArea);
+            }).SetItemFilter(topArea));
             REQUIRE(topCount == topItemCount);
 
             size_t bottomCount = 0;
-            tree.ForEach([&](const QuadTreeItem& /*item*/)
+            tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& /*item*/)
             {
                 ++bottomCount;
-            }, bottomArea);
+            }).SetItemFilter(bottomArea));
             REQUIRE(bottomCount == bottomItemCount);
 
             REQUIRE(tree.Size() == itemCount);
@@ -360,10 +360,11 @@ TEST_CASE("QuadTree", "[container]")
                 tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
             }
 
-            tree.ForEach<TestType>([=](const std::shared_ptr<TestType>& item)
+            auto iter = QuadTreeIterator::Create<TestType>([=](std::shared_ptr<TestType> item)
             {
                 item->location_ = Random::PointIn(area);
             });
+            tree.ForEachItem(iter);
 
             REQUIRE(tree.Validate());
             REQUIRE(tree.Size() == itemCount);
@@ -398,15 +399,13 @@ TEST_CASE("QuadTree", "[container]")
                     tree.Insert(std::make_shared<TestType>(Random::PointIn(startArea)));
                 }
 
-                tree.ForEach<TestType>([=](const std::shared_ptr<TestType>& item)
+                tree.ForEachItem(QuadTreeIterator::Create<TestType>([=](std::shared_ptr<TestType> item)
                 {
                     item->location_ = Random::PointIn(movementArea);
-                },
-                std::nullopt,
-                [](const TestType& /*item*/) -> bool
+                }).SetRemoveItemPredicate<TestType>([](const TestType& /*item*/) -> bool
                 {
                     return Random::Boolean();
-                });
+                }));
 
                 REQUIRE(tree.Validate());
                 REQUIRE(tree.Size() != itemCount);
@@ -427,10 +426,10 @@ TEST_CASE("QuadTree", "[container]")
             tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
         }
 
-        tree.ForEach([&](auto& /*item*/)
+        tree.ForEachItem(QuadTreeIterator([&](auto /*item*/)
         {
             tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
-        });
+        }));
 
         REQUIRE(tree.Validate());
         REQUIRE(tree.Size() == itemCount * 2);
@@ -449,24 +448,24 @@ TEST_CASE("QuadTree", "[container]")
             tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
         }
 
-        tree.ForEach([&](const std::shared_ptr<QuadTreeItem>& /*item*/)
+        tree.ForEachItem(QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> /*item*/)
         {
             REQUIRE(!tree.Validate());
-        });
+        }));
 
-        tree.ForEach([&](const QuadTreeItem& /*item*/)
+        tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& /*item*/)
         {
             REQUIRE(tree.Validate());
-        });
+        }));
 
-        tree.ForEach<TestType>([&](const std::shared_ptr<TestType>& /*item*/)
+        tree.ForEachItem(QuadTreeIterator::Create<TestType>([&](std::shared_ptr<TestType> /*item*/)
         {
             REQUIRE(!tree.Validate());
-        });
+        }));
 
-        tree.ForEach<TestType>([&](const TestType& /*item*/)
+        tree.ForEachItem(ConstQuadTreeIterator::Create<TestType>([&](const TestType& /*item*/)
         {
             REQUIRE(tree.Validate());
-        });
+        }));
     }
 }

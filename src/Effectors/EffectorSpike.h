@@ -18,7 +18,7 @@ private:
     double bearing_;
     double length_;
 
-    virtual Energy PerformActions(const std::vector<double>& actionValues, const EntityContainerInterface& entities, const UniverseParameters& universeParameters) override;
+    virtual Energy PerformActions(const std::vector<double>& actionValues, EntityContainerInterface& entities, const UniverseParameters& universeParameters) override;
 
     Point GetTipOfSpike() const;
 };

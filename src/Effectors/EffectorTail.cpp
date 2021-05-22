@@ -30,7 +30,7 @@ void EffectorTail::Draw(QPainter& /*paint*/) const
     // TODO
 }
 
-Energy EffectorTail::PerformActions(const std::vector<double>& actionValues, const EntityContainerInterface& /*entities*/, const UniverseParameters& /*universeParameters*/)
+Energy EffectorTail::PerformActions(const std::vector<double>& actionValues, EntityContainerInterface& /*entities*/, const UniverseParameters& /*universeParameters*/)
 {
     // TODO allow evolvable range conversions for each of these
     const double& acceleration = actionValues.at(0);

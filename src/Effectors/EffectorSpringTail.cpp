@@ -35,7 +35,7 @@ void EffectorSpringTail::Draw(QPainter& /*paint*/) const
     // TODO
 }
 
-Energy EffectorSpringTail::PerformActions(const std::vector<double>& actionValues, const EntityContainerInterface& /*entities*/, const UniverseParameters& /*universeParameters*/)
+Energy EffectorSpringTail::PerformActions(const std::vector<double>& actionValues, EntityContainerInterface& /*entities*/, const UniverseParameters& /*universeParameters*/)
 {
     const Energy chargeRate = std::clamp(neuronExcitementToChargeRate_.Convert(actionValues.at(0)), 0_uj, storedEnergyCap_ - storedEnergy_);
     const double& triggerLevel = actionValues.at(1);

@@ -22,7 +22,7 @@ public:
 private:
     constexpr static double FOOD_RADIUS_THRESHOLD = 2.5;
 
-    virtual Energy PerformActions(const std::vector<double>& actionValues, const EntityContainerInterface& entities, const UniverseParameters& universeParameters) override;
+    virtual Energy PerformActions(const std::vector<double>& actionValues, EntityContainerInterface& entities, const UniverseParameters& universeParameters) override;
 };
 
 #endif // EFFECTORFILTERMOUTH_H

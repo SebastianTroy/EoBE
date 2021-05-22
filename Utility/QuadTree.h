@@ -18,77 +18,145 @@ public:
     virtual const Circle& GetCollide() const = 0;
 };
 
+/**
+ * @brief Not really an iterator so much as a convinience class encapsulating
+ * various iteration options and associated helpers.
+ */
+class QuadTreeIterator {
+public:
+    QuadTreeIterator(std::function<void(std::shared_ptr<QuadTreeItem> item)>&& action);
+
+    template <typename T>
+    static QuadTreeIterator Create(const std::function<void(std::shared_ptr<T> item)>& action)
+    {
+        return QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> item)
+        {
+            if (std::shared_ptr<T> castItem = std::dynamic_pointer_cast<T>(item)) {
+                action(castItem);
+            }
+        });
+    }
+
+    QuadTreeIterator& SetQuadFilter(std::function<bool(const Rect& area)>&& filter);
+    QuadTreeIterator& SetQuadFilter(const Rect& r);
+    QuadTreeIterator& SetItemFilter(std::function<bool(const QuadTreeItem& item)>&& filter);
+    QuadTreeIterator& SetItemFilter(const Point& p);
+    QuadTreeIterator& SetItemFilter(const Line& l);
+    QuadTreeIterator& SetItemFilter(const Circle& c);
+    QuadTreeIterator& SetItemFilter(const Rect& r);
+    QuadTreeIterator& SetRemoveItemPredicate(std::function<bool(const QuadTreeItem& item)>&& removeItemPredicate);
+
+    template <typename T>
+    QuadTreeIterator& SetRemoveItemPredicate(std::function<bool(const T& item)>&& removeItemPredicate)
+    {
+        SetRemoveItemPredicate([removeItemPredicate = std::move(removeItemPredicate)](const QuadTreeItem& item)
+        {
+            if (const T* castItem = dynamic_cast<const T*>(&item)) {
+                return removeItemPredicate(*castItem);
+            } else {
+                return false;
+            }
+        });
+        return *this;
+    }
+
+private:
+    friend class QuadTree;
+
+    std::function<void(std::shared_ptr<QuadTreeItem> item)> itemAction_;
+    std::function<bool(const Rect& area)> quadFilter_;
+    std::function<bool(const QuadTreeItem& item)> itemFilter_;
+    std::function<bool(const QuadTreeItem& item)> removeItemPredicate_;
+};
+
+/**
+ * @brief Not really an iterator so much as a convinience class encapsulating
+ * various iteration options and associated helpers.
+ */
+class ConstQuadTreeIterator {
+public:
+    ConstQuadTreeIterator(std::function<void(const QuadTreeItem& item)>&& action);
+
+    template <typename T>
+    static ConstQuadTreeIterator Create(const std::function<void(const T& item)>& action)
+    {
+        return ConstQuadTreeIterator([&](const QuadTreeItem& item)
+        {
+            if (const T* castItem = dynamic_cast<const T*>(&item)) {
+                action(*castItem);
+            }
+        });
+    }
+
+    ConstQuadTreeIterator& SetQuadFilter(std::function<bool(const Rect& area)>&& filter);
+    ConstQuadTreeIterator& SetQuadFilter(const Rect& r);
+    ConstQuadTreeIterator& SetItemFilter(std::function<bool(const QuadTreeItem& item)>&& filter);
+    ConstQuadTreeIterator& SetItemFilter(const Point& p);
+    ConstQuadTreeIterator& SetItemFilter(const Line& l);
+    ConstQuadTreeIterator& SetItemFilter(const Circle& c);
+    ConstQuadTreeIterator& SetItemFilter(const Rect& r);
+
+
+    template <typename T>
+    ConstQuadTreeIterator& SetItemFilter(std::function<bool(const T& item)>&& filter)
+    {
+        SetItemFilter([filter = std::move(filter)](const QuadTreeItem& item)
+        {
+            if (const T* castItem = dynamic_cast<const T*>(item)) {
+                return filter(*castItem);
+            } else {
+                return false;
+            }
+        });
+        return *this;
+    }
+
+private:
+    friend class QuadTree;
+
+    std::function<void(const QuadTreeItem& item)> itemAction_;
+    std::function<bool(const Rect& area)> quadFilter_;
+    std::function<bool(const QuadTreeItem& item)> itemFilter_;
+};
+
 class QuadTree {
 public:
     QuadTree(const Rect& startArea, size_t itemCountTarget, size_t itemCountLeeway, double minQuadDiameter);
 
     void Insert(std::shared_ptr<QuadTreeItem> item);
     void Clear();
-    void RemoveIf(const std::function<bool(const QuadTreeItem& item)> predicate);
+    void RemoveIf(const std::function<bool(const QuadTreeItem& item)>& predicate);
 
-    template <typename T>
-    std::shared_ptr<T> PickFirstOf(const Point& location, bool remove)
-    {
-        std::shared_ptr<T> picked;
-        ForEachNode(*root_, location, [&](Quad& node)
-        {
-            node.items_.erase(std::remove_if(std::begin(node.items_), std::end(node.items_), [&](const std::shared_ptr<QuadTreeItem>& item) -> bool
-            {
-                if (std::shared_ptr<T> castItem = std::dynamic_pointer_cast<T>(item); !picked && castItem && Contains(item->GetCollide(), location)) {
-                    picked = castItem;
-                    return remove;
-                }
-                return false;
-            }), std::end(node.items_));
-        });
-        return picked;
-    }
+
+    void ForEachQuad(const std::function<void(const Rect& area)>& action) const;
 
     /**
-     * Performs an action for each item, as this is not const it assumes any
-     * item may have moved, so it will check each item location and move and
-     * rebalance the tree accordingly. It is also possible to supply a check to
-     * determine whether any given item should be removed from the container.
-     * This is supplied so that the cntainer can be iterated and modified in one
-     * loop, rather than requiring an additional call to RemofeIf(predicate)
-     * immediately after.
-     *
-     * @param action The action will be called for each item contained within
-     * the quad tree in an indeterminate order.
-     *
-     * @param predicate If this returns false for an item, it will be removed
-     * from the quad tree, by default will return true for all items.
+     * @brief Allows an action to be undertaken for each item in turn, however
+     * not all items are included, only those contained within quads for which
+     * quadFilter(quadArea) returns true.
+     * @param action Performed for each item in the specified quads, in an
+     * unspecified order.
+     * @param quadFilter Each quad is tested based on this predicate, failed
+     * quads will be skipped, as will their children.
      */
-    void ForEach(const std::function<void(const std::shared_ptr<QuadTreeItem>& item)>& action, std::optional<Rect>&& collide = {}, const std::function<bool(const QuadTreeItem&)>& predicate = [](const QuadTreeItem&){ return true; });
-    void ForEach(const std::function<void(const QuadTreeItem& item)>& action, std::optional<Rect>&& collide = {}) const;
+    void ForEachItem(const ConstQuadTreeIterator& iter) const;
 
-    template <typename T>
-    void ForEach(const std::function<void(const std::shared_ptr<T>& item)>& action, std::optional<Rect>&& collide = {}, const std::function<bool(const T&)>& predicate = [](const T&){ return true; })
-    {
-        ForEach([&](const std::shared_ptr<QuadTreeItem>& item)
-        {
-            if (std::shared_ptr<T> castItem = std::dynamic_pointer_cast<T>(item)) {
-                action(castItem);
-            }
-        },
-        std::move(collide),
-        [&](const QuadTreeItem& item) -> bool
-        {
-            const T* castItem = dynamic_cast<const T*>(&item);
-            return castItem && predicate(*castItem);
-        });
-    }
-    template <typename T>
-    void ForEach(const std::function<void(const T& item)>& action, std::optional<Rect>&& collide = {}) const
-    {
-        ForEach([&](const QuadTreeItem& item)
-        {
-            if (const T* castItem = dynamic_cast<const T*>(&item)) {
-                action(*castItem);
-            }
-        },
-        std::move(collide));
-    }
+    /**
+     * @brief ForEachItem Allows an action to be performed for each item that is
+     * within a quad that passes the requirements of quadFilter. As this is non-
+     * const, item locations may change during this call, so a rebalance will
+     * need to be performed after the call. Only one rebalance will occur, even
+     * if this is called mid iteration (i.e. during an item's action). The
+     * removeItemPredicate allows for the removal of unwanted items, it is
+     * equivalent to calling RemoveIf with the same predicate.
+     * @param iter This helper encapsulates a number of components, the action
+     * to be performed for each item, an optional Quad filter that can be used
+     * to cull quads for efficiency, an optional item filter that can be used to
+     * select which items to apply the action to, and a removeItemPredicate,
+     * which is equivalent to calling RemoveIf with the same predicate, but
+     * wrapped up in a single pass.
+     */
+    void ForEachItem(const QuadTreeIterator& iter);
 
     void SetItemCountTaregt(unsigned target);
     void SetItemCountLeeway(unsigned leeway);
@@ -121,43 +189,17 @@ private:
     double minQuadDiameter_;
     bool currentlyIterating_;
 
-    template <typename Collide>
-    void ForEachNode(Quad& node, Collide collide, const std::function<void(Quad& node)>& action)
-    {
-        if (node.children_.has_value()) {
-            for (auto& child : node.children_.value()) {
-                if (Collides(child->rect_, collide)) {
-                    ForEachNode(*child, collide, action);
-                }
-            }
-        }
-        if (Collides(node.rect_, collide)) {
-            action(node);
-        }
-    }
-    template <typename Collide>
-    void ForEachNode(const Quad& node, Collide collide, const std::function<void(const Quad& node)>& action) const
-    {
-        if (node.children_.has_value()) {
-            for (const auto& child : node.children_.value()) {
-                if (Collides(child->rect_, collide)) {
-                    ForEachNode(*child, collide, action);
-                }
-            }
-        }
-        if (Collides(node.rect_, collide)) {
-            action(node);
-        }
-    }
-    void ForEachNode(Quad& node, const std::function<void(Quad& node)>& action);
-    void ForEachNode(const Quad& node, const std::function<void(const Quad& node)>& action) const;
+    void ForEachQuad(Quad& quad, const std::function<void(Quad& quad)>& action);
+    void ForEachQuad(Quad& quad, const std::function<void(Quad& quad)>& action, const std::function<bool(const Rect&)>& filter);
+    void ForEachQuad(const Quad& quad, const std::function<void(const Quad& quad)>& action) const;
+    void ForEachQuad(const Quad& quad, const std::function<void(const Quad& quad)>& action, const std::function<bool(const Rect&)>& filter) const;
 
     void AddItem(Quad& startOfSearch, std::shared_ptr<QuadTreeItem> item, bool preventRebalance);
-    Quad& NodeAt(Quad& startOfSearch, const Point& location);
+    Quad& QuadAt(Quad& startOfSearch, const Point& location);
     void Rebalance();
-    size_t RecursiveItemCount(const Quad& node);
-    std::vector<std::shared_ptr<QuadTreeItem>> RecursiveCollectItems(Quad& node);
-    std::array<std::shared_ptr<Quad>, 4> CreateChildren(Quad& node);
+    size_t RecursiveItemCount(const Quad& quad);
+    std::vector<std::shared_ptr<QuadTreeItem>> RecursiveCollectItems(Quad& quad);
+    std::array<std::shared_ptr<Quad>, 4> CreateChildren(Quad& quad);
 
     void ExpandRoot();
     void ContractRoot();

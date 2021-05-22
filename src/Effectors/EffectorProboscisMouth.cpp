@@ -35,7 +35,7 @@ void EffectorProboscisMouth::Draw(QPainter& paint) const
     paint.drawLine(QLineF(QPointF(proboscis.a.x, proboscis.a.y), QPointF(proboscis.b.x, proboscis.b.y)));
 }
 
-Energy EffectorProboscisMouth::PerformActions(const std::vector<double>& /*actionValues*/, const EntityContainerInterface& entities, const UniverseParameters& /*universeParameters*/)
+Energy EffectorProboscisMouth::PerformActions(const std::vector<double>& /*actionValues*/, EntityContainerInterface& entities, const UniverseParameters& /*universeParameters*/)
 {
     Line proboscis = GetProboscis();
     std::shared_ptr<Entity> victim;

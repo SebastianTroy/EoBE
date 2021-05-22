@@ -16,7 +16,7 @@ public:
 private:
     double proboscisLength_;
 
-    virtual Energy PerformActions(const std::vector<double>& actionValues, const EntityContainerInterface& entities, const UniverseParameters& universeParameters) override;
+    virtual Energy PerformActions(const std::vector<double>& actionValues, EntityContainerInterface& entities, const UniverseParameters& universeParameters) override;
 
     Line GetProboscis() const;
 };

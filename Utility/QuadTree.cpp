@@ -2,9 +2,160 @@
 
 namespace Tril {
 
+///
+/// QuadTreeItem
+///
+
 QuadTreeItem::~QuadTreeItem()
 {
 }
+
+///
+/// QuadTreeIterator
+///
+
+QuadTreeIterator::QuadTreeIterator(std::function<void (std::shared_ptr<QuadTreeItem>)>&& action)
+    : itemAction_(std::move(action))
+    , quadFilter_([](const Rect&){ return true; })
+    , itemFilter_([](const QuadTreeItem&){ return true; })
+    , removeItemPredicate_([](const QuadTreeItem&){ return false; })
+{
+}
+
+QuadTreeIterator& QuadTreeIterator::SetQuadFilter(std::function<bool (const Rect&)>&& filter)
+{
+    quadFilter_ = std::move(filter);
+    return *this;
+}
+
+QuadTreeIterator& QuadTreeIterator::SetQuadFilter(const Rect& r)
+{
+    SetQuadFilter([=](const Rect& quadArea)
+    {
+        return Collides(r, quadArea);
+    });
+    return *this;
+}
+
+QuadTreeIterator& QuadTreeIterator::SetItemFilter(std::function<bool (const QuadTreeItem&)>&& filter)
+{
+    itemFilter_ = std::move(filter);
+    return *this;
+}
+
+QuadTreeIterator& QuadTreeIterator::SetItemFilter(const Point& p)
+{
+    SetItemFilter([=](const QuadTreeItem& item)
+    {
+        return Collides(p, item.GetCollide());
+    });
+    return *this;
+}
+
+QuadTreeIterator& QuadTreeIterator::SetItemFilter(const Line& l)
+{
+    SetItemFilter([=](const QuadTreeItem& item)
+    {
+        return Collides(l, item.GetCollide());
+    });
+    return *this;
+}
+
+QuadTreeIterator& QuadTreeIterator::SetItemFilter(const Circle& c)
+{
+    SetItemFilter([=](const QuadTreeItem& item)
+    {
+        return Collides(c, item.GetCollide());
+    });
+    return *this;
+}
+
+QuadTreeIterator& QuadTreeIterator::SetItemFilter(const Rect& r)
+{
+    SetItemFilter([=](const QuadTreeItem& item)
+    {
+        return Collides(r, item.GetCollide());
+    });
+    return *this;
+}
+
+QuadTreeIterator& QuadTreeIterator::SetRemoveItemPredicate(std::function<bool (const QuadTreeItem&)>&& removeItemPredicate)
+{
+    removeItemPredicate_ = std::move(removeItemPredicate);
+    return *this;
+}
+
+///
+/// ConstQuadTreeIterator
+///
+
+ConstQuadTreeIterator::ConstQuadTreeIterator(std::function<void (const QuadTreeItem&)>&& action)
+    : itemAction_(std::move(action))
+    , quadFilter_([](const Rect&){ return true; })
+    , itemFilter_([](const QuadTreeItem&){ return true; })
+{
+}
+
+ConstQuadTreeIterator& ConstQuadTreeIterator::SetQuadFilter(std::function<bool (const Rect&)>&& filter)
+{
+    quadFilter_ = std::move(filter);
+    return *this;
+}
+
+ConstQuadTreeIterator& ConstQuadTreeIterator::SetQuadFilter(const Rect& r)
+{
+    SetQuadFilter([=](const Rect& quadArea)
+    {
+        return Collides(r, quadArea);
+    });
+    return *this;
+}
+
+ConstQuadTreeIterator& ConstQuadTreeIterator::SetItemFilter(std::function<bool (const QuadTreeItem&)>&& filter)
+{
+    itemFilter_ = std::move(filter);
+    return *this;
+}
+
+ConstQuadTreeIterator& ConstQuadTreeIterator::SetItemFilter(const Point& p)
+{
+    SetItemFilter([=](const QuadTreeItem& item)
+    {
+        return Collides(p, item.GetCollide());
+    });
+    return *this;
+}
+
+ConstQuadTreeIterator& ConstQuadTreeIterator::SetItemFilter(const Line& l)
+{
+    SetItemFilter([=](const QuadTreeItem& item)
+    {
+        return Collides(l, item.GetCollide());
+    });
+    return *this;
+}
+
+ConstQuadTreeIterator& ConstQuadTreeIterator::SetItemFilter(const Circle& c)
+{
+    SetItemFilter([=](const QuadTreeItem& item)
+    {
+        return Collides(c, item.GetCollide());
+    });
+    return *this;
+}
+
+ConstQuadTreeIterator& ConstQuadTreeIterator::SetItemFilter(const Rect& r)
+{
+    SetItemFilter([=](const QuadTreeItem& item)
+    {
+        return Collides(r, item.GetCollide());
+    });
+    return *this;
+}
+
+///
+/// QuadTree
+///
 
 QuadTree::QuadTree(const Rect& startArea, size_t itemCountTarget, size_t itemCountLeeway, double minQuadDiameter)
     : root_(std::make_shared<Quad>(nullptr, startArea))
@@ -18,27 +169,30 @@ QuadTree::QuadTree(const Rect& startArea, size_t itemCountTarget, size_t itemCou
 
 void QuadTree::Insert(std::shared_ptr<QuadTreeItem> item)
 {
+    assert(!currentlyIterating_);
     AddItem(*root_, item, false);
 }
 
 void QuadTree::Clear()
 {
+    assert(!currentlyIterating_);
     root_->children_ = std::nullopt;
     root_->items_.clear();
     root_->entering_.clear();
 }
 
-void QuadTree::RemoveIf(const std::function<bool (const QuadTreeItem&)> predicate)
+void QuadTree::RemoveIf(const std::function<bool(const QuadTreeItem&)>& predicate)
 {
+    assert(!currentlyIterating_);
     bool requiresRebalance_ = false;
-    ForEachNode(*root_, [&](Quad& node)
+    ForEachQuad(*root_, [&](Quad& quad)
     {
-        node.items_.erase(std::remove_if(std::begin(node.items_), std::end(node.items_), [&](const auto& item) -> bool
+        quad.items_.erase(std::remove_if(std::begin(quad.items_), std::end(quad.items_), [&](const auto& item) -> bool
         {
             return predicate(*item);
-        }), std::end(node.items_));
+        }), std::end(quad.items_));
 
-        requiresRebalance_ = requiresRebalance_ || static_cast<size_t>(std::abs(static_cast<int64_t>(itemCountTarget_)) - static_cast<int64_t>(node.items_.size())) > itemCountLeeway_;
+        requiresRebalance_ = requiresRebalance_ || static_cast<size_t>(std::abs(static_cast<int64_t>(itemCountTarget_)) - static_cast<int64_t>(quad.items_.size())) > itemCountLeeway_;
     });
 
     if (requiresRebalance_) {
@@ -46,73 +200,64 @@ void QuadTree::RemoveIf(const std::function<bool (const QuadTreeItem&)> predicat
     }
 }
 
-void QuadTree::ForEach(const std::function<void (const std::shared_ptr<QuadTreeItem>&)>& action, std::optional<Rect>&& collide, const std::function<bool (const QuadTreeItem&)>& predicate)
+void QuadTree::ForEachQuad(const std::function<void (const Rect&)>& action) const
+{
+    ForEachQuad(*root_, [&](const Quad& quad)
+    {
+        action(quad.rect_);
+    });
+}
+
+void QuadTree::ForEachItem(const ConstQuadTreeIterator& iter) const
+{
+    ForEachQuad(*root_, [&](const Quad& quad)
+    {
+        for (const auto& item : quad.items_) {
+            if (iter.itemFilter_(*item)) {
+                iter.itemAction_(*item);
+            }
+        }
+    }, iter.quadFilter_);
+}
+
+void QuadTree::ForEachItem(const QuadTreeIterator& iter)
 {
     bool wasIteratingAlready = currentlyIterating_;
     currentlyIterating_ = true;
 
-    if (collide.has_value()) {
-        ForEachNode(*root_, collide.value(), [&](const Quad& node)
+        ForEachQuad(*root_, [&](const Quad& quad)
         {
-            for (auto& item : node.items_) {
-                if (Collides(collide.value(), item->GetCollide())) {
-                    action(item);
+            for (auto& item : quad.items_) {
+                if (iter.itemFilter_(*item)) {
+                    iter.itemAction_(item);
                 }
             }
-        });
-    } else {
-        ForEachNode(*root_, [&](const Quad& node)
-        {
-            for (auto& item : node.items_) {
-                action(item);
-            }
-        });
-    }
+        }, iter.quadFilter_);
+
 
     // Let the very first non-const iteration deal with all of the re-balancing
     if (!wasIteratingAlready) {
         currentlyIterating_ = false;
 
-        ForEachNode(*root_, [&](Quad& node)
+        ForEachQuad(*root_, [&](Quad& quad)
         {
-            node.items_.erase(std::remove_if(std::begin(node.items_), std::end(node.items_), [&](const auto& item) -> bool
+            quad.items_.erase(std::remove_if(std::begin(quad.items_), std::end(quad.items_), [&](const auto& item) -> bool
             {
-                bool removeFromTree = !predicate(*item);
-                bool removeFromNode = !Contains(node.rect_, item->GetLocation());
+                bool removeFromTree = iter.removeItemPredicate_(*item);
+                bool removeFromQuad = !Contains(quad.rect_, item->GetLocation());
 
-                if (!removeFromTree && removeFromNode) {
-                    AddItem(node, item, true);
+                if (!removeFromTree && removeFromQuad) {
+                    AddItem(quad, item, true);
                 }
 
-                return removeFromTree || removeFromNode;
-            }), std::end(node.items_));
+                return removeFromTree || removeFromQuad;
+            }), std::end(quad.items_));
 
-            std::move(std::begin(node.entering_), std::end(node.entering_), std::back_inserter(node.items_));
-            node.entering_.clear();
+            std::move(std::begin(quad.entering_), std::end(quad.entering_), std::back_inserter(quad.items_));
+            quad.entering_.clear();
         });
 
         Rebalance();
-    }
-}
-
-void QuadTree::ForEach(const std::function<void (const QuadTreeItem&)>& action, std::optional<Rect>&& collide) const
-{
-    if (collide.has_value()) {
-        ForEachNode(*root_, collide.value(), [&](const Quad& node)
-        {
-            for (const auto& item : node.items_) {
-                if (Collides(collide.value(), item->GetCollide())) {
-                    action(*item);
-                }
-            }
-        });
-    } else {
-        ForEachNode(*root_, [&](const Quad& node)
-        {
-            for (const auto& item : node.items_) {
-                action(*item);
-            }
-        });
     }
 }
 
@@ -139,9 +284,9 @@ unsigned QuadTree::GetItemCountLeeway() const
 size_t QuadTree::Size() const
 {
     size_t count = 0;
-    ForEachNode(*root_, [&](const Quad& node)
+    ForEachQuad(*root_, [&](const Quad& quad)
     {
-        count += node.items_.size();
+        count += quad.items_.size();
     });
     return count;
 }
@@ -162,52 +307,52 @@ bool QuadTree::Validate() const
     // to validate mid const loop, or make sure the const version is being called
     Require(!currentlyIterating_);
 
-    ForEachNode(*root_, [&](const Quad& node) -> void
+    ForEachQuad(*root_, [&](const Quad& quad) -> void
     {
         // Rect isn't too small
-        double minDiameter = std::min(node.rect_.right - node.rect_.left, node.rect_.bottom - node.rect_.top);
+        double minDiameter = std::min(quad.rect_.right - quad.rect_.left, quad.rect_.bottom - quad.rect_.top);
         Require(minDiameter >= minQuadDiameter_);
 
-        // Root node has no parent
-        if (&node == root_.get()) {
-            Require((node.parent_ == nullptr));
+        // Root quad has no parent
+        if (&quad == root_.get()) {
+            Require((quad.parent_ == nullptr));
         }
 
-        if (node.children_.has_value()) {
-            // No items in node containing chldren
-            Require(node.items_.empty());
-            Require(node.entering_.empty());
+        if (quad.children_.has_value()) {
+            // No items in quad containing chldren
+            Require(quad.items_.empty());
+            Require(quad.entering_.empty());
 
             // Having children implies at least one item stored within
             size_t count = 0;
-            ForEachNode(node, [&](const Quad& node)
+            ForEachQuad(quad, [&](const Quad& quad)
             {
-                count += node.items_.size();
+                count += quad.items_.size();
             });
             Require(count > 0);
 
-            for (const std::shared_ptr<Quad>& child : node.children_.value()) {
+            for (const std::shared_ptr<Quad>& child : quad.children_.value()) {
                 // Child points at parent
-                Require(child->parent_ == &node);
+                Require(child->parent_ == &quad);
             }
 
             // Child rects are correct
-            const Rect& parentRect = node.rect_;
+            const Rect& parentRect = quad.rect_;
             double halfWidth = (parentRect.right - parentRect.left) / 2.0;
             double midX = parentRect.left + halfWidth;
             double midY = parentRect.top + halfWidth;
 
-            Require(node.children_.value().at(0)->rect_ == Rect{ parentRect.left, parentRect.top, midX            , midY              });
-            Require(node.children_.value().at(1)->rect_ == Rect{ midX           , parentRect.top, parentRect.right, midY              });
-            Require(node.children_.value().at(2)->rect_ == Rect{ parentRect.left, midY          , midX            , parentRect.bottom });
-            Require(node.children_.value().at(3)->rect_ == Rect{ midX           , midY          , parentRect.right, parentRect.bottom });
+            Require(quad.children_.value().at(0)->rect_ == Rect{ parentRect.left, parentRect.top, midX            , midY              });
+            Require(quad.children_.value().at(1)->rect_ == Rect{ midX           , parentRect.top, parentRect.right, midY              });
+            Require(quad.children_.value().at(2)->rect_ == Rect{ parentRect.left, midY          , midX            , parentRect.bottom });
+            Require(quad.children_.value().at(3)->rect_ == Rect{ midX           , midY          , parentRect.right, parentRect.bottom });
         } else {
-            // Leaf node should only have items_ in a const context
-            Require(node.entering_.empty());
+            // Leaf quad should only have items_ in a const context
+            Require(quad.entering_.empty());
 
-            // All items should be within the bounds of the node
-            for (const auto& item : node.items_) {
-                Require(Contains(node.rect_, item->GetLocation()));
+            // All items should be within the bounds of the quad
+            for (const auto& item : quad.items_) {
+                Require(Contains(quad.rect_, item->GetLocation()));
             }
         }
     });
@@ -215,22 +360,36 @@ bool QuadTree::Validate() const
     return valid;
 }
 
-void QuadTree::ForEachNode(QuadTree::Quad& node, const std::function<void (QuadTree::Quad&)>& action)
+void QuadTree::ForEachQuad(QuadTree::Quad& quad, const std::function<void (QuadTree::Quad&)>& action)
 {
-    action(node);
-    if (node.children_.has_value()) {
-        for (auto& child : node.children_.value()) {
-            ForEachNode(*child, action);
+    ForEachQuad(quad, action, [](auto){ return true; });
+}
+
+void QuadTree::ForEachQuad(QuadTree::Quad& quad, const std::function<void (QuadTree::Quad&)>& action, const std::function<bool(const Rect& area)>& filter)
+{
+    action(quad);
+    if (quad.children_.has_value()) {
+        for (auto& child : quad.children_.value()) {
+            if (filter(child->rect_)) {
+                ForEachQuad(*child, action, filter);
+            }
         }
     }
 }
 
-void QuadTree::ForEachNode(const QuadTree::Quad& node, const std::function<void (const QuadTree::Quad&)>& action) const
+void QuadTree::ForEachQuad(const QuadTree::Quad& quad, const std::function<void (const QuadTree::Quad&)>& action) const
 {
-    action(node);
-    if (node.children_.has_value()) {
-        for (const auto& child : node.children_.value()) {
-            ForEachNode(*child, action);
+    ForEachQuad(quad, action, [](auto){ return true; });
+}
+
+void QuadTree::ForEachQuad(const QuadTree::Quad& quad, const std::function<void (const QuadTree::Quad&)>& action, const std::function<bool(const Rect&)>& filter) const
+{
+    action(quad);
+    if (quad.children_.has_value()) {
+        for (const auto& child : quad.children_.value()) {
+            if (filter(child->rect_)) {
+                ForEachQuad(*child, action, filter);
+            }
         }
     }
 }
@@ -238,30 +397,30 @@ void QuadTree::ForEachNode(const QuadTree::Quad& node, const std::function<void 
 void QuadTree::AddItem(QuadTree::Quad& startOfSearch, std::shared_ptr<QuadTreeItem> item, bool preventRebalance)
 {
     if (currentlyIterating_) {
-        NodeAt(startOfSearch, item->GetLocation()).entering_.push_back(item);
+        QuadAt(startOfSearch, item->GetLocation()).entering_.push_back(item);
     } else {
-        Quad& targetNode = NodeAt(startOfSearch, item->GetLocation());
-        targetNode.items_.push_back(item);
+        Quad& targetQuad = QuadAt(startOfSearch, item->GetLocation());
+        targetQuad.items_.push_back(item);
 
         if (!preventRebalance) {
-            double minDiameter = std::min(targetNode.rect_.right - targetNode.rect_.left, targetNode.rect_.bottom - targetNode.rect_.top);
-            if (minDiameter > (2 * minQuadDiameter_) && targetNode.items_.size() > itemCountTarget_ + itemCountLeeway_) {
+            double minDiameter = std::min(targetQuad.rect_.right - targetQuad.rect_.left, targetQuad.rect_.bottom - targetQuad.rect_.top);
+            if (minDiameter > (2 * minQuadDiameter_) && targetQuad.items_.size() > itemCountTarget_ + itemCountLeeway_) {
                 Rebalance();
             }
         }
     }
 }
 
-QuadTree::Quad& QuadTree::NodeAt(QuadTree::Quad& startOfSearch, const Point& location)
+QuadTree::Quad& QuadTree::QuadAt(QuadTree::Quad& startOfSearch, const Point& location)
 {
     if (!Contains(startOfSearch.rect_, location)) {
         if (!startOfSearch.parent_) {
             ExpandRoot();
         }
-        return NodeAt(*root_, location);
+        return QuadAt(*root_, location);
     } else if (startOfSearch.children_.has_value()) {
         size_t index = SubQuadIndex(startOfSearch.rect_, location);
-        return NodeAt(*startOfSearch.children_.value().at(index), location);
+        return QuadAt(*startOfSearch.children_.value().at(index), location);
     } else {
         return startOfSearch;
     }
@@ -269,20 +428,20 @@ QuadTree::Quad& QuadTree::NodeAt(QuadTree::Quad& startOfSearch, const Point& loc
 
 void QuadTree::Rebalance()
 {
-    ForEachNode(*root_, [&](Quad& node)
+    ForEachQuad(*root_, [&](Quad& quad)
     {
-        size_t itemCount = RecursiveItemCount(node);
-        if (node.children_.has_value() && (itemCount == 0 || itemCount < itemCountTarget_ - itemCountLeeway_)) {
-            // Become a leaf node if children contain too few entities
-            node.items_ = RecursiveCollectItems(node);
-            node.children_ = std::nullopt;
-        } else if (!node.children_.has_value() && (node.rect_.right - node.rect_.left >= minQuadDiameter_ * 2.0) && node.items_.size() > itemCountTarget_ + itemCountLeeway_) {
-            // Lose leaf node status if contains too many children UNLESS the new quads would be below the minimum size!
-            node.children_ = CreateChildren(node);
+        size_t itemCount = RecursiveItemCount(quad);
+        if (quad.children_.has_value() && (itemCount == 0 || itemCount < itemCountTarget_ - itemCountLeeway_)) {
+            // Become a leaf quad if children contain too few entities
+            quad.items_ = RecursiveCollectItems(quad);
+            quad.children_ = std::nullopt;
+        } else if (!quad.children_.has_value() && (quad.rect_.right - quad.rect_.left >= minQuadDiameter_ * 2.0) && quad.items_.size() > itemCountTarget_ + itemCountLeeway_) {
+            // Lose leaf quad status if contains too many children UNLESS the new quads would be below the minimum size!
+            quad.children_ = CreateChildren(quad);
             std::vector<std::shared_ptr<QuadTreeItem>> itemsToRehome;
-            itemsToRehome.swap(node.items_);
+            itemsToRehome.swap(quad.items_);
             for (auto& item : itemsToRehome) {
-                NodeAt(node, item->GetLocation()).items_.push_back(item);
+                QuadAt(quad, item->GetLocation()).items_.push_back(item);
             }
         }
     });
@@ -290,39 +449,39 @@ void QuadTree::Rebalance()
     ContractRoot();
 }
 
-size_t QuadTree::RecursiveItemCount(const QuadTree::Quad& node)
+size_t QuadTree::RecursiveItemCount(const QuadTree::Quad& quad)
 {
     size_t count = 0;
-    ForEachNode(node, [&](const Quad& node)
+    ForEachQuad(quad, [&](const Quad& quad)
     {
-        count += node.items_.size();
+        count += quad.items_.size();
     });
     return count;
 }
 
-std::vector<std::shared_ptr<QuadTreeItem> > QuadTree::RecursiveCollectItems(QuadTree::Quad& node)
+std::vector<std::shared_ptr<QuadTreeItem> > QuadTree::RecursiveCollectItems(QuadTree::Quad& quad)
 {
     std::vector<std::shared_ptr<QuadTreeItem>> collectedItems;
-    ForEachNode(node, [&](Quad& node)
+    ForEachQuad(quad, [&](Quad& quad)
     {
-        std::move(std::begin(node.items_), std::end(node.items_), std::back_inserter(collectedItems));
+        std::move(std::begin(quad.items_), std::end(quad.items_), std::back_inserter(collectedItems));
     });
     return collectedItems;
 }
 
-std::array<std::shared_ptr<QuadTree::Quad>, 4> QuadTree::CreateChildren(QuadTree::Quad& node)
+std::array<std::shared_ptr<QuadTree::Quad>, 4> QuadTree::CreateChildren(QuadTree::Quad& quad)
 {
-    const Rect& parentRect = node.rect_;
+    const Rect& parentRect = quad.rect_;
 
     double halfWidth = (parentRect.right - parentRect.left) / 2.0;
     double midX = parentRect.left + halfWidth;
     double midY = parentRect.top + halfWidth;
 
     return {
-        std::make_shared<Quad>(&node, Rect{ parentRect.left, parentRect.top, midX            , midY              }),
-        std::make_shared<Quad>(&node, Rect{ midX           , parentRect.top, parentRect.right, midY              }),
-        std::make_shared<Quad>(&node, Rect{ parentRect.left, midY          , midX            , parentRect.bottom }),
-        std::make_shared<Quad>(&node, Rect{ midX           , midY          , parentRect.right, parentRect.bottom }),
+        std::make_shared<Quad>(&quad, Rect{ parentRect.left, parentRect.top, midX            , midY              }),
+        std::make_shared<Quad>(&quad, Rect{ midX           , parentRect.top, parentRect.right, midY              }),
+        std::make_shared<Quad>(&quad, Rect{ parentRect.left, midY          , midX            , parentRect.bottom }),
+        std::make_shared<Quad>(&quad, Rect{ midX           , midY          , parentRect.right, parentRect.bottom }),
     };
 }
 

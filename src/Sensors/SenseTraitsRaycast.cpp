@@ -53,16 +53,16 @@ Line SenseTraitsRaycast::GetLine() const
 void SenseTraitsRaycast::FilterEntities(const EntityContainerInterface& entities, const std::function<void (const Entity& e)>& forEachEntity) const
 {
     Line rayCastLine = GetLine();
-    std::shared_ptr<Entity> nearestEntity;
+    const Entity* nearestEntity = nullptr;
     double distanceToNearestSquared = 0.0;
-    entities.ForEachCollidingWith(rayCastLine, [&](const std::shared_ptr<Entity>& e)
+    entities.ForEachCollidingWith(rayCastLine, [&](const Entity& e)
     {
         // don't detect ourself
-        if (e.get() != &owner_) {
+        if (&e != &owner_) {
             // TODO this distance assumes head on detection, not incidental ones
-            double distanceSquare = GetDistanceSquare(rayCastLine.a, e->GetLocation());
+            double distanceSquare = GetDistanceSquare(rayCastLine.a, e.GetLocation());
             if (nearestEntity == nullptr || distanceSquare < distanceToNearestSquared) {
-                nearestEntity = e;
+                nearestEntity = &e;
                 distanceToNearestSquared = distanceSquare;
             }
         }

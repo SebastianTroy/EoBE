@@ -40,7 +40,6 @@ set(PROJECT_SOURCES
     LineGraphContainerWidget.cpp
     MeatChunk.cpp
     NeuralNetworkInspector.cpp
-    QuadTree.cpp
     ScatterGraph.cpp
     Sensors/Sense.cpp
     Sensors/SenseLunarCycle.cpp
@@ -102,7 +101,6 @@ set(PROJECT_HEADERS
     LineGraphContainerWidget.h
     MeatChunk.h
     NeuralNetworkInspector.h
-    QuadTree.h
     ScatterGraph.h
     Sensors/Sense.h
     Sensors/SenseLunarCycle.h

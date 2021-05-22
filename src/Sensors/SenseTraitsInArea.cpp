@@ -54,13 +54,13 @@ void SenseTraitsInArea::FilterEntities(const EntityContainerInterface& entities,
     const Circle senseArea = GetArea();
     const Point senseCentre = { senseArea.x, senseArea.y };
     const double senseRadiusSquare = std::pow(senseArea.radius, 2.0);
-    entities.ForEachCollidingWith(senseArea, [&](const std::shared_ptr<Entity>& e)
+    entities.ForEachCollidingWith(senseArea, [&](const Entity& e)
     {
         // don't detect ourself
-        if (e.get() != &owner_) {
-            double distanceSquare = GetDistanceSquare(senseCentre, e->GetLocation());
+        if (&e != &owner_) {
+            double distanceSquare = GetDistanceSquare(senseCentre, e.GetLocation());
             if (distanceSquare < senseRadiusSquare) {
-                forEachEntity(*e);
+                forEachEntity(e);
             }
         }
     });

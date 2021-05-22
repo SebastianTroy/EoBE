@@ -20,7 +20,7 @@ std::string EffectorFilterMouth::GetDescription() const
     "is small enough. It consumes food with a 75% energy efficiency.</p>";
 }
 
-Energy EffectorFilterMouth::PerformActions(const std::vector<double>& /*actionValues*/, const EntityContainerInterface& entities, const UniverseParameters& /*universeParameters*/)
+Energy EffectorFilterMouth::PerformActions(const std::vector<double>& /*actionValues*/, EntityContainerInterface& entities, const UniverseParameters& /*universeParameters*/)
 {
     // This is stupid, no point in having mouth closed ever for any reason
     //static Tril::RangeConverter inputToMouthOpen{ { -1.0, 1.0 }, { 0.0, 1.0 } };

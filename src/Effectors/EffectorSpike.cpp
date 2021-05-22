@@ -43,7 +43,7 @@ void EffectorSpike::Draw(QPainter& paint) const
     paint.drawPath(spikeTriangle);
 }
 
-Energy EffectorSpike::PerformActions(const std::vector<double>& /*actionValues*/, const EntityContainerInterface& entities, const UniverseParameters& /*universeParameters*/)
+Energy EffectorSpike::PerformActions(const std::vector<double>& /*actionValues*/, EntityContainerInterface& entities, const UniverseParameters& /*universeParameters*/)
 {
     entities.ForEachCollidingWith(GetTipOfSpike(), [&](const std::shared_ptr<Entity>& entity)
     {

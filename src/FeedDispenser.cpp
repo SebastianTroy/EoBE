@@ -2,14 +2,14 @@
 
 #include "FoodPellet.h"
 #include "UniverseParameters.h"
-#include "QuadTree.h"
+
 #include <Random.h>
 
 #include <QPainter>
 
 #include <memory>
 
-FeedDispenser::FeedDispenser(QuadTree& entityContainer, double x, double y, double radius, double pelletDensity)
+FeedDispenser::FeedDispenser(EntityContainerInterface& entityContainer, double x, double y, double radius, double pelletDensity)
     : entityContainer_(entityContainer)
     , x_(x)
     , y_(y)

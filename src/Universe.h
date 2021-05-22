@@ -4,10 +4,13 @@
 #include "DrawSettings.h"
 #include "FeedDispenser.h"
 #include "LineGraph.h"
-#include "QuadTree.h"
+#include "Entity.h"
+#include "EntityContainerInterface.h"
+#include "UniverseParameters.h"
 
 #include <Energy.h>
 #include <AutoClearingContainer.h>
+#include <QuadTree.h>
 
 #include <QTimer>
 #include <QPainter>
@@ -16,25 +19,47 @@
 #include <functional>
 #include <math.h>
 
-class Universe {
+class Universe : public EntityContainerInterface {
 public:
     Universe(Rect startingQuad);
 
     void SetEntityTargetPerQuad(uint64_t target, uint64_t leeway);
 
-    void AddEntity(const std::shared_ptr<Entity>& entity) { rootNode_.AddEntity(entity); }
-    std::shared_ptr<Entity> PickEntity(const Point& location, bool remove) { return rootNode_.PickEntity(location, remove); }
+    void AddEntity(std::shared_ptr<Entity> entity) override { rootNode_.Insert(std::dynamic_pointer_cast<Tril::QuadTreeItem>(entity)); }
+    void ForEachCollidingWith(const Point& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action) override final;
+    void ForEachCollidingWith(const Line& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action) override final;
+    void ForEachCollidingWith(const Rect& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action) override final;
+    void ForEachCollidingWith(const Circle& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action) override final;
+    void ForEachCollidingWith(const Point& collide, const std::function<void (const Entity&)>& action) const override final;
+    void ForEachCollidingWith(const Line& collide, const std::function<void (const Entity&)>& action) const override final;
+    void ForEachCollidingWith(const Rect& collide, const std::function<void (const Entity&)>& action) const override final;
+    void ForEachCollidingWith(const Circle& collide, const std::function<void (const Entity&)>& action) const override final;
+
+    std::shared_ptr<Entity> PickEntity(const Point& location, bool remove);
     void ClearAllEntities() { rootNode_.Clear(); }
     template <typename... T>
-    void ClearAllEntitiesOfType() { rootNode_.Clear<T...>(); }
-    void ForEach(const std::function<void (const std::shared_ptr<Entity>& e)>& action) const { rootNode_.ForEach(action); }
+    void ClearAllEntitiesOfType()
+    {
+        rootNode_.RemoveIf([](const Tril::QuadTreeItem& item) -> bool
+        {
+            return (dynamic_cast<const T*>(&item) || ...);
+        });
+    }
+    void ForEach(const std::function<void (const Entity& e)>& action) const
+    {
+        rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>(action));
+    }
+    void ForEach(const std::function<void (std::shared_ptr<Entity> e)>& action)
+    {
+        rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>(action));
+    }
 
     void AddFeedDispenser(const std::shared_ptr<FeedDispenser>& feeder) { feedDispensers_.push_back(feeder); }
     std::shared_ptr<FeedDispenser> PickFeedDispenser(const Point& location, bool remove);
     void ClearAllFeedDispensers() { feedDispensers_.clear(); }
 
     UniverseParameters& GetParameters() { return params_; }
-    const EntityContainerInterface& GetEntityContainer() const { return rootNode_; }
+    const EntityContainerInterface& GetEntityContainer() const { return *this; }
 
     /**
      * @brief The Task system allows clients to have code run each tick, without
@@ -50,10 +75,10 @@ public:
 
 
     void Tick();
-    void Draw(QPainter& painter, const DrawSettings& options, const Rect& drawArea) const;
+    void Draw(QPainter& painter, const DrawSettings& options, const Rect& drawArea);
 
 private:
-    QuadTree rootNode_;
+    Tril::QuadTree rootNode_;
     std::vector<std::shared_ptr<FeedDispenser>> feedDispensers_;
     UniverseParameters params_;
 

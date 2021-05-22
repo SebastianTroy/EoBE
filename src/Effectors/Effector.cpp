@@ -14,7 +14,7 @@ Effector::~Effector()
 {
 }
 
-Energy Effector::Tick(const std::vector<double>& inputs, const EntityContainerInterface& entities, const UniverseParameters& universeParameters)
+Energy Effector::Tick(const std::vector<double>& inputs, EntityContainerInterface& entities, const UniverseParameters& universeParameters)
 {
     std::fill(std::begin(outputs_), std::end(outputs_), 0.0);
     inputConnections_->PassForward(inputs, outputs_);

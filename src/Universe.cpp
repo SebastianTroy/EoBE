@@ -12,11 +12,11 @@
 #include <QVariant>
 
 Universe::Universe(Rect startingQuad)
-    : rootNode_(startingQuad)
+    : rootNode_(startingQuad, 25, 5, Entity::MAX_RADIUS * 2)
 {
     // TODO get rid of this default nonsense here
-    feedDispensers_.push_back(std::make_shared<FeedDispenser>(rootNode_,  1000, 0, 950, 0.001));
-    feedDispensers_.push_back(std::make_shared<FeedDispenser>(rootNode_, -1000, 0, 950, 0.001));
+    feedDispensers_.push_back(std::make_shared<FeedDispenser>(*this,  1000, 0, 950, 0.001));
+    feedDispensers_.push_back(std::make_shared<FeedDispenser>(*this, -1000, 0, 950, 0.001));
 
     for (auto& feeder : feedDispensers_) {
         feeder->AddPelletsImmediately(feeder->GetMaxPellets() / 8);
@@ -24,10 +24,11 @@ Universe::Universe(Rect startingQuad)
 
     for (unsigned i = 0; i < 75u; ++i) {
         Point spikeLocation = Random::PointIn(Circle{ feedDispensers_.front()->GetX(), feedDispensers_.front()->GetY(), feedDispensers_.front()->GetRadius() });
-        rootNode_.AddEntity(std::make_shared<Spike>(Transform{ spikeLocation.x, spikeLocation.y, Random::Bearing() }));
+        rootNode_.Insert(std::make_shared<Spike>(Transform{ spikeLocation.x, spikeLocation.y, Random::Bearing() }));
     }
 
-    rootNode_.SetEntityTargetPerQuad(25, 5);
+    rootNode_.SetItemCountTaregt(25);
+    rootNode_.SetItemCountLeeway(5);
 
     for (const auto& feeder : feedDispensers_) {
         for (unsigned i = 0; i < std::max(size_t{ 1 }, 25 / feedDispensers_.size()); i++) {
@@ -35,14 +36,112 @@ Universe::Universe(Rect startingQuad)
             double distance = std::sqrt(Random::Number(0.0, 1.0)) * feeder->GetRadius();
             double trilobyteX = feeder->GetX() + distance * std::cos(rotation);
             double trilobyteY = feeder->GetY() + distance * std::sin(rotation);
-            rootNode_.AddEntity(std::make_shared<Trilobyte>(300_mj, Transform{ trilobyteX, trilobyteY, Random::Bearing() }, GeneFactory::Get().GenerateDefaultGenome(NeuralNetwork::BRAIN_WIDTH)));
+            rootNode_.Insert(std::make_shared<Trilobyte>(300_mj, Transform{ trilobyteX, trilobyteY, Random::Bearing() }, GeneFactory::Get().GenerateDefaultGenome(NeuralNetwork::BRAIN_WIDTH)));
         }
     }
 }
 
 void Universe::SetEntityTargetPerQuad(uint64_t target, uint64_t leeway)
 {
-    rootNode_.SetEntityTargetPerQuad(target, leeway);
+    rootNode_.SetItemCountTaregt(target);
+    rootNode_.SetItemCountLeeway(leeway);
+}
+
+
+
+void Universe::ForEachCollidingWith(const Point& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
+{
+    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> item)
+    {
+        if (Collides(collide, item->GetCollide())) {
+            action(item);
+        }
+    }).SetQuadFilter(BoundingRect(collide, Entity::MAX_RADIUS)).SetItemFilter(collide));
+}
+
+void Universe::ForEachCollidingWith(const Line& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
+{
+    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> item)
+    {
+        if (Collides(collide, item->GetCollide())) {
+            action(item);
+        }
+    }).SetQuadFilter(BoundingRect(collide, Entity::MAX_RADIUS)).SetItemFilter(collide));
+}
+
+void Universe::ForEachCollidingWith(const Rect& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
+{
+    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> item)
+    {
+        if (Collides(collide, item->GetCollide())) {
+            action(item);
+        }
+    }).SetQuadFilter(BoundingRect(collide, Entity::MAX_RADIUS)).SetItemFilter(collide));
+}
+
+void Universe::ForEachCollidingWith(const Circle& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
+{
+    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> item)
+    {
+        if (Collides(collide, item->GetCollide())) {
+            action(item);
+        }
+    }).SetQuadFilter(BoundingRect(collide, Entity::MAX_RADIUS)).SetItemFilter(collide));
+}
+
+void Universe::ForEachCollidingWith(const Point& collide, const std::function<void (const Entity&)>& action) const
+{
+    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>([&](const Entity& item)
+    {
+        if (Collides(collide, item.GetCollide())) {
+            action(item);
+        }
+    }).SetQuadFilter(BoundingRect(collide, Entity::MAX_RADIUS)).SetItemFilter(collide));
+}
+
+void Universe::ForEachCollidingWith(const Line& collide, const std::function<void (const Entity&)>& action) const
+{
+    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>([&](const Entity& item)
+    {
+        if (Collides(collide, item.GetCollide())) {
+            action(item);
+        }
+    }).SetQuadFilter(BoundingRect(collide, Entity::MAX_RADIUS)).SetItemFilter(collide));
+}
+
+void Universe::ForEachCollidingWith(const Rect& collide, const std::function<void (const Entity&)>& action) const
+{
+    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>([&](const Entity& item)
+    {
+        if (Collides(collide, item.GetCollide())) {
+            action(item);
+        }
+    }).SetQuadFilter(BoundingRect(collide, Entity::MAX_RADIUS)).SetItemFilter(collide));
+}
+
+void Universe::ForEachCollidingWith(const Circle& collide, const std::function<void (const Entity&)>& action) const
+{
+    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>([&](const Entity& item)
+    {
+        if (Collides(collide, item.GetCollide())) {
+            action(item);
+        }
+    }).SetQuadFilter(BoundingRect(collide, Entity::MAX_RADIUS)).SetItemFilter(collide));
+}
+
+std::shared_ptr<Entity> Universe::PickEntity(const Point& location, bool remove)
+{
+    std::shared_ptr<Entity> picked;
+    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> entity)
+    {
+        if (!picked) {
+            picked = entity;
+        }
+    }).SetQuadFilter(BoundingRect(location, Entity::MAX_RADIUS)).SetItemFilter(location).SetRemoveItemPredicate<Entity>([&](const Entity& entity)
+    {
+        return remove && picked && picked.get() == &entity;
+    }));
+    return picked;
 }
 
 std::shared_ptr<FeedDispenser> Universe::PickFeedDispenser(const Point& location, bool remove)
@@ -66,19 +165,28 @@ Tril::Handle Universe::AddTask(std::function<void (uint64_t tick)>&& task)
     return perTickTasks_.PushBack(std::move(task));
 }
 
-void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawArea) const
+void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawArea)
 {
     for (auto& dispenser : feedDispensers_) {
         dispenser->Draw(p, options);
     }
-    rootNode_.Draw(p, options, drawArea);
+    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> entity)
+    {
+        entity->Draw(p, options);
+    }).SetQuadFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)).SetItemFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)));
 }
 
 void Universe::Tick()
 {
     params_.lunarCycle_ = GetLunarCycle();
 
-    rootNode_.Tick(params_);
+    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> entity)
+    {
+        entity->Tick(*this, params_);
+    }).SetRemoveItemPredicate<Entity>([](const Entity& entity)
+    {
+        return !entity.Exists();
+    }));
 
     for (auto& dispenser : feedDispensers_) {
         dispenser->Tick(params_);

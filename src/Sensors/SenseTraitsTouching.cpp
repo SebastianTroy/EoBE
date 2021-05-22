@@ -50,12 +50,12 @@ Point SenseTraitsTouching::GetPoint() const
 void SenseTraitsTouching::FilterEntities(const EntityContainerInterface& entities, const std::function<void (const Entity&)>& forEachEntity) const
 {
     Point location = GetPoint();
-    entities.ForEachCollidingWith(location, [&](const std::shared_ptr<Entity>& e)
+    entities.ForEachCollidingWith(location, [&](const Entity& e)
     {
         // don't detect ourself
-        if (e.get() != &owner_) {
+        if (&e != &owner_) {
             // All entities touching are detected
-            forEachEntity(*e);
+            forEachEntity(e);
         }
     });
 }
