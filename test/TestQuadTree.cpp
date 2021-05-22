@@ -7,7 +7,7 @@ using namespace Tril;
 
 namespace {
 
-class TestType : public QuadTreeItem {
+class TestType {
 public:
     Point location_;
     Circle collide_;
@@ -18,12 +18,12 @@ public:
     {
     }
 
-    virtual const Point& GetLocation() const override
+    const Point& GetLocation() const
     {
         return location_;
     }
 
-    virtual const Circle& GetCollide() const override
+    const Circle& GetCollide() const
     {
         return collide_;
     }
@@ -46,7 +46,7 @@ TEST_CASE("QuadTree", "[container]")
         size_t targetCount = 1;
         size_t countLeeway = 0;
         double minQuadSize = 1.0;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
         REQUIRE(tree.Validate());
     }
@@ -57,10 +57,10 @@ TEST_CASE("QuadTree", "[container]")
         size_t targetCount = 1;
         size_t countLeeway = 0;
         double minQuadSize = 1.0;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
         Point testLoc{ 5.0, 5.0 };
-        std::shared_ptr<QuadTreeItem> testItem = std::make_shared<TestType>(testLoc);
+        std::shared_ptr<TestType> testItem = std::make_shared<TestType>(testLoc);
 
         tree.Insert(testItem);
 
@@ -69,7 +69,7 @@ TEST_CASE("QuadTree", "[container]")
         REQUIRE(testItem->GetLocation() == testLoc);
 
         size_t count = 0;
-        tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& item)
+        tree.ForEachItem(ConstQuadTreeIterator<TestType>([&](const TestType& item)
         {
             ++count;
             REQUIRE(item.GetLocation() == testLoc);
@@ -84,7 +84,7 @@ TEST_CASE("QuadTree", "[container]")
         size_t targetCount = 1;
         size_t countLeeway = 0;
         double minQuadSize = 1.0;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
         size_t count = 25;
         std::vector<Point> testLocations;
@@ -100,7 +100,7 @@ TEST_CASE("QuadTree", "[container]")
         std::vector<Point> itemLocations;
 
         size_t itemCount = 0;
-        tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& item)
+        tree.ForEachItem(ConstQuadTreeIterator<TestType>([&](const TestType& item)
         {
             ++itemCount;
             itemLocations.push_back(item.GetLocation());
@@ -119,7 +119,7 @@ TEST_CASE("QuadTree", "[container]")
         size_t targetCount = 1;
         size_t countLeeway = 0;
         double minQuadSize = 1.0;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
         size_t count = 25;
         Point testLoc = Random::PointIn(area);
@@ -132,7 +132,7 @@ TEST_CASE("QuadTree", "[container]")
         REQUIRE(tree.Size() == count);
 
         size_t itemCount = 0;
-        tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& item)
+        tree.ForEachItem(ConstQuadTreeIterator<TestType>([&](const TestType& item)
         {
             ++itemCount;
             REQUIRE(item.GetLocation() == testLoc);
@@ -147,7 +147,7 @@ TEST_CASE("QuadTree", "[container]")
         size_t targetCount = 1;
         size_t countLeeway = 0;
         double minQuadSize = 1.0;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
         REQUIRE(tree.Validate());
         REQUIRE(tree.Size() == 0);
@@ -181,7 +181,7 @@ TEST_CASE("QuadTree", "[container]")
                                        Point{ -100, 11 }, Point{ -1, 100 }, Point{ 100, 110 }, // way out of bounds
                                      };
             for (const auto& testLoc : outOfBoundsPoints) {
-                QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+                QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
                 tree.Insert(std::make_shared<TestType>(testLoc));
                 REQUIRE(tree.Validate());
             }
@@ -196,7 +196,7 @@ TEST_CASE("QuadTree", "[container]")
                                        Point{ -100, 11 }, Point{ -1, 100 }, Point{ 100, 110 }, // way out of bounds
                                      };
             for (const auto& testLoc : outOfBoundsPoints) {
-                QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+                QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
                 for (int i = 0; i < 25; ++i) {
                     tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
                 }
@@ -217,9 +217,9 @@ TEST_CASE("QuadTree", "[container]")
         size_t countLeeway = 0;
         const double minQuadSize = 1.0;
         const size_t itemCount = 50;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
-        auto removeTopItemsPredicate = [=](const QuadTreeItem& item)
+        auto removeTopItemsPredicate = [=](const TestType& item)
         {
             return Contains(topArea, item.GetLocation());
         };
@@ -233,7 +233,7 @@ TEST_CASE("QuadTree", "[container]")
         {
             tree.RemoveIf(removeTopItemsPredicate);
 
-            tree.ForEachItem(ConstQuadTreeIterator([bottomArea](const QuadTreeItem& item)
+            tree.ForEachItem(ConstQuadTreeIterator<TestType>([bottomArea](const TestType& item)
             {
                 REQUIRE(Contains(bottomArea, item.GetLocation()));
             }));
@@ -244,12 +244,12 @@ TEST_CASE("QuadTree", "[container]")
 
         SECTION("ForEach predicate")
         {
-            tree.ForEachItem(QuadTreeIterator([](std::shared_ptr<QuadTreeItem> /*item*/)
+            tree.ForEachItem(QuadTreeIterator<TestType>([](std::shared_ptr<TestType> /*item*/)
             {
                 // Do nothing
             }).SetRemoveItemPredicate(removeTopItemsPredicate));
 
-            tree.ForEachItem(ConstQuadTreeIterator([bottomArea](const QuadTreeItem& item)
+            tree.ForEachItem(ConstQuadTreeIterator<TestType>([bottomArea](const TestType& item)
             {
                 REQUIRE(Contains(bottomArea, item.GetLocation()));
             }));
@@ -269,7 +269,7 @@ TEST_CASE("QuadTree", "[container]")
         const size_t itemCount = 50;
         const size_t topItemCount = itemCount / 3;
         const size_t bottomItemCount = itemCount - topItemCount;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
         for (size_t i = 0; i < std::max(topItemCount, bottomItemCount); ++i) {
             if (i < topItemCount) {
@@ -283,14 +283,14 @@ TEST_CASE("QuadTree", "[container]")
         SECTION("non-const")
         {
             size_t totalCount = 0;
-            tree.ForEachItem(QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> /*item*/)
+            tree.ForEachItem(QuadTreeIterator<TestType>([&](std::shared_ptr<TestType> /*item*/)
             {
                 ++totalCount;
             }).SetItemFilter(area));
             REQUIRE(totalCount == itemCount);
 
             size_t topCount = 0;
-            tree.ForEachItem(QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> item)
+            tree.ForEachItem(QuadTreeIterator<TestType>([&](std::shared_ptr<TestType> item)
             {
                 REQUIRE(Contains(topArea, item->GetLocation()));
                 ++topCount;
@@ -298,7 +298,7 @@ TEST_CASE("QuadTree", "[container]")
             REQUIRE(topCount == topItemCount);
 
             size_t bottomCount = 0;
-            tree.ForEachItem(QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> item)
+            tree.ForEachItem(QuadTreeIterator<TestType>([&](std::shared_ptr<TestType> item)
             {
                 REQUIRE(Contains(bottomArea, item->GetLocation()));
                 ++bottomCount;
@@ -312,21 +312,21 @@ TEST_CASE("QuadTree", "[container]")
         SECTION("const")
         {
             size_t totalCount = 0;
-            tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& /*item*/)
+            tree.ForEachItem(ConstQuadTreeIterator<TestType>([&](const TestType& /*item*/)
             {
                 ++totalCount;
             }).SetItemFilter(area));
             REQUIRE(totalCount == itemCount);
 
             size_t topCount = 0;
-            tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& /*item*/)
+            tree.ForEachItem(ConstQuadTreeIterator<TestType>([&](const TestType& /*item*/)
             {
                 ++topCount;
             }).SetItemFilter(topArea));
             REQUIRE(topCount == topItemCount);
 
             size_t bottomCount = 0;
-            tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& /*item*/)
+            tree.ForEachItem(ConstQuadTreeIterator<TestType>([&](const TestType& /*item*/)
             {
                 ++bottomCount;
             }).SetItemFilter(bottomArea));
@@ -354,13 +354,13 @@ TEST_CASE("QuadTree", "[container]")
             { 0, 7 }, // make sure it does something sensible!
         };
         for (const auto& [ targetCount, countLeeway ] : targetAndLeewayCombinations) {
-            QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+            QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
             for (size_t i = 0; i < itemCount; ++i) {
                 tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
             }
 
-            auto iter = QuadTreeIterator::Create<TestType>([=](std::shared_ptr<TestType> item)
+            auto iter = QuadTreeIterator<TestType>([=](std::shared_ptr<TestType> item)
             {
                 item->location_ = Random::PointIn(area);
             });
@@ -389,7 +389,7 @@ TEST_CASE("QuadTree", "[container]")
             { 0, 7 }, // make sure it does something sensible!
         };
         for (const auto& [ targetCount, countLeeway ] : targetAndLeewayCombinations) {
-            QuadTree tree(startArea, targetCount, countLeeway, minQuadSize);
+            QuadTree<TestType> tree(startArea, targetCount, countLeeway, minQuadSize);
 
             // Now go through a few a few test loops
             for (int i = 0; i < 100; ++i) {
@@ -399,10 +399,10 @@ TEST_CASE("QuadTree", "[container]")
                     tree.Insert(std::make_shared<TestType>(Random::PointIn(startArea)));
                 }
 
-                tree.ForEachItem(QuadTreeIterator::Create<TestType>([=](std::shared_ptr<TestType> item)
+                tree.ForEachItem(QuadTreeIterator<TestType>([=](std::shared_ptr<TestType> item)
                 {
                     item->location_ = Random::PointIn(movementArea);
-                }).SetRemoveItemPredicate<TestType>([](const TestType& /*item*/) -> bool
+                }).SetRemoveItemPredicate([](const TestType& /*item*/) -> bool
                 {
                     return Random::Boolean();
                 }));
@@ -420,13 +420,13 @@ TEST_CASE("QuadTree", "[container]")
         const size_t countLeeway = 0;
         const double minQuadSize = 1.0;
         const size_t itemCount = 25;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
         for (size_t i = 0; i < itemCount; ++i) {
             tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
         }
 
-        tree.ForEachItem(QuadTreeIterator([&](auto /*item*/)
+        tree.ForEachItem(QuadTreeIterator<TestType>([&](auto /*item*/)
         {
             tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
         }));
@@ -442,28 +442,28 @@ TEST_CASE("QuadTree", "[container]")
         const size_t countLeeway = 0;
         const double minQuadSize = 1.0;
         const size_t itemCount = 25;
-        QuadTree tree(area, targetCount, countLeeway, minQuadSize);
+        QuadTree<TestType> tree(area, targetCount, countLeeway, minQuadSize);
 
         for (size_t i = 0; i < itemCount; ++i) {
             tree.Insert(std::make_shared<TestType>(Random::PointIn(area)));
         }
 
-        tree.ForEachItem(QuadTreeIterator([&](std::shared_ptr<QuadTreeItem> /*item*/)
+        tree.ForEachItem(QuadTreeIterator<TestType>([&](std::shared_ptr<TestType> /*item*/)
         {
             REQUIRE(!tree.Validate());
         }));
 
-        tree.ForEachItem(ConstQuadTreeIterator([&](const QuadTreeItem& /*item*/)
+        tree.ForEachItem(ConstQuadTreeIterator<TestType>([&](const TestType& /*item*/)
         {
             REQUIRE(tree.Validate());
         }));
 
-        tree.ForEachItem(QuadTreeIterator::Create<TestType>([&](std::shared_ptr<TestType> /*item*/)
+        tree.ForEachItem(QuadTreeIterator<TestType>([&](std::shared_ptr<TestType> /*item*/)
         {
             REQUIRE(!tree.Validate());
         }));
 
-        tree.ForEachItem(ConstQuadTreeIterator::Create<TestType>([&](const TestType& /*item*/)
+        tree.ForEachItem(ConstQuadTreeIterator<TestType>([&](const TestType& /*item*/)
         {
             REQUIRE(tree.Validate());
         }));

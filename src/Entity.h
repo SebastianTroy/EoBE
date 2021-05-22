@@ -8,7 +8,6 @@
 #include <Shape.h>
 #include <Energy.h>
 #include <Transform.h>
-#include <QuadTree.h>
 
 #include <QColor>
 #include <QPixmap>
@@ -28,7 +27,7 @@ struct Property{
     std::string description_;
 };
 
-class Entity : public Tril::QuadTreeItem {
+class Entity {
 public:
     static constexpr double MAX_RADIUS = 12.0;
 
@@ -42,13 +41,13 @@ public:
 
     const uint64_t& GetAge() const { return age_; }
     const Transform& GetTransform() const { return transform_; }
-    const Point& GetLocation() const override { static Point p; p = { transform_.x, transform_.y }; return p; }
+    const Point& GetLocation() const { static Point p; p = { transform_.x, transform_.y }; return p; }
     const double& GetRadius() const { return radius_; }
     double GetEnergy() const { return energy_; }
     const QColor& GetColour() const { return colour_; }
     const double& GetVelocity() const { return speed_; }
     bool Exists() const { return !terminated_; }
-    const Circle& GetCollide() const override { static Circle c; c = { transform_.x, transform_.y, radius_ }; return c; };
+    const Circle& GetCollide() const { static Circle c; c = { transform_.x, transform_.y, radius_ }; return c; };
 
     void SetLocation(const Point& location) { transform_.x = location.x; transform_.y = location.y; }
     void FeedOn(Entity& other, Energy quantity);

@@ -51,7 +51,7 @@ void Universe::SetEntityTargetPerQuad(uint64_t target, uint64_t leeway)
 
 void Universe::ForEachCollidingWith(const Point& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
 {
-    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> item)
+    rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> item)
     {
         if (Collides(collide, item->GetCollide())) {
             action(item);
@@ -61,7 +61,7 @@ void Universe::ForEachCollidingWith(const Point& collide, const std::function<vo
 
 void Universe::ForEachCollidingWith(const Line& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
 {
-    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> item)
+    rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> item)
     {
         if (Collides(collide, item->GetCollide())) {
             action(item);
@@ -71,7 +71,7 @@ void Universe::ForEachCollidingWith(const Line& collide, const std::function<voi
 
 void Universe::ForEachCollidingWith(const Rect& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
 {
-    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> item)
+    rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> item)
     {
         if (Collides(collide, item->GetCollide())) {
             action(item);
@@ -81,7 +81,7 @@ void Universe::ForEachCollidingWith(const Rect& collide, const std::function<voi
 
 void Universe::ForEachCollidingWith(const Circle& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
 {
-    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> item)
+    rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> item)
     {
         if (Collides(collide, item->GetCollide())) {
             action(item);
@@ -91,7 +91,7 @@ void Universe::ForEachCollidingWith(const Circle& collide, const std::function<v
 
 void Universe::ForEachCollidingWith(const Point& collide, const std::function<void (const Entity&)>& action) const
 {
-    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>([&](const Entity& item)
+    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([&](const Entity& item)
     {
         if (Collides(collide, item.GetCollide())) {
             action(item);
@@ -101,7 +101,7 @@ void Universe::ForEachCollidingWith(const Point& collide, const std::function<vo
 
 void Universe::ForEachCollidingWith(const Line& collide, const std::function<void (const Entity&)>& action) const
 {
-    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>([&](const Entity& item)
+    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([&](const Entity& item)
     {
         if (Collides(collide, item.GetCollide())) {
             action(item);
@@ -111,7 +111,7 @@ void Universe::ForEachCollidingWith(const Line& collide, const std::function<voi
 
 void Universe::ForEachCollidingWith(const Rect& collide, const std::function<void (const Entity&)>& action) const
 {
-    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>([&](const Entity& item)
+    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([&](const Entity& item)
     {
         if (Collides(collide, item.GetCollide())) {
             action(item);
@@ -121,7 +121,7 @@ void Universe::ForEachCollidingWith(const Rect& collide, const std::function<voi
 
 void Universe::ForEachCollidingWith(const Circle& collide, const std::function<void (const Entity&)>& action) const
 {
-    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>([&](const Entity& item)
+    rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([&](const Entity& item)
     {
         if (Collides(collide, item.GetCollide())) {
             action(item);
@@ -132,12 +132,12 @@ void Universe::ForEachCollidingWith(const Circle& collide, const std::function<v
 std::shared_ptr<Entity> Universe::PickEntity(const Point& location, bool remove)
 {
     std::shared_ptr<Entity> picked;
-    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> entity)
+    rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
     {
         if (!picked) {
             picked = entity;
         }
-    }).SetQuadFilter(BoundingRect(location, Entity::MAX_RADIUS)).SetItemFilter(location).SetRemoveItemPredicate<Entity>([&](const Entity& entity)
+    }).SetQuadFilter(BoundingRect(location, Entity::MAX_RADIUS)).SetItemFilter(location).SetRemoveItemPredicate([&](const Entity& entity)
     {
         return remove && picked && picked.get() == &entity;
     }));
@@ -170,7 +170,7 @@ void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawAr
     for (auto& dispenser : feedDispensers_) {
         dispenser->Draw(p, options);
     }
-    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> entity)
+    rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
     {
         entity->Draw(p, options);
     }).SetQuadFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)).SetItemFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)));
@@ -180,10 +180,10 @@ void Universe::Tick()
 {
     params_.lunarCycle_ = GetLunarCycle();
 
-    rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>([&](std::shared_ptr<Entity> entity)
+    rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
     {
         entity->Tick(*this, params_);
-    }).SetRemoveItemPredicate<Entity>([](const Entity& entity)
+    }).SetRemoveItemPredicate([](const Entity& entity)
     {
         return !entity.Exists();
     }));

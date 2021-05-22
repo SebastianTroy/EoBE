@@ -25,7 +25,7 @@ public:
 
     void SetEntityTargetPerQuad(uint64_t target, uint64_t leeway);
 
-    void AddEntity(std::shared_ptr<Entity> entity) override { rootNode_.Insert(std::dynamic_pointer_cast<Tril::QuadTreeItem>(entity)); }
+    void AddEntity(std::shared_ptr<Entity> entity) override { rootNode_.Insert(entity); }
     void ForEachCollidingWith(const Point& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action) override final;
     void ForEachCollidingWith(const Line& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action) override final;
     void ForEachCollidingWith(const Rect& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action) override final;
@@ -40,18 +40,18 @@ public:
     template <typename... T>
     void ClearAllEntitiesOfType()
     {
-        rootNode_.RemoveIf([](const Tril::QuadTreeItem& item) -> bool
+        rootNode_.RemoveIf([](const Entity& item) -> bool
         {
             return (dynamic_cast<const T*>(&item) || ...);
         });
     }
     void ForEach(const std::function<void (const Entity& e)>& action) const
     {
-        rootNode_.ForEachItem(Tril::ConstQuadTreeIterator::Create<Entity>(action));
+        rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([=](const Entity& e){action(e);}));
     }
     void ForEach(const std::function<void (std::shared_ptr<Entity> e)>& action)
     {
-        rootNode_.ForEachItem(Tril::QuadTreeIterator::Create<Entity>(action));
+        rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([=](std::shared_ptr<Entity> e){action(e);}));
     }
 
     void AddFeedDispenser(const std::shared_ptr<FeedDispenser>& feeder) { feedDispensers_.push_back(feeder); }
@@ -78,7 +78,7 @@ public:
     void Draw(QPainter& painter, const DrawSettings& options, const Rect& drawArea);
 
 private:
-    Tril::QuadTree rootNode_;
+    Tril::QuadTree<Entity> rootNode_;
     std::vector<std::shared_ptr<FeedDispenser>> feedDispensers_;
     UniverseParameters params_;
 
