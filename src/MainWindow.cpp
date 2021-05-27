@@ -195,9 +195,9 @@ void MainWindow::ResetGraphs()
     // {
     //     std::vector<std::shared_ptr<Trilobyte>> trilobytes;
     //
-    //     universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+    //     universe_->ForEach([&](const Entity& e) -> void
     //     {
-    //         if (dynamic_cast<const Trilobyte*>(e.get())) {
+    //         if (dynamic_cast<const Trilobyte*>(&e)) {
     //             trilobytes.push_back(std::dynamic_pointer_cast<Trilobyte>(e));
     //         }
     //     });
@@ -228,15 +228,15 @@ void MainWindow::ResetGraphs()
             uint64_t chunkCount = 0;
             uint64_t trilobyteCount = 0;
             uint64_t eggCount = 0;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (dynamic_cast<const FoodPellet*>(e.get())) {
+                if (dynamic_cast<const FoodPellet*>(&e)) {
                     ++foodCount;
-                } else if (dynamic_cast<const MeatChunk*>(e.get())) {
+                } else if (dynamic_cast<const MeatChunk*>(&e)) {
                     ++chunkCount;
-                } else if (dynamic_cast<const Trilobyte*>(e.get())) {
+                } else if (dynamic_cast<const Trilobyte*>(&e)) {
                     ++trilobyteCount;
-                } else if (dynamic_cast<const Egg*>(e.get())) {
+                } else if (dynamic_cast<const Egg*>(&e)) {
                     ++eggCount;
                 }
             });
@@ -253,16 +253,16 @@ void MainWindow::ResetGraphs()
             Energy chunkEnergy = 0;
             Energy trilobyteEnergy = 0;
             Energy eggEnergy = 0;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (dynamic_cast<const FoodPellet*>(e.get())) {
-                    foodEnergy += e->GetEnergy();
-                } else if (dynamic_cast<const MeatChunk*>(e.get())) {
-                    chunkEnergy += e->GetEnergy();
-                } else if (dynamic_cast<const Trilobyte*>(e.get())) {
-                    trilobyteEnergy += e->GetEnergy();
-                } else if (dynamic_cast<const Egg*>(e.get())) {
-                    eggEnergy += e->GetEnergy();
+                if (dynamic_cast<const FoodPellet*>(&e)) {
+                    foodEnergy += e.GetEnergy();
+                } else if (dynamic_cast<const MeatChunk*>(&e)) {
+                    chunkEnergy += e.GetEnergy();
+                } else if (dynamic_cast<const Trilobyte*>(&e)) {
+                    trilobyteEnergy += e.GetEnergy();
+                } else if (dynamic_cast<const Egg*>(&e)) {
+                    eggEnergy += e.GetEnergy();
                 }
             });
             graph.AddPoint(0, tick, foodEnergy / 1_mj);
@@ -276,12 +276,12 @@ void MainWindow::ResetGraphs()
         if (tick % 100 == 0) {
             Tril::RollingStatistics foodStats;
             Tril::RollingStatistics trilobyteStats;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (dynamic_cast<const FoodPellet*>(e.get())) {
-                    foodStats.AddValue(e->GetAge());
-                } else if (dynamic_cast<const Trilobyte*>(e.get())) {
-                    trilobyteStats.AddValue(e->GetAge());
+                if (dynamic_cast<const FoodPellet*>(&e)) {
+                    foodStats.AddValue(e.GetAge());
+                } else if (dynamic_cast<const Trilobyte*>(&e)) {
+                    trilobyteStats.AddValue(e.GetAge());
                 }
             });
             graph.AddPoint(0, tick, foodStats.Mean());
@@ -293,12 +293,12 @@ void MainWindow::ResetGraphs()
         if (tick % 100 == 0) {
             Tril::RollingStatistics foodStats;
             Tril::RollingStatistics trilobyteStats;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (dynamic_cast<const FoodPellet*>(e.get())) {
-                    foodStats.AddValue(e->GetAge());
-                } else if (dynamic_cast<const Trilobyte*>(e.get())) {
-                    trilobyteStats.AddValue(e->GetAge());
+                if (dynamic_cast<const FoodPellet*>(&e)) {
+                    foodStats.AddValue(e.GetAge());
+                } else if (dynamic_cast<const Trilobyte*>(&e)) {
+                    trilobyteStats.AddValue(e.GetAge());
                 }
             });
             graph.AddPoint(0, tick, foodStats.Max());
@@ -309,9 +309,9 @@ void MainWindow::ResetGraphs()
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics stats;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(&e); trilobyte != nullptr) {
                     stats.AddValue(trilobyte->GetHealth());
                 }
             });
@@ -330,9 +330,9 @@ void MainWindow::ResetGraphs()
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics stats;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(&e); trilobyte != nullptr) {
                     stats.AddValue(trilobyte->GetGeneration());
                 }
             });
@@ -352,9 +352,9 @@ void MainWindow::ResetGraphs()
         if (tick % 100 == 0) {
             Tril::RollingStatistics geneStats;
             Tril::RollingStatistics chromosomeStats;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(&e); trilobyte != nullptr) {
                     geneStats.AddValue(trilobyte->GetGeneMutationCount());
                     chromosomeStats.AddValue(trilobyte->GetChromosomeMutationCount());
                 }
@@ -372,9 +372,9 @@ void MainWindow::ResetGraphs()
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics stats;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(&e); trilobyte != nullptr) {
                     stats.AddValue(trilobyte->GetBaseMetabolism());
                 }
             });
@@ -394,9 +394,9 @@ void MainWindow::ResetGraphs()
     {
         if (tick % 100 == 0) {
             Tril::RollingStatistics stats;
-            universe_->ForEach([&](const std::shared_ptr<Entity>& e) -> void
+            universe_->ForEach([&](const Entity& e) -> void
             {
-                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(e.get()); trilobyte != nullptr) {
+                if (const Trilobyte* trilobyte = dynamic_cast<const Trilobyte*>(&e); trilobyte != nullptr) {
                     stats.AddValue(std::abs(trilobyte->GetVelocity()));
                 }
             });
