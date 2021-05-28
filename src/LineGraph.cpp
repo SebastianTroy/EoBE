@@ -250,8 +250,8 @@ void LineGraph::PaintGraticule(QPainter& painter, const QPointF& target, const Q
         painter.restore();
 
         // Calculate axis values for point
-        Tril::RangeConverter xConverter(Tril::Range(area.left(), area.right()), xRange_);
-        Tril::RangeConverter yConverter(Tril::Range(area.bottom(), area.top()), yRange_);
+        Tril::RangeConverter xConverter(Tril::Range(area.left(), area.right()), Tril::MinMax(xAxisMinOverride_ ? xAxisMinOverrideValue_ : xRange_.Min(), xAxisMaxOverride_ ? xAxisMaxOverrideValue_ : xRange_.Max()));
+        Tril::RangeConverter yConverter(Tril::Range(area.bottom(), area.top()), Tril::MinMax(yAxisMinOverride_ ? yAxisMinOverrideValue_ : yRange_.Min(), yAxisMaxOverride_ ? yAxisMaxOverrideValue_ : yRange_.Max()));
 
         qreal xValueAtCrosshair = xConverter.Convert(target.x());
         qreal yValueAtCrosshair = yConverter.Convert(target.y());
