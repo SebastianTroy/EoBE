@@ -208,6 +208,36 @@ TEST_CASE("QuadTree", "[container]")
         }
     }
 
+    SECTION("Contract root")
+    {
+        Rect bounds{ 0, 0, 10, 10 };
+        Rect outOfBounds{ 10, 10, 20, 20 };
+        size_t targetCount = 1;
+        size_t countLeeway = 0;
+        double minQuadSize = 1.0;
+
+        QuadTree<TestType> tree(bounds, targetCount, countLeeway, minQuadSize);
+
+        for (int i = 0; i < 25; ++i) {
+            tree.Insert(std::make_shared<TestType>(Random::PointIn(bounds)));
+        }
+
+        REQUIRE(tree.Validate());
+
+        for (int i = 0; i < 25; ++i) {
+            tree.Insert(std::make_shared<TestType>(Random::PointIn(outOfBounds)));
+        }
+
+        REQUIRE(tree.Validate());
+
+        tree.RemoveIf([&](const TestType& item) -> bool
+        {
+            return Contains(outOfBounds, item.GetLocation());
+        });
+
+        REQUIRE(tree.Validate());
+    }
+
     SECTION("Removing items")
     {
         const Rect area{ 0, 0, 10, 10 };

@@ -2,7 +2,6 @@ set(UTILITY_SOURCES
     JsonHelpers.cpp
     NeuralNetwork.cpp
     NeuralNetworkConnector.cpp
-    QuadTree.cpp
     RangeConverter.cpp
     RollingStatistics.cpp
     Transform.cpp

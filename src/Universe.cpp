@@ -170,7 +170,18 @@ void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawAr
     for (auto& dispenser : feedDispensers_) {
         dispenser->Draw(p, options);
     }
-    rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
+    if (options.showQuadTreeGrid_) {
+        p.save();
+        QPen pen(Qt::black);
+        pen.setCosmetic(true);
+        p.setPen(pen);
+        rootNode_.ForEachQuad([&](const Rect& quadArea)
+        {
+            p.drawRect(QRectF(quadArea.left, quadArea.top, quadArea.right - quadArea.left, quadArea.bottom - quadArea.top));
+        });
+        p.restore();
+    }
+    rootNode_.ForEachItemNoRebalanceHack(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
     {
         entity->Draw(p, options);
     }).SetQuadFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)).SetItemFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)));

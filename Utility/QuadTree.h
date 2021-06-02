@@ -174,7 +174,6 @@ public:
 
     void Insert(std::shared_ptr<T> item)
     {
-        assert(!currentlyIterating_);
         AddItem(*root_, item, false);
     }
     void Clear()
@@ -228,6 +227,18 @@ public:
             for (const auto& item : quad.items_) {
                 if (iter.itemFilter_(*item)) {
                     iter.itemAction_(*item);
+                }
+            }
+        }, iter.quadFilter_);
+    }
+
+    void ForEachItemNoRebalanceHack(const QuadTreeIterator<T>& iter) const
+    {
+        ForEachQuad(*root_, [&](const Quad& quad)
+        {
+            for (auto& item : quad.items_) {
+                if (iter.itemFilter_(*item)) {
+                    iter.itemAction_(item);
                 }
             }
         }, iter.quadFilter_);
@@ -308,12 +319,7 @@ public:
     }
     size_t Size() const
     {
-        size_t count = 0;
-        ForEachQuad(*root_, [&](const Quad& quad)
-        {
-            count += quad.items_.size();
-        });
-        return count;
+        return RecursiveItemCount(*root_);
     }
 
     /**
@@ -454,10 +460,7 @@ private:
             targetQuad.items_.push_back(item);
 
             if (!preventRebalance) {
-                double minDiameter = std::min(targetQuad.rect_.right - targetQuad.rect_.left, targetQuad.rect_.bottom - targetQuad.rect_.top);
-                if (minDiameter > (2 * minQuadDiameter_) && targetQuad.items_.size() > itemCountTarget_ + itemCountLeeway_) {
-                    Rebalance();
-                }
+                Rebalance();
             }
         }
     }
@@ -480,14 +483,22 @@ private:
     {
         assert(!currentlyIterating_);
 
-        ForEachQuad(*root_, [&](Quad& quad)
+        std::function<void(Quad& quad)> recursiveRebalance = [&](Quad& quad)
         {
-            size_t itemCount = RecursiveItemCount(quad);
-            if (quad.children_.has_value() && (itemCount == 0 || itemCount < itemCountTarget_ - itemCountLeeway_)) {
-                // Become a leaf quad if children contain too few entities
-                quad.items_ = RecursiveCollectItems(quad);
-                quad.children_ = std::nullopt;
-            } else if (!quad.children_.has_value() && (quad.rect_.right - quad.rect_.left >= minQuadDiameter_ * 2.0) && quad.items_.size() > itemCountTarget_ + itemCountLeeway_) {
+            if (quad.children_.has_value()) {
+                bool contract = true;
+                size_t count = 0;
+                for (auto& child : quad.children_.value()) {
+                    recursiveRebalance(*child);
+                    contract = contract && !child->children_.has_value();
+                    count += child->items_.size();
+                }
+                if (contract && (count == 0 || count < itemCountTarget_ - itemCountLeeway_)) {
+                    // Become a leaf quad if children contain too few entities
+                    quad.items_ = RecursiveCollectItems(quad);
+                    quad.children_ = std::nullopt;
+                }
+            } else if (quad.rect_.right - quad.rect_.left >= minQuadDiameter_ * 2.0 && quad.items_.size() > itemCountTarget_ + itemCountLeeway_) {
                 // Lose leaf quad status if contains too many children UNLESS the new quads would be below the minimum size!
                 quad.children_ = CreateChildren(quad);
                 std::vector<std::shared_ptr<T>> itemsToRehome;
@@ -496,11 +507,13 @@ private:
                     QuadAt(quad, item->GetLocation()).items_.push_back(item);
                 }
             }
-        });
+        };
+
+        recursiveRebalance(*root_);
 
         ContractRoot();
     }
-    size_t RecursiveItemCount(const Quad& quad)
+    size_t RecursiveItemCount(const Quad& quad) const
     {
         size_t count = 0;
         ForEachQuad(quad, [&](const Quad& quad)
@@ -542,26 +555,16 @@ private:
         double height = oldRootRect.bottom - oldRootRect.top;
         Rect newRootRect{
             oldRootRect.left - (expandOutwards ? 0.0 : width),
-                    oldRootRect.top - (expandOutwards ? 0.0 : height),
-                    oldRootRect.right + (expandOutwards ? width : 0.0),
-                    oldRootRect.bottom + (expandOutwards ? height : 0.0)
+            oldRootRect.top - (expandOutwards ? 0.0 : height),
+            oldRootRect.right + (expandOutwards ? width : 0.0),
+            oldRootRect.bottom + (expandOutwards ? height : 0.0)
         };
+        std::shared_ptr<Quad> oldRoot = root_;
 
-        std::shared_ptr<Quad> newRoot = std::make_shared<Quad>(nullptr, newRootRect);
-
-        if (RecursiveItemCount(*root_) >= itemCountTarget_ - itemCountLeeway_) {
-            // Keep children
-            const size_t index = expandOutwards ? 0 : 3;
-            newRoot->children_ = CreateChildren(*newRoot);
-            newRoot->children_->at(index).swap(root_);
-            newRoot->children_->at(index)->parent_ = newRoot.get();
-        } else {
-            // Discard children
-            auto newRoot = std::make_shared<Quad>(nullptr, newRootRect);
-            newRoot->items_ = RecursiveCollectItems(*root_);
-        }
-
-        root_.swap(newRoot);
+        root_ = std::make_shared<Quad>(nullptr, newRootRect);
+        oldRoot->parent_ = root_.get();
+        root_->children_ = CreateChildren(*root_);
+        root_->children_->at(expandOutwards ? 0 : 3).swap(oldRoot);
     }
     void ContractRoot()
     {
