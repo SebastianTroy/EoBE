@@ -109,12 +109,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     /// Draw controlls
     ui->showGridCheckbox->setChecked(ui->universe->DrawOptions().showQuadTreeGrid_);
-    ui->showFeedDispensersCheckbox->setChecked(ui->universe->DrawOptions().showFoodSpawners_);
+    ui->showSpawnersCheckbox->setChecked(ui->universe->DrawOptions().showFoodSpawners_);
     ui->useImagesCheckbox->setChecked(ui->universe->DrawOptions().showEntityImages_);
     ui->trilobyteDegugCheckbox->setChecked(ui->universe->DrawOptions().showTrilobyteDebug_);
 
     connect(ui->showGridCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showQuadTreeGrid_ = enabled; }, Qt::QueuedConnection);
-    connect(ui->showFeedDispensersCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showFoodSpawners_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->showSpawnersCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showFoodSpawners_ = enabled; }, Qt::QueuedConnection);
     connect(ui->useImagesCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showEntityImages_ = enabled; }, Qt::QueuedConnection);
     connect(ui->trilobyteDegugCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showTrilobyteDebug_ = enabled; }, Qt::QueuedConnection);
 

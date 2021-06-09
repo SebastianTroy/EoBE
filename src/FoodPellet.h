@@ -3,8 +3,6 @@
 
 #include "Entity.h"
 
-class FeedDispenser;
-
 class QPainter;
 
 class FoodPellet : public Entity {

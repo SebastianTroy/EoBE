@@ -19,10 +19,6 @@ The easiest way to build from sources yourself is to open project in QtCreator, 
 
 TODO
 -----
- - Need to display some properties about the sim in another tab on the inspector side
- - - Requires moving the Entity stuff into its own designer-widget class
- - Need to move QuadTree into utility, which will require some simple base class for entity to extend
- - - Then particle can also extend new base class, (FeedDispenser could also be a particle?)
  - More GUI controlls
  - More niches
  - - More hazards
@@ -38,10 +34,10 @@ TODO
  - More entities (pheremones? poisons? more food types?)
  - tabs in left GUI to split up settings
  -  - Allow adding multiple trilobytes at a time
- -  - Move feed dispenser
- -  - adjust feed dispenser pellet energy/frequency
- -  - Add feed dispenser
- -  - resize feed dispenser
+ -  - Move feed spawner
+ -  - adjust feed spawner pellet energy/frequency
+ -  - Add feed spawner
+ -  - resize feed spawner
  - Image based drawing
  - - Replace placeholder images with coherently styled ones
  - - add images for each sense and effector

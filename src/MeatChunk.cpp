@@ -13,6 +13,13 @@ MeatChunk::~MeatChunk()
 {
 }
 
+double MeatChunk::GetMeatChunkRadius(const Energy& energy)
+{
+    // Size range 0.5->3.5 scaling linearly with energy quantity
+    static Tril::RangeConverter energyToSize({ 1_mj, 20_mj }, { 0.5, 3.5 });
+    return energyToSize.ConvertAndClamp(energy);
+}
+
 std::string_view MeatChunk::GetDescription() const
 {
     return "<p>Meat chunks can be eaten by trilobytes as a source of energy. "
@@ -27,11 +34,4 @@ void MeatChunk::TickImpl(EntityContainerInterface& /*container*/, const Universe
     if (GetEnergy() < 1_mj) {
         Terminate();
     }
-}
-
-double MeatChunk::GetMeatChunkRadius(const Energy& energy)
-{
-    // Size range 0.5->3.5 scaling linearly with energy quantity
-    static Tril::RangeConverter energyToSize({ 1_mj, 20_mj }, { 0.5, 3.5 });
-    return energyToSize.ConvertAndClamp(energy);
 }

@@ -2,7 +2,7 @@
 #define UNIVERSE_H
 
 #include "DrawSettings.h"
-#include "FeedDispenser.h"
+#include "Spawner.h"
 #include "LineGraph.h"
 #include "Entity.h"
 #include "EntityContainerInterface.h"
@@ -59,9 +59,9 @@ public:
         rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([=](std::shared_ptr<Entity> e){action(e);}));
     }
 
-    void AddFeedDispenser(const std::shared_ptr<FeedDispenser>& feeder) { feedDispensers_.push_back(feeder); }
-    std::shared_ptr<FeedDispenser> PickFeedDispenser(const Point& location, bool remove);
-    void ClearAllFeedDispensers() { feedDispensers_.clear(); }
+    void AddSpawner(const std::shared_ptr<Spawner>& spawner) { spawners_.push_back(spawner); }
+    std::shared_ptr<Spawner> PickSpawner(const Point& location, bool remove);
+    void ClearAllSpawners() { spawners_.clear(); }
 
     UniverseParameters& GetParameters() { return params_; }
     const EntityContainerInterface& GetEntityContainer() const { return *this; }
@@ -86,7 +86,7 @@ public:
 
 private:
     Tril::QuadTree<Entity> rootNode_;
-    std::vector<std::shared_ptr<FeedDispenser>> feedDispensers_;
+    std::vector<std::shared_ptr<Spawner>> spawners_;
     UniverseParameters params_;
 
     uint64_t tickIndex_ = 0;

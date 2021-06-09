@@ -5,6 +5,8 @@
 
 class Spike : public Entity {
 public:
+    constexpr static double RADIUS = 12.0;
+
     Spike(const Transform& transform);
     ~Spike() override;
 

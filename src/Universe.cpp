@@ -1,7 +1,6 @@
 #include "Universe.h"
 
 #include "Trilobyte.h"
-#include "FeedDispenser.h"
 #include "FoodPellet.h"
 #include "Egg.h"
 #include "Spike.h"
@@ -15,23 +14,22 @@ Universe::Universe(Rect startingQuad)
     : rootNode_(startingQuad, 25, 5, Entity::MAX_RADIUS * 2)
 {
     // TODO get rid of this default nonsense here
-    feedDispensers_.push_back(std::make_shared<FeedDispenser>(*this,  1000, 0, 950, 0.001));
-    feedDispensers_.push_back(std::make_shared<FeedDispenser>(*this, -1000, 0, 950, 0.001));
+    spawners_.push_back(std::make_shared<Spawner>(*this,  1000, -1000, 900, 0.00001, Spawner::Shape::Square, Spawner::Spawn::Spike));
+    spawners_.push_back(std::make_shared<Spawner>(*this,  1000, -1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::FoodPellet));
+    spawners_.push_back(std::make_shared<Spawner>(*this, -1000, -1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::FoodPellet));
+    spawners_.push_back(std::make_shared<Spawner>(*this,  1000,  1000, 900, 0.00001, Spawner::Shape::Square, Spawner::Spawn::Spike));
+    spawners_.push_back(std::make_shared<Spawner>(*this,  1000,  1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::MeatChunk));
+    spawners_.push_back(std::make_shared<Spawner>(*this, -1000,  1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::MeatChunk));
 
-    for (auto& feeder : feedDispensers_) {
-        feeder->AddPelletsImmediately(feeder->GetMaxPellets() / 8);
-    }
-
-    for (unsigned i = 0; i < 75u; ++i) {
-        Point spikeLocation = Random::PointIn(Circle{ feedDispensers_.front()->GetX(), feedDispensers_.front()->GetY(), feedDispensers_.front()->GetRadius() });
-        rootNode_.Insert(std::make_shared<Spike>(Transform{ spikeLocation.x, spikeLocation.y, Random::Bearing() }));
+    for (auto& feeder : spawners_) {
+        feeder->AddEntitiesImmediately(feeder->GetMaxEntities() / 8);
     }
 
     rootNode_.SetItemCountTaregt(25);
     rootNode_.SetItemCountLeeway(5);
 
-    for (const auto& feeder : feedDispensers_) {
-        for (unsigned i = 0; i < std::max(size_t{ 1 }, 25 / feedDispensers_.size()); i++) {
+    for (const auto& feeder : spawners_) {
+        for (unsigned i = 0; i < std::max(size_t{ 1 }, 25 / spawners_.size()); i++) {
             double rotation = Random::Number(0.0, Tril::Tau);
             double distance = std::sqrt(Random::Number(0.0, 1.0)) * feeder->GetRadius();
             double trilobyteX = feeder->GetX() + distance * std::cos(rotation);
@@ -162,18 +160,18 @@ std::shared_ptr<Entity> Universe::PickEntity(const Point& location, bool remove)
     return picked;
 }
 
-std::shared_ptr<FeedDispenser> Universe::PickFeedDispenser(const Point& location, bool remove)
+std::shared_ptr<Spawner> Universe::PickSpawner(const Point& location, bool remove)
 {
     TRACE_FUNC()
-    auto iter = std::find_if(std::begin(feedDispensers_), std::end(feedDispensers_), [&](const auto& dispenser)
+    auto iter = std::find_if(std::begin(spawners_), std::end(spawners_), [&](const auto& spawner)
     {
         TRACE_LAMBDA("PickSpawner")
-        return Contains(dispenser->GetCollide(), location);
+        return spawner->Contains(location);
     });
 
-    if (iter != feedDispensers_.end()) {
+    if (iter != spawners_.end()) {
         if (remove) {
-            feedDispensers_.erase(iter);
+            spawners_.erase(iter);
         }
         return *iter;
     }
@@ -189,8 +187,8 @@ Tril::Handle Universe::AddTask(std::function<void (uint64_t tick)>&& task)
 void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawArea)
 {
     TRACE_FUNC()
-    for (auto& dispenser : feedDispensers_) {
-        dispenser->Draw(p, options);
+    for (auto& spawner : spawners_) {
+        spawner->Draw(p, options);
     }
     if (options.showQuadTreeGrid_) {
         p.save();
@@ -263,8 +261,8 @@ void Universe::Tick()
         return !entity.Exists();
     }));
 
-    for (auto& dispenser : feedDispensers_) {
-        dispenser->Tick(params_);
+    for (auto& spawner : spawners_) {
+        spawner->Tick(params_);
     }
 
     perTickTasks_.ForEach([=](auto& task) -> void

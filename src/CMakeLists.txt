@@ -10,7 +10,6 @@ set(PROJECT_SOURCES
     Egg.cpp
     Entity.cpp
     EntitySvgManager.cpp
-    FeedDispenser.cpp
     FoodPellet.cpp
     Genome/ChromosomePair.cpp
     Genome/Gene.cpp
@@ -51,6 +50,7 @@ set(PROJECT_SOURCES
     Sensors/SenseTraitsRaycast.cpp
     Sensors/SenseTraitsSelf.cpp
     Sensors/SenseTraitsTouching.cpp
+    Spawner.cpp
     Spike.cpp
     Trilobyte.cpp
     Universe.cpp
@@ -70,7 +70,6 @@ set(PROJECT_HEADERS
     Entity.h
     EntityContainerInterface.h
     EntitySvgManager.h
-    FeedDispenser.h
     FoodPellet.h
     Genome/ChromosomePair.h
     Genome/Gene.h
@@ -112,6 +111,7 @@ set(PROJECT_HEADERS
     Sensors/SenseTraitsRaycast.h
     Sensors/SenseTraitsSelf.h
     Sensors/SenseTraitsTouching.h
+    Spawner.h
     Spike.h
     Trilobyte.h
     Universe.h

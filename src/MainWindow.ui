@@ -488,7 +488,7 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_7">
                  <item>
-                  <widget class="QCheckBox" name="showFeedDispensersCheckbox">
+                  <widget class="QCheckBox" name="showFeedSpawnersCheckbox">
                    <property name="text">
                     <string>Show Food Spawners</string>
                    </property>

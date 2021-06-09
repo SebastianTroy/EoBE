@@ -38,6 +38,7 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     // Only interested in Trilobyte based draw settings for this view
     // (unless there is the option to render the Universe in the view, centred
     //  on the selected entity, then the other options are emaningful)
+    drawSettings_.showEntityImages_ = true;
     drawSettings_.showTrilobyteDebug_ = true;
 
     /// Sim Inspector controlls
