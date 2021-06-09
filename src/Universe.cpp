@@ -21,19 +21,19 @@ Universe::Universe(Rect startingQuad)
     spawners_.push_back(std::make_shared<Spawner>(*this,  1000,  1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::MeatChunk));
     spawners_.push_back(std::make_shared<Spawner>(*this, -1000,  1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::MeatChunk));
 
-    for (auto& feeder : spawners_) {
-        feeder->AddEntitiesImmediately(feeder->GetMaxEntities() / 8);
+    for (auto& spawner : spawners_) {
+        spawner->AddEntitiesImmediately(spawner->GetMaxEntities() / 8);
     }
 
     rootNode_.SetItemCountTaregt(25);
     rootNode_.SetItemCountLeeway(5);
 
-    for (const auto& feeder : spawners_) {
+    for (const auto& spawner : spawners_) {
         for (unsigned i = 0; i < std::max(size_t{ 1 }, 25 / spawners_.size()); i++) {
             double rotation = Random::Number(0.0, Tril::Tau);
-            double distance = std::sqrt(Random::Number(0.0, 1.0)) * feeder->GetRadius();
-            double trilobyteX = feeder->GetX() + distance * std::cos(rotation);
-            double trilobyteY = feeder->GetY() + distance * std::sin(rotation);
+            double distance = std::sqrt(Random::Number(0.0, 1.0)) * spawner->GetRadius();
+            double trilobyteX = spawner->GetX() + distance * std::cos(rotation);
+            double trilobyteY = spawner->GetY() + distance * std::sin(rotation);
             rootNode_.Insert(std::make_shared<Trilobyte>(300_mj, Transform{ trilobyteX, trilobyteY, Random::Bearing() }, GeneFactory::Get().GenerateDefaultGenome(NeuralNetwork::BRAIN_WIDTH)));
         }
     }

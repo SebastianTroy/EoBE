@@ -34,10 +34,10 @@ TODO
  - More entities (pheremones? poisons? more food types?)
  - tabs in left GUI to split up settings
  -  - Allow adding multiple trilobytes at a time
- -  - Move feed spawner
- -  - adjust feed spawner pellet energy/frequency
- -  - Add feed spawner
- -  - resize feed spawner
+ -  - Move spawner
+ -  - adjust spawner entity energy/frequency
+ -  - Add spawner
+ -  - resize spawner
  - Image based drawing
  - - Replace placeholder images with coherently styled ones
  - - add images for each sense and effector

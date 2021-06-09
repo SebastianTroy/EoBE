@@ -37,7 +37,7 @@ bool Spawner::Contains(const Point& point) const
 
 void Spawner::Draw(QPainter& paint, const DrawSettings& options)
 {
-    if (options.showFoodSpawners_) {
+    if (options.showSpawners_) {
         paint.save();
         paint.setRenderHint(QPainter::RenderHint::Antialiasing, true);
         switch (spawn_) {
@@ -78,7 +78,7 @@ void Spawner::Tick(const UniverseParameters& params)
     while (ticksTillNext_ <= 0 && currentEntityCount_ < maxEntities_) {
         SpawnEntity();
     }
-    ticksTillNext_ -= (params.foodSpawnRateModifier * 1.0);
+    ticksTillNext_ -= (params.spawnRateModifier * 1.0);
 }
 
 void Spawner::EntityRemoved()

@@ -28,7 +28,7 @@ UniverseWidget::UniverseWidget(QWidget* parent)
 
     drawOptions_.showQuadTreeGrid_ = false;
     drawOptions_.showEntityImages_ = true;
-    drawOptions_.showFoodSpawners_ = true;
+    drawOptions_.showSpawners_ = true;
     drawOptions_.showTrilobyteDebug_ = true;
 
     drawThread_.setSingleShot(false);

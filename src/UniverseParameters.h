@@ -31,7 +31,7 @@ public:
     double meanStructuralMutationCount_ = 0.8;
     double structuralMutationCountStdDev_ = 0.2;
     /// This adjusts the spawn rate for all food spawners
-    double foodSpawnRateModifier = 1.0;
+    double spawnRateModifier = 1.0;
 };
 
 #endif // UNIVERSEPARAMETERS_H

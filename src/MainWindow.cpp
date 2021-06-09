@@ -92,8 +92,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->meanChromosomeMutationSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [&](double mean) { universe_->GetParameters().meanStructuralMutationCount_ = mean; }, Qt::QueuedConnection);
     connect(ui->chromosomeMutationStdDevSpinBox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, [&](double stdDev) { universe_->GetParameters().structuralMutationCountStdDev_ = stdDev; }, Qt::QueuedConnection);
 
-    /// Food Controlls
-    connect(ui->spawnFoodToggle, &QPushButton::toggled, this, [&](bool state) { universe_->GetParameters().foodSpawnRateModifier = state ? 1.0 : 0.0; }, Qt::QueuedConnection);
+    /// Spawner Controlls
+    connect(ui->spawnEntitiesToggle, &QPushButton::toggled, this, [&](bool state) { universe_->GetParameters().spawnRateModifier = state ? 1.0 : 0.0; }, Qt::QueuedConnection);
 
     /// Selected Trilobyte Controlls
     connect(ui->selectFittestButton, &QPushButton::pressed, ui->universe, &UniverseWidget::SelectFittestTrilobyte, Qt::QueuedConnection);
@@ -109,12 +109,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     /// Draw controlls
     ui->showGridCheckbox->setChecked(ui->universe->DrawOptions().showQuadTreeGrid_);
-    ui->showSpawnersCheckbox->setChecked(ui->universe->DrawOptions().showFoodSpawners_);
+    ui->showSpawnersCheckbox->setChecked(ui->universe->DrawOptions().showSpawners_);
     ui->useImagesCheckbox->setChecked(ui->universe->DrawOptions().showEntityImages_);
     ui->trilobyteDegugCheckbox->setChecked(ui->universe->DrawOptions().showTrilobyteDebug_);
 
     connect(ui->showGridCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showQuadTreeGrid_ = enabled; }, Qt::QueuedConnection);
-    connect(ui->showSpawnersCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showFoodSpawners_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->showSpawnersCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showSpawners_ = enabled; }, Qt::QueuedConnection);
     connect(ui->useImagesCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showEntityImages_ = enabled; }, Qt::QueuedConnection);
     connect(ui->trilobyteDegugCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showTrilobyteDebug_ = enabled; }, Qt::QueuedConnection);
 
