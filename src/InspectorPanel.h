@@ -3,10 +3,11 @@
 
 #include "Universe.h"
 #include "Entity.h"
-#include "EntityPropertyTableModel.h"
+#include "PropertyTableModel.h"
 #include "DrawSettings.h"
 
 #include <QTabWidget>
+#include <QTimer>
 
 namespace Ui {
 class InspectorPanel;
@@ -21,12 +22,12 @@ public:
 public slots:
     void SetUniverse(std::shared_ptr<Universe> universe);
     void SetEntity(std::shared_ptr<Entity> selectedEntity);
-    void OnUniverseTick();
 
 private:
-    constexpr static int ENTITY_TAB_INDEX = 0;
-    constexpr static int BRAIN_TAB_INDEX = 1;
-    constexpr static int GENOME_TAB_INDEX = 2;
+    constexpr static int SIM_TAB_INDEX = 0;
+    constexpr static int ENTITY_TAB_INDEX = 1;
+    constexpr static int BRAIN_TAB_INDEX = 2;
+    constexpr static int GENOME_TAB_INDEX = 3;
 
     Ui::InspectorPanel *ui;
     QPixmap previewPixmap_;
@@ -34,13 +35,17 @@ private:
 
     std::shared_ptr<Universe> universe_;
     std::shared_ptr<Entity> selectedEntity_;
-    bool newEntity_;
-    EntityPropertyTableModel entityPropertyModel_;
+    PropertyTableModel simPropertyModel_;
+    MyDelegate simPropertyDetailButtonDelegate_;
+    PropertyTableModel entityPropertyModel_;
     MyDelegate entityPropertyDetailButtonDelegate_;
+    QTimer propertyUpdateThread_;
 
+    void UpdateSimTab();
     void UpdateEntityTab();
     void UpdateEntityPreview();
-    void SetProperties(std::vector<Property>&& properties);
+    void SetSimProperties(std::vector<Property>&& properties);
+    void SetEntityProperties(std::vector<Property>&& properties);
 };
 
 #endif // INSPECTORPANEL_H

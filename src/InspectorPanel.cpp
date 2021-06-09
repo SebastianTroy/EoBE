@@ -13,17 +13,22 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     : QTabWidget(parent)
     , ui(new Ui::InspectorPanel)
     , previewPixmap_(50, 50)
-    , newEntity_(true)
+    , simPropertyModel_(this)
+    , simPropertyDetailButtonDelegate_(this)
     , entityPropertyModel_(this)
     , entityPropertyDetailButtonDelegate_(this)
+    , propertyUpdateThread_(this)
 {
     ui->setupUi(this);
+    ui->simProperties->setModel(&simPropertyModel_);
+    ui->simProperties->setItemDelegateForColumn(PropertyTableModel::MORE_INFO_COLUMN_INDEX, &simPropertyDetailButtonDelegate_);
+    ui->simProperties->setColumnWidth(PropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
     ui->entityPreview->setAlignment(Qt::AlignCenter);
     ui->entityPreviewScale->setRange(10, 120);
     ui->entityPreviewScale->setValue(70);
     ui->entityProperties->setModel(&entityPropertyModel_);
-    ui->entityProperties->setItemDelegateForColumn(EntityPropertyTableModel::MORE_INFO_COLUMN_INDEX, &entityPropertyDetailButtonDelegate_);
-    ui->entityProperties->setColumnWidth(EntityPropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
+    ui->entityProperties->setItemDelegateForColumn(PropertyTableModel::MORE_INFO_COLUMN_INDEX, &entityPropertyDetailButtonDelegate_);
+    ui->entityProperties->setColumnWidth(PropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
     ui->splitter->setStretchFactor(0, 3);
     ui->splitter->setStretchFactor(1, 5);
     ui->splitter->setStretchFactor(2, 3);
@@ -35,17 +40,28 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     //  on the selected entity, then the other options are emaningful)
     drawSettings_.showTrilobyteDebug_ = true;
 
+    /// Sim Inspector controlls
+    connect(&simPropertyModel_, &PropertyTableModel::DescriptionRequested, [&](QString description)
+    {
+        ui->simPropertyDescription->setText(description);
+    });
+    connect(&propertyUpdateThread_, &QTimer::timeout, this, &InspectorPanel::UpdateSimTab, Qt::QueuedConnection);
+
     /// Entity Inspector controlls
-    connect(&entityPropertyModel_, &EntityPropertyTableModel::DescriptionRequested, [&](QString description)
+    connect(&entityPropertyModel_, &PropertyTableModel::DescriptionRequested, [&](QString description)
     {
         ui->entityPropertyDescription->setText(description);
     });
-    connect(ui->refreshButton, &QPushButton::pressed, this, &InspectorPanel::UpdateEntityTab, Qt::QueuedConnection);
+    connect(&propertyUpdateThread_, &QTimer::timeout, this, &InspectorPanel::UpdateEntityTab, Qt::QueuedConnection);
     connect(ui->entityPreviewScale, &QSlider::valueChanged, this, &InspectorPanel::UpdateEntityPreview, Qt::QueuedConnection);
 
     /// NeuralNetowrk Inspector controlls
     connect(ui->liveUpdateSelector, &QCheckBox::toggled, [&](bool checked) { ui->brainInspector->SetUpdateLive(checked); });
     connect(ui->resetInspectorView, &QPushButton::pressed, ui->brainInspector, &NeuralNetworkInspector::ResetViewTransform, Qt::QueuedConnection);
+    connect(&propertyUpdateThread_, &QTimer::timeout, this, [&]()
+    {
+        ui->brainInspector->UpdateConnectionStrengths(universe_->GetEntityContainer(), universe_->GetParameters());
+    }, Qt::QueuedConnection);
 
     /// File Menu Options
     connect(ui->saveGenomeButton, &QPushButton::pressed, [&]()
@@ -62,6 +78,9 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     });
 
     SetEntity({});
+    SetUniverse({});
+
+    propertyUpdateThread_.start(200); // 5 Hz
 }
 
 InspectorPanel::~InspectorPanel()
@@ -72,23 +91,32 @@ InspectorPanel::~InspectorPanel()
 void InspectorPanel::SetUniverse(std::shared_ptr<Universe> universe)
 {
     universe_ = universe;
+    if (universe_) {
+        SetSimProperties(universe_->GetProperties());
+    } else {
+        SetSimProperties({});
+    }
+    // Sim tab
+    ui->simPropertyDescription->setText("Press '...' in the table above for more information about a value.");
+    UpdateSimTab();
 }
 
 void InspectorPanel::SetEntity(std::shared_ptr<Entity> selectedEntity)
 {
     if (!selectedEntity_ || selectedEntity != selectedEntity_) {
-        newEntity_ = true;
         selectedEntity_ = selectedEntity;
-        if (selectedEntity_) {
-            SetProperties(selectedEntity_->GetProperties());
-        } else {
-            SetProperties({});
-        }
-        // Entity tab
-        ui->entityPropertyDescription->setText("Press '...' in the table above for more information about a value.");
-        UpdateEntityTab();
 
-        // Brain & Genome tabs
+        // Entity tab
+        if (selectedEntity_) {
+            SetEntityProperties(selectedEntity_->GetProperties());
+            ui->entityPropertyDescription->setText("Press '...' in the table above for more information about a value.");
+            UpdateEntityTab();
+        } else {
+            SetEntityProperties({});
+        }
+        setTabVisible(ENTITY_TAB_INDEX, selectedEntity_ != nullptr);
+
+        // Entity & Brain & Genome tabs
         std::shared_ptr<Trilobyte> trilobytePointer = std::dynamic_pointer_cast<Trilobyte>(selectedEntity_);
         setTabVisible(BRAIN_TAB_INDEX, trilobytePointer != nullptr);
         setTabVisible(GENOME_TAB_INDEX, trilobytePointer != nullptr);
@@ -101,14 +129,11 @@ void InspectorPanel::SetEntity(std::shared_ptr<Entity> selectedEntity)
     }
 }
 
-void InspectorPanel::OnUniverseTick()
+void InspectorPanel::UpdateSimTab()
 {
-    // Entity tab
-    if (ui->refreshAutoCheckBox->isChecked()) {
-        UpdateEntityTab();
+    if (currentIndex() == SIM_TAB_INDEX) {
+        simPropertyModel_.UpdateValues();
     }
-    // Brain tab
-    ui->brainInspector->UpdateConnectionStrengths(universe_->GetEntityContainer(), universe_->GetParameters());
 }
 
 void InspectorPanel::UpdateEntityTab()
@@ -142,9 +167,16 @@ void InspectorPanel::UpdateEntityPreview()
     }
 }
 
-void InspectorPanel::SetProperties(std::vector<Property>&& properties)
+void InspectorPanel::SetSimProperties(std::vector<Property>&& properties)
+{
+    simPropertyModel_.SetProperties(std::move(properties));
+    ui->simProperties->resizeColumnsToContents();
+    ui->simProperties->setColumnWidth(PropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
+}
+
+void InspectorPanel::SetEntityProperties(std::vector<Property>&& properties)
 {
     entityPropertyModel_.SetProperties(std::move(properties));
     ui->entityProperties->resizeColumnsToContents();
-    ui->entityProperties->setColumnWidth(EntityPropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
+    ui->entityProperties->setColumnWidth(PropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
 }

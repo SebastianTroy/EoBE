@@ -38,7 +38,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(this, &MainWindow::UniverseReset, ui->universe, &UniverseWidget::SetUniverse, Qt::QueuedConnection);
     connect(this, &MainWindow::UniverseReset, ui->inspectorPanel, &InspectorPanel::SetUniverse, Qt::QueuedConnection);
-    connect(ui->universe, &UniverseWidget::Ticked, ui->inspectorPanel, &InspectorPanel::OnUniverseTick, Qt::QueuedConnection);
     connect(ui->universe, &UniverseWidget::EntitySelected, ui->inspectorPanel, &InspectorPanel::SetEntity, Qt::QueuedConnection);
 
     // Set reasonable initial proportions

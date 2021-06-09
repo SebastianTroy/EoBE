@@ -7,6 +7,7 @@
 #include "Entity.h"
 #include "EntityContainerInterface.h"
 #include "UniverseParameters.h"
+#include "PropertyTableModel.h"
 
 #include <Energy.h>
 #include <AutoClearingContainer.h>
@@ -80,6 +81,8 @@ public:
 
     void Tick();
     void Draw(QPainter& painter, const DrawSettings& options, const Rect& drawArea);
+
+    std::vector<Property> GetProperties() const;
 
 private:
     Tril::QuadTree<Entity> rootNode_;

@@ -1,10 +1,17 @@
-#ifndef ENTITYPROPERTYTABLEMODEL_H
-#define ENTITYPROPERTYTABLEMODEL_H
-
-#include "Entity.h"
+#ifndef PROPERTYTABLEMODEL_H
+#define PROPERTYTABLEMODEL_H
 
 #include <QAbstractTableModel>
 #include <QItemDelegate>
+
+/**
+ * Designed to allow inspection of values of unspecified type.
+ */
+struct Property{
+    std::string name_;
+    std::function<std::string()> value_;
+    std::string description_;
+};
 
 class MyDelegate : public QItemDelegate {
     Q_OBJECT
@@ -19,14 +26,14 @@ private:
     int pressedIndex_;
 };
 
-class EntityPropertyTableModel : public QAbstractTableModel {
+class PropertyTableModel : public QAbstractTableModel {
     Q_OBJECT
 public:
     constexpr static int MORE_INFO_COLUMN_INDEX = 0;
     constexpr static int NAME_COLUMN_INDEX = 1;
     constexpr static int VALUE_COLUMN_INDEX = 2;
 
-    explicit EntityPropertyTableModel(QObject* parent);
+    explicit PropertyTableModel(QObject* parent);
 
     virtual int rowCount(const QModelIndex& parent) const override;
     virtual int columnCount(const QModelIndex& parent) const override;
@@ -39,7 +46,7 @@ signals:
     void DescriptionRequested(QString description);
 
 private:
-    std::vector<Property> entityProperties_;
+    std::vector<Property> properties_;
 };
 
-#endif // ENTITYPROPERTYTABLEMODEL_H
+#endif // PROPERTYTABLEMODEL_H

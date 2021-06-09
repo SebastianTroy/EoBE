@@ -9,7 +9,6 @@ set(PROJECT_SOURCES
     Effectors/EffectorTail.cpp
     Egg.cpp
     Entity.cpp
-    EntityPropertyTableModel.cpp
     EntitySvgManager.cpp
     FeedDispenser.cpp
     FoodPellet.cpp
@@ -40,6 +39,7 @@ set(PROJECT_SOURCES
     LineGraphContainerWidget.cpp
     MeatChunk.cpp
     NeuralNetworkInspector.cpp
+    PropertyTableModel.cpp
     ScatterGraph.cpp
     Sensors/Sense.cpp
     Sensors/SenseLunarCycle.cpp
@@ -69,7 +69,6 @@ set(PROJECT_HEADERS
     Egg.h
     Entity.h
     EntityContainerInterface.h
-    EntityPropertyTableModel.h
     EntitySvgManager.h
     FeedDispenser.h
     FoodPellet.h
@@ -101,6 +100,7 @@ set(PROJECT_HEADERS
     LineGraphContainerWidget.h
     MeatChunk.h
     NeuralNetworkInspector.h
+    PropertyTableModel.h
     ScatterGraph.h
     Sensors/Sense.h
     Sensors/SenseLunarCycle.h

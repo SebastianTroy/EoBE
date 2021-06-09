@@ -211,6 +211,44 @@ void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawAr
     }).SetQuadFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)));
 }
 
+std::vector<Property> Universe::GetProperties() const
+{
+    return {
+        Property{
+            "Ticks",
+            [&]() -> std::string
+            {
+                return std::to_string(tickIndex_);
+            },
+            "The number of steps calculated by the simulation. A tick is the "
+            "smallest measure of time in the simulation. Each tick, every Entity"
+            " (Trilobyte, FoodPellet, Spike...) is processed, allowing them to "
+            "move, eat, collide, etc.",
+        },
+        Property{
+            "Entities",
+            [&]() -> std::string
+            {
+                return std::to_string(rootNode_.Size());
+            },
+            "The total number of Entities that currently exist within the "
+            "simulation. Individual entities can be selected for further "
+            "information on them, it will appear as additional tabs in this "
+            "view.",
+        },
+        Property{
+            "Lunar Cycle",
+            [&]() -> std::string
+            {
+                return std::to_string(params_.lunarCycle_);
+            },
+            "A value that oscillates at a fixed, regular interval. This value "
+            "can be detected by Trilobytes giving them a shared external value "
+            "that they can use to synchronise behaviour",
+        },
+    };
+}
+
 void Universe::Tick()
 {
     TRACE_FUNC()

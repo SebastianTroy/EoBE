@@ -1,4 +1,4 @@
-#include "EntityPropertyTableModel.h"
+#include "PropertyTableModel.h"
 
 #include <QApplication>
 #include <QMouseEvent>
@@ -31,8 +31,8 @@ bool MyDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QSt
         if (buttonRect.contains(mouseEvent->pos())) {
             pressedIndex_ = index.row();
 
-            if (auto* propertyModel = qobject_cast<EntityPropertyTableModel*>(model)) {
-                QModelIndex descriptionIndex = propertyModel->index(index.row(), EntityPropertyTableModel::MORE_INFO_COLUMN_INDEX, {});
+            if (auto* propertyModel = qobject_cast<PropertyTableModel*>(model)) {
+                QModelIndex descriptionIndex = propertyModel->index(index.row(), PropertyTableModel::MORE_INFO_COLUMN_INDEX, {});
                 emit propertyModel->DescriptionRequested(propertyModel->data(descriptionIndex, Qt::UserRole).toString());
             }
         }
@@ -47,24 +47,24 @@ bool MyDelegate::editorEvent(QEvent* event, QAbstractItemModel* model, const QSt
 /// Model
 ///
 
-EntityPropertyTableModel::EntityPropertyTableModel(QObject* parent)
+PropertyTableModel::PropertyTableModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
 }
 
-int EntityPropertyTableModel::rowCount(const QModelIndex& /*parent*/) const
+int PropertyTableModel::rowCount(const QModelIndex& /*parent*/) const
 {
-    return entityProperties_.size();
+    return properties_.size();
 }
 
-int EntityPropertyTableModel::columnCount(const QModelIndex& /*parent*/) const
+int PropertyTableModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return 3;
 }
 
-QVariant EntityPropertyTableModel::data(const QModelIndex& index, int role) const
+QVariant PropertyTableModel::data(const QModelIndex& index, int role) const
 {
-    const Property& property = entityProperties_.at(index.row());
+    const Property& property = properties_.at(index.row());
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
@@ -87,27 +87,19 @@ QVariant EntityPropertyTableModel::data(const QModelIndex& index, int role) cons
     return {};
 }
 
-void EntityPropertyTableModel::SetProperties(std::vector<Property>&& properties)
+void PropertyTableModel::SetProperties(std::vector<Property>&& properties)
 {
-    if (properties.empty()) {
-        properties.push_back({
-                                 "Example",
-                                 [](){ return "When an entity is selected, details about it will appear here."; },
-                                 "You can select an entity within the simulation by right clicking on it. Left click and drag can be used to move them around.",
-                             });
-    }
-
-    bool addingRows = properties.size() > entityProperties_.size();
-    bool removingRows = properties.size() < entityProperties_.size();
+    bool addingRows = properties.size() > properties_.size();
+    bool removingRows = properties.size() < properties_.size();
 
     if (addingRows) {
-        beginInsertRows({}, entityProperties_.size(), properties.size() - 1);
+        beginInsertRows({}, properties_.size(), properties.size() - 1);
     } else if (removingRows) {
-        beginRemoveRows({}, properties.size(), entityProperties_.size() - 1);
+        beginRemoveRows({}, properties.size(), properties_.size() - 1);
     }
 
-    entityProperties_.swap(properties);
-    emit dataChanged(index(0, 0), index(entityProperties_.empty() ? 0 : entityProperties_.size() - 1, columnCount({})));
+    properties_.swap(properties);
+    emit dataChanged(index(0, 0), index(properties_.empty() ? 0 : properties_.size() - 1, columnCount({})));
 
     if (addingRows) {
         endInsertRows();
@@ -116,7 +108,7 @@ void EntityPropertyTableModel::SetProperties(std::vector<Property>&& properties)
     }
 }
 
-void EntityPropertyTableModel::UpdateValues()
+void PropertyTableModel::UpdateValues()
 {
-    emit dataChanged(index(0, VALUE_COLUMN_INDEX), index(entityProperties_.empty() ? 0 : entityProperties_.size() - 1, VALUE_COLUMN_INDEX), { Qt::DisplayRole });
+    emit dataChanged(index(0, VALUE_COLUMN_INDEX), index(properties_.empty() ? 0 : properties_.size() - 1, VALUE_COLUMN_INDEX), { Qt::DisplayRole });
 }
