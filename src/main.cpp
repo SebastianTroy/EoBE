@@ -16,6 +16,8 @@ int main(int argc, char *argv[])
 
     fmt::print("Seed: {}\n", seed);
 
+    // Tril::ChromeTracing::AddTraceWindow("Trilobytes", 1000000, std::chrono::steady_clock::now() + std::chrono::seconds(60));
+
     QApplication a(argc, argv);
     MainWindow w;
     w.setGeometry(0, 0, 1920, 1080);

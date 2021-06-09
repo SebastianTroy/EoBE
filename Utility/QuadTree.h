@@ -2,6 +2,7 @@
 #define QUADTREE_H
 
 #include "Shape.h"
+#include "ChromeTracing.h"
 
 #include <vector>
 #include <memory>
@@ -18,7 +19,7 @@ namespace Tril {
 template <typename T>
 class QuadTreeIterator {
 public:
-    QuadTreeIterator(std::function<void(std::shared_ptr<T> item)>&& action)
+    QuadTreeIterator(std::function<void(const std::shared_ptr<T>& item)>&& action)
         : itemAction_(std::move(action))
         , quadFilter_([](const Rect&){ return true; })
         , itemFilter_([](const T&){ return true; })
@@ -48,6 +49,7 @@ public:
     {
         SetItemFilter([=](const T& item)
         {
+            TRACE_LAMBDA("ItemFilter<Point>")
             return Collides(p, item.GetCollide());
         });
         return *this;
@@ -56,6 +58,7 @@ public:
     {
         SetItemFilter([=](const T& item)
         {
+            TRACE_LAMBDA("ItemFilter<Line>")
             return Collides(l, item.GetCollide());
         });
         return *this;
@@ -64,6 +67,7 @@ public:
     {
         SetItemFilter([=](const T& item)
         {
+            TRACE_LAMBDA("ItemFilter<Circle>")
             return Collides(c, item.GetCollide());
         });
         return *this;
@@ -72,6 +76,7 @@ public:
     {
         SetItemFilter([=](const T& item)
         {
+            TRACE_LAMBDA("ItemFilter<Rect>")
             return Collides(r, item.GetCollide());
         });
         return *this;
@@ -82,8 +87,7 @@ public:
         return *this;
     }
 
-
-    std::function<void(std::shared_ptr<T> item)> itemAction_;
+    std::function<void(const std::shared_ptr<T>& item)> itemAction_;
     std::function<bool(const Rect& area)> quadFilter_;
     std::function<bool(const T& item)> itemFilter_;
     std::function<bool(const T& item)> removeItemPredicate_;
@@ -170,14 +174,17 @@ public:
         , minQuadDiameter_(minQuadDiameter)
         , currentlyIterating_(false)
     {
+        TRACE_FUNC()
     }
 
     void Insert(std::shared_ptr<T> item)
     {
+        TRACE_FUNC()
         AddItem(*root_, item, false);
     }
     void Clear()
     {
+        TRACE_FUNC()
         assert(!currentlyIterating_);
         root_->children_ = std::nullopt;
         root_->items_.clear();
@@ -185,6 +192,7 @@ public:
     }
     void RemoveIf(const std::function<bool(const T& item)>& predicate)
     {
+        TRACE_FUNC()
         assert(!currentlyIterating_);
         bool requiresRebalance_ = false;
         ForEachQuad(*root_, [&](Quad& quad)
@@ -205,6 +213,7 @@ public:
 
     void ForEachQuad(const std::function<void(const Rect& area)>& action) const
     {
+        TRACE_FUNC()
         ForEachQuad(*root_, [&](const Quad& quad)
         {
             action(quad.rect_);
@@ -222,6 +231,7 @@ public:
      */
     void ForEachItem(const ConstQuadTreeIterator<T>& iter) const
     {
+        TRACE_FUNC()
         ForEachQuad(*root_, [&](const Quad& quad)
         {
             for (const auto& item : quad.items_) {
@@ -232,8 +242,24 @@ public:
         }, iter.quadFilter_);
     }
 
-    void ForEachItemNoRebalanceHack(const QuadTreeIterator<T>& iter) const
+    /**
+     * @brief ForEachItem Allows an action to be performed for each item that is
+     * within a quad that passes the requirements of quadFilter. The
+     * removeItemPredicate allows for the removal of unwanted items, it is
+     * equivalent to calling RemoveIf with the same predicate.
+     * @param iter This helper encapsulates a number of components, the action
+     * to be performed for each item, an optional Quad filter that can be used
+     * to cull quads for efficiency, an optional item filter that can be used to
+     * select which items to apply the action to, and a removeItemPredicate,
+     * which is equivalent to calling RemoveIf with the same predicate, but
+     * wrapped up in a single pass.
+     *
+     * WARNING when using this function you MUST NOT change the result of
+     * GetLocation() for any of the items, or the tree will stop working
+     */
+    void ForEachItemNoRebalance(const QuadTreeIterator<T>& iter) const
     {
+        TRACE_FUNC()
         ForEachQuad(*root_, [&](const Quad& quad)
         {
             for (auto& item : quad.items_) {
@@ -261,12 +287,13 @@ public:
      */
     void ForEachItem(const QuadTreeIterator<T>& iter)
     {
+        TRACE_FUNC()
         bool wasIteratingAlready = currentlyIterating_;
         currentlyIterating_ = true;
 
         ForEachQuad(*root_, [&](const Quad& quad)
         {
-            for (auto& item : quad.items_) {
+            for (const auto& item : quad.items_) {
                 if (iter.itemFilter_(*item)) {
                     iter.itemAction_(item);
                 }
@@ -302,23 +329,28 @@ public:
 
     void SetItemCountTaregt(unsigned target)
     {
+        TRACE_FUNC()
         itemCountTarget_ = target;
     }
     void SetItemCountLeeway(unsigned leeway)
     {
+        TRACE_FUNC()
         itemCountLeeway_ = leeway;
     }
 
     unsigned GetItemCountTaregt() const
     {
+        TRACE_FUNC()
         return itemCountTarget_;
     }
     unsigned GetItemCountLeeway() const
     {
+        TRACE_FUNC()
         return itemCountLeeway_;
     }
     size_t Size() const
     {
+        TRACE_FUNC()
         return RecursiveItemCount(*root_);
     }
 
@@ -327,6 +359,7 @@ public:
      */
     bool Validate() const
     {
+        TRACE_FUNC()
         bool valid = true;
 
         // For easy breakpoint setting for debugging!
@@ -422,10 +455,12 @@ private:
 
     void ForEachQuad(Quad& quad, const std::function<void(Quad& quad)>& action)
     {
+        TRACE_FUNC()
         ForEachQuad(quad, action, [](auto){ return true; });
     }
     void ForEachQuad(Quad& quad, const std::function<void(Quad& quad)>& action, const std::function<bool(const Rect&)>& filter)
     {
+        TRACE_FUNC()
         action(quad);
         if (quad.children_.has_value()) {
             for (auto& child : quad.children_.value()) {
@@ -437,10 +472,12 @@ private:
     }
     void ForEachQuad(const Quad& quad, const std::function<void(const Quad& quad)>& action) const
     {
+        TRACE_FUNC()
         ForEachQuad(quad, action, [](auto){ return true; });
     }
     void ForEachQuad(const Quad& quad, const std::function<void(const Quad& quad)>& action, const std::function<bool(const Rect&)>& filter) const
     {
+        TRACE_FUNC()
         action(quad);
         if (quad.children_.has_value()) {
             for (const auto& child : quad.children_.value()) {
@@ -453,6 +490,7 @@ private:
 
     void AddItem(Quad& startOfSearch, std::shared_ptr<T> item, bool preventRebalance)
     {
+        TRACE_FUNC()
         if (currentlyIterating_) {
             QuadAt(startOfSearch, item->GetLocation()).entering_.push_back(item);
         } else {
@@ -466,6 +504,7 @@ private:
     }
     Quad& QuadAt(Quad& startOfSearch, const Point& location)
     {
+        TRACE_FUNC()
         if (!Contains(startOfSearch.rect_, location)) {
             if (!startOfSearch.parent_) {
                 ExpandRoot();
@@ -481,6 +520,7 @@ private:
 
     void Rebalance()
     {
+        TRACE_FUNC()
         assert(!currentlyIterating_);
 
         std::function<void(Quad& quad)> recursiveRebalance = [&](Quad& quad)
@@ -515,6 +555,7 @@ private:
     }
     size_t RecursiveItemCount(const Quad& quad) const
     {
+        TRACE_FUNC()
         size_t count = 0;
         ForEachQuad(quad, [&](const Quad& quad)
         {
@@ -524,6 +565,7 @@ private:
     }
     std::vector<std::shared_ptr<T>> RecursiveCollectItems(Quad& quad)
     {
+        TRACE_FUNC()
         std::vector<std::shared_ptr<T>> collectedItems;
         ForEachQuad(quad, [&](Quad& quad)
         {
@@ -533,6 +575,7 @@ private:
     }
     std::array<std::shared_ptr<Quad>, 4> CreateChildren(Quad& quad)
     {
+        TRACE_FUNC()
         const Rect& parentRect = quad.rect_;
 
         double halfWidth = (parentRect.right - parentRect.left) / 2.0;
@@ -549,6 +592,7 @@ private:
 
     void ExpandRoot()
     {
+        TRACE_FUNC()
         bool expandOutwards = rootExpandedCount_++ % 2 == 0;
         const Rect& oldRootRect = root_->rect_;
         double width = oldRootRect.right - oldRootRect.left;
@@ -568,6 +612,7 @@ private:
     }
     void ContractRoot()
     {
+        TRACE_FUNC()
         if (root_->children_.has_value()) {
             unsigned count = 0;
             std::shared_ptr<Quad> quadWithItems;
@@ -587,6 +632,7 @@ private:
 
     size_t SubQuadIndex(const Rect& rect, const Point& p) const
     {
+        TRACE_FUNC()
         //  ___
         // |0|1| Sub-Quad indices
         // |2|3|

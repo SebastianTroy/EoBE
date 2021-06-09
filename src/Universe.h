@@ -11,6 +11,7 @@
 #include <Energy.h>
 #include <AutoClearingContainer.h>
 #include <QuadTree.h>
+#include <ChromeTracing.h>
 
 #include <QTimer>
 #include <QPainter>
@@ -40,6 +41,7 @@ public:
     template <typename... T>
     void ClearAllEntitiesOfType()
     {
+        TRACE_FUNC()
         rootNode_.RemoveIf([](const Entity& item) -> bool
         {
             return (dynamic_cast<const T*>(&item) || ...);
@@ -47,10 +49,12 @@ public:
     }
     void ForEach(const std::function<void (const Entity& e)>& action) const
     {
+        TRACE_FUNC()
         rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([=](const Entity& e){action(e);}));
     }
     void ForEach(const std::function<void (std::shared_ptr<Entity> e)>& action)
     {
+        TRACE_FUNC()
         rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([=](std::shared_ptr<Entity> e){action(e);}));
     }
 

@@ -1,4 +1,5 @@
 set(UTILITY_SOURCES
+    ChromeTracing.cpp
     JsonHelpers.cpp
     NeuralNetwork.cpp
     NeuralNetworkConnector.cpp
@@ -12,6 +13,7 @@ set(UTILITY_SOURCES
 set(UTILITY_HEADERS
     AutoClearingContainer.h
     Algorithm.h
+    ChromeTracing.h
     CircularBuffer.h
     Energy.h
     FormatHelpers.h

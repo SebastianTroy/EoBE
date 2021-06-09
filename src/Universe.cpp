@@ -51,8 +51,10 @@ void Universe::SetEntityTargetPerQuad(uint64_t target, uint64_t leeway)
 
 void Universe::ForEachCollidingWith(const Point& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
 {
+    TRACE_FUNC()
     rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> item)
     {
+        TRACE_LAMBDA("Entity->Action")
         if (Collides(collide, item->GetCollide())) {
             action(item);
         }
@@ -61,8 +63,10 @@ void Universe::ForEachCollidingWith(const Point& collide, const std::function<vo
 
 void Universe::ForEachCollidingWith(const Line& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
 {
+    TRACE_FUNC()
     rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> item)
     {
+        TRACE_LAMBDA("Entity->Action")
         if (Collides(collide, item->GetCollide())) {
             action(item);
         }
@@ -71,8 +75,10 @@ void Universe::ForEachCollidingWith(const Line& collide, const std::function<voi
 
 void Universe::ForEachCollidingWith(const Rect& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
 {
+    TRACE_FUNC()
     rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> item)
     {
+        TRACE_LAMBDA("Entity->Action")
         if (Collides(collide, item->GetCollide())) {
             action(item);
         }
@@ -81,8 +87,10 @@ void Universe::ForEachCollidingWith(const Rect& collide, const std::function<voi
 
 void Universe::ForEachCollidingWith(const Circle& collide, const std::function<void (const std::shared_ptr<Entity>&)>& action)
 {
+    TRACE_FUNC()
     rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> item)
     {
+        TRACE_LAMBDA("Entity->Action")
         if (Collides(collide, item->GetCollide())) {
             action(item);
         }
@@ -91,8 +99,10 @@ void Universe::ForEachCollidingWith(const Circle& collide, const std::function<v
 
 void Universe::ForEachCollidingWith(const Point& collide, const std::function<void (const Entity&)>& action) const
 {
+    TRACE_FUNC()
     rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([&](const Entity& item)
     {
+        TRACE_LAMBDA("Entity.Action")
         if (Collides(collide, item.GetCollide())) {
             action(item);
         }
@@ -101,8 +111,10 @@ void Universe::ForEachCollidingWith(const Point& collide, const std::function<vo
 
 void Universe::ForEachCollidingWith(const Line& collide, const std::function<void (const Entity&)>& action) const
 {
+    TRACE_FUNC()
     rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([&](const Entity& item)
     {
+        TRACE_LAMBDA("Entity.Action")
         if (Collides(collide, item.GetCollide())) {
             action(item);
         }
@@ -111,8 +123,10 @@ void Universe::ForEachCollidingWith(const Line& collide, const std::function<voi
 
 void Universe::ForEachCollidingWith(const Rect& collide, const std::function<void (const Entity&)>& action) const
 {
+    TRACE_FUNC()
     rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([&](const Entity& item)
     {
+        TRACE_LAMBDA("Entity.Action")
         if (Collides(collide, item.GetCollide())) {
             action(item);
         }
@@ -121,8 +135,10 @@ void Universe::ForEachCollidingWith(const Rect& collide, const std::function<voi
 
 void Universe::ForEachCollidingWith(const Circle& collide, const std::function<void (const Entity&)>& action) const
 {
+    TRACE_FUNC()
     rootNode_.ForEachItem(Tril::ConstQuadTreeIterator<Entity>([&](const Entity& item)
     {
+        TRACE_LAMBDA("Entity.Action")
         if (Collides(collide, item.GetCollide())) {
             action(item);
         }
@@ -131,9 +147,11 @@ void Universe::ForEachCollidingWith(const Circle& collide, const std::function<v
 
 std::shared_ptr<Entity> Universe::PickEntity(const Point& location, bool remove)
 {
+    TRACE_FUNC()
     std::shared_ptr<Entity> picked;
     rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
     {
+        TRACE_LAMBDA("PickEntity")
         if (!picked) {
             picked = entity;
         }
@@ -146,8 +164,10 @@ std::shared_ptr<Entity> Universe::PickEntity(const Point& location, bool remove)
 
 std::shared_ptr<FeedDispenser> Universe::PickFeedDispenser(const Point& location, bool remove)
 {
+    TRACE_FUNC()
     auto iter = std::find_if(std::begin(feedDispensers_), std::end(feedDispensers_), [&](const auto& dispenser)
     {
+        TRACE_LAMBDA("PickSpawner")
         return Contains(dispenser->GetCollide(), location);
     });
 
@@ -162,11 +182,13 @@ std::shared_ptr<FeedDispenser> Universe::PickFeedDispenser(const Point& location
 
 Tril::Handle Universe::AddTask(std::function<void (uint64_t tick)>&& task)
 {
+    TRACE_FUNC()
     return perTickTasks_.PushBack(std::move(task));
 }
 
 void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawArea)
 {
+    TRACE_FUNC()
     for (auto& dispenser : feedDispensers_) {
         dispenser->Draw(p, options);
     }
@@ -177,22 +199,26 @@ void Universe::Draw(QPainter& p, const DrawSettings& options, const Rect& drawAr
         p.setPen(pen);
         rootNode_.ForEachQuad([&](const Rect& quadArea)
         {
+            TRACE_FUNC()
             p.drawRect(QRectF(quadArea.left, quadArea.top, quadArea.right - quadArea.left, quadArea.bottom - quadArea.top));
         });
         p.restore();
     }
-    rootNode_.ForEachItemNoRebalanceHack(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
+    rootNode_.ForEachItemNoRebalance(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
     {
+        TRACE_LAMBDA("EntityDraw")
         entity->Draw(p, options);
-    }).SetQuadFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)).SetItemFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)));
+    }).SetQuadFilter(BoundingRect(drawArea, Entity::MAX_RADIUS)));
 }
 
 void Universe::Tick()
 {
+    TRACE_FUNC()
     params_.lunarCycle_ = GetLunarCycle();
 
     rootNode_.ForEachItem(Tril::QuadTreeIterator<Entity>([&](std::shared_ptr<Entity> entity)
     {
+        TRACE_LAMBDA("EntityTick")
         entity->Tick(*this, params_);
     }).SetRemoveItemPredicate([](const Entity& entity)
     {
@@ -213,6 +239,7 @@ void Universe::Tick()
 
 double Universe::GetLunarCycle() const
 {
+    TRACE_FUNC()
     double shortCycle = 32; // ~1 full->new->full cycle 150 ticks
     double longCycle = 20; // 1 spring->neap->spring cycle per n short cycles
     return std::sin(tickIndex_ / shortCycle) * (0.75 - (0.25 * (std::sin(tickIndex_ / (shortCycle * longCycle)))));
