@@ -31,5 +31,6 @@ private:
     void ResetGraphs();
     void AddLineGraph(QString graphTitle, std::vector<std::pair<QRgb, QString>>&& plots, QString xAxisTitle, QString yAxisTitle, std::function<void(uint64_t tick, LineGraph& graph)>&& task);
     void AddScatterGraph(QString graphTitle, QString xAxisTitle, QString yAxisTitle, std::function<void(uint64_t tick, ScatterGraph& graph)>&& task);
+    void AddSpawner();
 };
 #endif // MAINWINDOW_H

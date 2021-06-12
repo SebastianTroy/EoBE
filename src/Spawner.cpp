@@ -11,17 +11,58 @@
 
 #include <memory>
 
-Spawner::Spawner(EntityContainerInterface& entityContainer, double x, double y, double radius, double EntityDensity, Shape shape, Spawn spawn)
+Spawner::Spawner(EntityContainerInterface& entityContainer, double x, double y, double radius, unsigned maxEntities, double ticksBetweenEntities, Shape shape, Spawn spawn)
     : entityContainer_(entityContainer)
     , x_(x)
     , y_(y)
     , radius_(radius)
     , shape_(shape)
     , spawn_(spawn)
-    , maxEntities_(std::pow(Tril::Pi * radius_, 2.0) * EntityDensity)
+    , maxEntities_(maxEntities)
+    , maxTicksTillNext_(ticksBetweenEntities)
     , ticksTillNext_(0)
     , currentEntityCount_(0)
 {
+}
+
+void Spawner::Draw(QPainter& paint, Spawn spawn, Shape shape, double x, double y, double radius, bool dashedEdge)
+{
+    paint.save();
+    paint.setRenderHint(QPainter::RenderHint::Antialiasing, true);
+
+    switch (spawn) {
+    case Spawn::FoodPellet :
+        paint.setPen(QColor(0, 205, 90, 255));
+        paint.setBrush(QColor(0, 205, 90, 190).lighter());
+        break;
+    case Spawn::MeatChunk :
+        paint.setPen(QColor(184, 68, 68, 255));
+        paint.setBrush(QColor(184, 68, 68, 190).lighter());
+        break;
+    case Spawn::Spike :
+        paint.setPen(QColor(225, 225, 225, 255));
+        paint.setBrush(QColor(225, 225, 225, 190).lighter());
+        break;
+    }
+
+    QPen pen = paint.pen();
+    pen.setCosmetic(true);
+    pen.setWidthF(2.5);
+    if (dashedEdge) {
+        pen.setDashPattern({ 20.0, 10.0 });
+    }
+    paint.setPen(pen);
+
+    switch (shape) {
+    case Shape::Circle :
+        paint.drawEllipse({x, y}, radius, radius);
+        break;
+    case Shape::Square:
+        paint.drawRect(x - radius, y - radius, radius * 2, radius * 2);
+        break;
+    }
+
+    paint.restore();
 }
 
 bool Spawner::Contains(const Point& point) const
@@ -38,47 +79,22 @@ bool Spawner::Contains(const Point& point) const
 void Spawner::Draw(QPainter& paint, const DrawSettings& options)
 {
     if (options.showSpawners_) {
-        paint.save();
-        paint.setRenderHint(QPainter::RenderHint::Antialiasing, true);
-        switch (spawn_) {
-        case Spawn::FoodPellet :
-            paint.setPen(QColor(0, 205, 90, 255));
-            paint.setBrush(QColor(0, 205, 90, 190).lighter());
-            break;
-        case Spawn::MeatChunk :
-            paint.setPen(QColor(184, 68, 68, 255));
-            paint.setBrush(QColor(184, 68, 68, 190).lighter());
-            break;
-        case Spawn::Spike :
-            paint.setPen(QColor(225, 225, 225, 255));
-            paint.setBrush(QColor(225, 225, 225, 190).lighter());
-            break;
-        }
-
-        QPen pen = paint.pen();
-        pen.setCosmetic(true);
-        pen.setWidthF(2.5);
-        paint.setPen(pen);
-
-        switch (shape_) {
-        case Shape::Circle :
-            paint.drawEllipse({x_, y_}, GetRadius(), GetRadius());
-            break;
-        case Shape::Square:
-            paint.drawRect(x_ - radius_, y_ - radius_, GetRadius() * 2, GetRadius() * 2);
-            break;
-        }
-
-        paint.restore();
+        Draw(paint, spawn_, shape_, x_, y_, radius_, false);
     }
 }
 
 void Spawner::Tick(const UniverseParameters& params)
 {
-    while (ticksTillNext_ <= 0 && currentEntityCount_ < maxEntities_) {
-        SpawnEntity();
+    if (params.spawnRateModifier <= 0) {
+        return;
     }
-    ticksTillNext_ -= (params.spawnRateModifier * 1.0);
+
+    while (currentEntityCount_ < maxEntities_ && ticksTillNext_ <= 0) {
+        SpawnEntity();
+        ticksTillNext_ += maxTicksTillNext_ / params.spawnRateModifier;
+    }
+
+    --ticksTillNext_;
 }
 
 void Spawner::EntityRemoved()
@@ -130,7 +146,5 @@ void Spawner::SpawnEntity()
             break;
         }
         ++currentEntityCount_;
-        auto proportion = double(currentEntityCount_) / double(maxEntities_);
-        ticksTillNext_ += 10.0 * ((-0.8 * (std::pow(proportion, 2.0) * -std::pow(proportion - 2, 2.0))) + 0.1);
     }
 }

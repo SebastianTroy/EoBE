@@ -17,6 +17,7 @@
 
 #include <QFileDialog>
 #include <QCheckBox>
+#include <QPainter>
 
 #include <fstream>
 
@@ -94,6 +95,28 @@ MainWindow::MainWindow(QWidget *parent)
 
     /// Spawner Controlls
     connect(ui->spawnEntitiesToggle, &QPushButton::toggled, this, [&](bool state) { universe_->GetParameters().spawnRateModifier = state ? 1.0 : 0.0; }, Qt::QueuedConnection);
+
+    ui->newSpawnerShapeCombo->addItem("Square", QVariant::fromValue(Spawner::Shape::Square));
+    ui->newSpawnerShapeCombo->addItem("Circle", QVariant::fromValue(Spawner::Shape::Circle));
+
+    ui->newSpawnerTypeCombo->addItem("FoodPellet", QVariant::fromValue(Spawner::Spawn::FoodPellet));
+    ui->newSpawnerTypeCombo->addItem("MeatChunk", QVariant::fromValue(Spawner::Spawn::MeatChunk));
+    ui->newSpawnerTypeCombo->addItem("Spike", QVariant::fromValue(Spawner::Spawn::Spike));
+
+    // Keep for lifetime of UI
+    static auto handle = ui->universe->AddDrawOperation([&](QPainter& paint)
+    {
+        if (ui->newSpawnerPreviewCheckBox->isChecked() && (std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()).time_since_epoch().count() % 1000 > 150)) {
+            double x = ui->newSpawnerXSpinBox->value();
+            double y = ui->newSpawnerYSpinBox->value();
+            double radius = ui->newSpawnerRadiusSpinBox->value();
+            Spawner::Shape shape = static_cast<Spawner::Shape>(ui->newSpawnerShapeCombo->currentData().value<std::underlying_type_t<Spawner::Shape>>());
+            Spawner::Spawn spawnType = static_cast<Spawner::Spawn>(ui->newSpawnerTypeCombo->currentData().value<std::underlying_type_t<Spawner::Spawn>>());
+            Spawner::Draw(paint, spawnType, shape, x, y, radius, true);
+        }
+    });
+
+    connect(ui->newSpawnerCreateButton, &QPushButton::clicked, this, &MainWindow::AddSpawner, Qt::QueuedConnection);
 
     /// Selected Trilobyte Controlls
     connect(ui->selectFittestButton, &QPushButton::pressed, ui->universe, &UniverseWidget::SelectFittestTrilobyte, Qt::QueuedConnection);
@@ -464,17 +487,26 @@ void MainWindow::AddScatterGraph(QString graphTitle, QString xAxisTitle, QString
     connect(button, &QPushButton::pressed, [=]()
     {
         ScatterGraph* scatterGraph = new ScatterGraph(nullptr, graphTitle, xAxisTitle, yAxisTitle);
-
-
-
-        // handle is going out of scope here, need to capture it !!!!!!!!
-
-        // NEED to include gene name in json or will never be able to deserialise!!!!!!
-
-
+        // FIXME handle is going out of scope here, need to capture it !!!!!!!!
 
         auto handle = universe_->AddTask([=, task = std::move(task)](uint64_t tick) { task(tick, *scatterGraph); });
         ui->graphs->addTab(scatterGraph, graphTitle);
     });
     emit button->pressed();
+}
+
+void MainWindow::AddSpawner()
+{
+    if (universe_) {
+        double x = ui->newSpawnerXSpinBox->value();
+        double y = ui->newSpawnerYSpinBox->value();
+        double radius = ui->newSpawnerRadiusSpinBox->value();
+        unsigned spawnCap = ui->newSpawnerLimitSpinBox->value();
+        double ticksPerSpawn = ui->newSpawnerRateSpinBox->value();
+        Spawner::Shape shape = static_cast<Spawner::Shape>(ui->newSpawnerShapeCombo->currentData().value<std::underlying_type_t<Spawner::Shape>>());
+        Spawner::Spawn spawnType = static_cast<Spawner::Spawn>(ui->newSpawnerTypeCombo->currentData().value<std::underlying_type_t<Spawner::Spawn>>());
+        universe_->AddSpawner(std::make_shared<Spawner>(*universe_, x, y, radius, spawnCap, ticksPerSpawn, shape, spawnType));
+
+        ui->newSpawnerPreviewCheckBox->setChecked(false);
+    }
 }

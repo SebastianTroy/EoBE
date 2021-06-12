@@ -88,7 +88,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>304</width>
+               <width>337</width>
                <height>558</height>
               </rect>
              </property>
@@ -245,7 +245,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>304</width>
+               <width>337</width>
                <height>558</height>
               </rect>
              </property>
@@ -476,7 +476,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>304</width>
+               <width>337</width>
                <height>558</height>
               </rect>
              </property>
@@ -504,6 +504,168 @@
                    </property>
                    <property name="checked">
                     <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="newSpawnerGroup">
+                <property name="title">
+                 <string>Create</string>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_3">
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="newSpawnerRateLabel">
+                   <property name="text">
+                    <string>Ticks per Spawn</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QComboBox" name="newSpawnerShapeCombo"/>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QDoubleSpinBox" name="newSpawnerXSpinBox">
+                   <property name="prefix">
+                    <string>X: </string>
+                   </property>
+                   <property name="minimum">
+                    <double>-10000000000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>10000000000.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>50.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0" colspan="2">
+                  <widget class="QPushButton" name="newSpawnerCreateButton">
+                   <property name="text">
+                    <string>Add to Sim</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QDoubleSpinBox" name="newSpawnerRadiusSpinBox">
+                   <property name="minimum">
+                    <double>10.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>10000.000000000000000</double>
+                   </property>
+                   <property name="stepType">
+                    <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+                   </property>
+                   <property name="value">
+                    <double>500.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="newSpawnerRadiusLabel">
+                   <property name="text">
+                    <string>Radius</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QSpinBox" name="newSpawnerLimitSpinBox">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>10000</number>
+                   </property>
+                   <property name="stepType">
+                    <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+                   </property>
+                   <property name="value">
+                    <number>200</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QDoubleSpinBox" name="newSpawnerRateSpinBox">
+                   <property name="decimals">
+                    <number>4</number>
+                   </property>
+                   <property name="maximum">
+                    <double>10000.000000000000000</double>
+                   </property>
+                   <property name="stepType">
+                    <enum>QAbstractSpinBox::AdaptiveDecimalStepType</enum>
+                   </property>
+                   <property name="value">
+                    <double>0.750000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="newSpawnerTypeCombo"/>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QDoubleSpinBox" name="newSpawnerYSpinBox">
+                   <property name="prefix">
+                    <string>Y: </string>
+                   </property>
+                   <property name="minimum">
+                    <double>-10000000000.000000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>10000000000.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>50.000000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="newSpawnerLimitLabel">
+                   <property name="text">
+                    <string>Spawn Limit</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="newSpawnerTypeLabel">
+                   <property name="text">
+                    <string>Type</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="newSpawnerShapeLabel">
+                   <property name="text">
+                    <string>Shape</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0" colspan="2">
+                  <widget class="QCheckBox" name="newSpawnerPreviewCheckBox">
+                   <property name="layoutDirection">
+                    <enum>Qt::RightToLeft</enum>
+                   </property>
+                   <property name="text">
+                    <string>Preview</string>
                    </property>
                   </widget>
                  </item>

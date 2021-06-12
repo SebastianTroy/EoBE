@@ -6,6 +6,7 @@
 #include <WindowedRollingStatistics.h>
 #include <WindowedFrequencyStatistics.h>
 #include <Shape.h>
+#include <AutoClearingContainer.h>
 
 // TODO QOpenGLWidget allows QPainter painting, but its messed up, consider moving over once everything is pixmap based
 // see https://doc-snapshots.qt.io/qt6-dev/qopenglwidget.html for help re-implementing
@@ -17,6 +18,18 @@ class UniverseWidget final : public QWidget {
 public:
     explicit UniverseWidget(QWidget* parent);
     virtual ~UniverseWidget();
+
+    /**
+     * @brief This allows for additional GUI elements to be added each time the
+     * simulation redraws itself. For example, previewing where a new spawner
+     * would be placed etc.
+     *
+     * @param drawTask The code to be run each time the simulation is redrawn.
+     *
+     * @return A Handle that defines the lifetime of the drawTask. When no
+     * copies of the handle exist, the drawTask is removed from the list.
+     */
+    [[nodiscard]] Tril::Handle AddDrawOperation(std::function<void(QPainter& paint)>&& drawTask);
 
 signals:
     void EntitySelected(const std::shared_ptr<Entity>& newSelection);
@@ -104,6 +117,7 @@ private:
     std::shared_ptr<Entity> draggedEntity_;
 
     DrawSettings drawOptions_;
+    Tril::AutoClearingContainer<std::function<void(QPainter& paint)>> perDrawTasks_;
 
     Point TransformLocalToSimCoords(const Point& local) const;
     Point TransformSimToLocalCoords(const Point& sim) const;

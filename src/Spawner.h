@@ -25,7 +25,9 @@ public:
         Spike,
     };
 
-    Spawner(EntityContainerInterface& entityContainer, double x, double y, double radius, double entityDensity, Shape shape, Spawn spawn);
+    Spawner(EntityContainerInterface& entityContainer, double x, double y, double radius, unsigned maxEntities, double ticksBetweenEntities, Shape shape, Spawn spawn);
+
+    static void Draw(QPainter& paint, Spawn spawn, Shape shape, double x, double y, double radius, bool dashedEdge);
 
     double GetX() const { return x_; }
     double GetY() const { return y_; }
@@ -50,6 +52,7 @@ private:
     Spawn spawn_;
 
     unsigned maxEntities_;
+    double maxTicksTillNext_;
     double ticksTillNext_;
 
     unsigned currentEntityCount_;

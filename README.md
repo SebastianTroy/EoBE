@@ -32,12 +32,14 @@ TODO
  - Genes inspector view
  - Matrix based coordinate system/collisions
  - More entities (pheremones? poisons? more food types?)
- - tabs in left GUI to split up settings
- -  - Allow adding multiple trilobytes at a time
- -  - Move spawner
- -  - adjust spawner entity energy/frequency
- -  - Add spawner
- -  - resize spawner
+ - Spawner Settings
+ - - Move spawner
+ - - Resize spawner
+ - - Remove spawner
+ - - Adjust spawner entity energy/frequency/colour
+ - - Toxins/Rocks/Environmental hazards?
+ - - Add global spawn rate slider/spin box
+ - - Add properties to spawners and add a spawner tab to the inspector view
  - Image based drawing
  - - Replace placeholder images with coherently styled ones
  - - add images for each sense and effector
@@ -56,24 +58,14 @@ TODO
  - - Allows for effectors that increase / decrease a trilobytes friction
  - - Further penalty for colliding with spikes
  - - Can add new entity types that add areas of friction, increasing environmental variety (-ve friction objects?)
- - Want a generic "spawner" type that can spawn in food pellets the same way they currently are, but also be used to spawn spikes etc, so that
  - Look into ChaiScript
  - - These would require exposing a lot of the C++ to ChaiScript so this should be a feature explored when the APIs are more stable
  - - - Could make an EntityChaiScript, so scripted entities  could exist
  - - - Could make an Sense/EffectorChaiScript, so scripted senses and abilities could be scripted
  - - - Could make a ChaiScriptGraph, so scripted graphs could be added
+ - - - Could make a ChaiScriptSpawner, so scripted spawners could be added
  - Tests for all Utility classes
- - Perhaps when zoomed way out and showing spawners, draw a large icon of the thing(s) they are spawning in the middle of their circle
-
-Next Steps
-----------
-Revamp spawners and how they are interacted with, giving movement, size, speed, count... e.t.c. user controls
- - Spawn more than just food pellets?
- - - Toxins?
- - - Spikes/Rocks/Environmental hazards
- - - Requires
-
-Ability to add/remove spikes/other entities manually
+ - Ability to add/remove spikes/other entities manually
 
 Needs more thought
 ------------------

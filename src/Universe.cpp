@@ -14,15 +14,15 @@ Universe::Universe(Rect startingQuad)
     : rootNode_(startingQuad, 25, 5, Entity::MAX_RADIUS * 2)
 {
     // TODO get rid of this default nonsense here
-    spawners_.push_back(std::make_shared<Spawner>(*this,  1000, -1000, 900, 0.00001, Spawner::Shape::Square, Spawner::Spawn::Spike));
-    spawners_.push_back(std::make_shared<Spawner>(*this,  1000, -1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::FoodPellet));
-    spawners_.push_back(std::make_shared<Spawner>(*this, -1000, -1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::FoodPellet));
-    spawners_.push_back(std::make_shared<Spawner>(*this,  1000,  1000, 900, 0.00001, Spawner::Shape::Square, Spawner::Spawn::Spike));
-    spawners_.push_back(std::make_shared<Spawner>(*this,  1000,  1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::MeatChunk));
-    spawners_.push_back(std::make_shared<Spawner>(*this, -1000,  1000, 950, 0.001, Spawner::Shape::Circle, Spawner::Spawn::MeatChunk));
+    spawners_.push_back(std::make_shared<Spawner>(*this,  1000, -1000, 900, 50, 1000, Spawner::Shape::Square, Spawner::Spawn::Spike));
+    spawners_.push_back(std::make_shared<Spawner>(*this,  1000, -1000, 950, 4500, 1.15, Spawner::Shape::Circle, Spawner::Spawn::FoodPellet));
+    spawners_.push_back(std::make_shared<Spawner>(*this, -1000, -1000, 950, 4500, 1.15, Spawner::Shape::Circle, Spawner::Spawn::FoodPellet));
+    spawners_.push_back(std::make_shared<Spawner>(*this,  1000,  1000, 900, 50, 1000, Spawner::Shape::Square, Spawner::Spawn::Spike));
+    spawners_.push_back(std::make_shared<Spawner>(*this,  1000,  1000, 950, 2000, 0.15, Spawner::Shape::Circle, Spawner::Spawn::MeatChunk));
+    spawners_.push_back(std::make_shared<Spawner>(*this, -1000,  1000, 950, 2000, 0.15, Spawner::Shape::Circle, Spawner::Spawn::MeatChunk));
 
     for (auto& spawner : spawners_) {
-        spawner->AddEntitiesImmediately(spawner->GetMaxEntities() / 8);
+        spawner->AddEntitiesImmediately(spawner->GetMaxEntities() / 2.0);
     }
 
     rootNode_.SetItemCountTaregt(25);

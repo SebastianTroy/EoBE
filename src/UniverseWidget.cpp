@@ -47,6 +47,11 @@ UniverseWidget::~UniverseWidget()
 {
 }
 
+Tril::Handle UniverseWidget::AddDrawOperation(std::function<void (QPainter&)>&& drawTask)
+{
+    return perDrawTasks_.PushBack(std::move(drawTask));
+}
+
 void UniverseWidget::SetUniverse(std::shared_ptr<Universe> universe)
 {
     universe_ = universe;
@@ -101,6 +106,8 @@ void UniverseWidget::StepForwards(unsigned ticksToStep)
         drawThread_.start();
     }
 }
+
+
 
 void UniverseWidget::SelectFittestTrilobyte()
 {
@@ -235,6 +242,11 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
             p.setBrush(Qt::BrushStyle::NoBrush);
             p.drawEllipse(QPointF(draggedEntity_->GetTransform().x, draggedEntity_->GetTransform().y), draggedEntity_->GetRadius(), draggedEntity_->GetRadius());
         }
+
+        perDrawTasks_.ForEach([&](auto& paintAction)
+        {
+            paintAction(p);
+        });
 
         p.restore();
         qreal textY = 15.0;
