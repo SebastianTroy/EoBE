@@ -3,6 +3,7 @@
 
 #include "DrawSettings.h"
 #include "EntityContainerInterface.h"
+#include "PropertyTableModel.h"
 
 #include <Energy.h>
 #include <Shape.h>
@@ -31,6 +32,7 @@ public:
 
     double GetX() const { return x_; }
     double GetY() const { return y_; }
+    Point GetLocation() const { return { x_, y_ }; }
     double GetRadius() const { return radius_; }
     unsigned GetMaxEntities() const { return maxEntities_; }
     bool Contains(const Point& point) const;
@@ -39,6 +41,8 @@ public:
     void Tick(const UniverseParameters& params);
     void EntityRemoved();
     void AddEntitiesImmediately(unsigned entityCount);
+    void SetLocation(const Point& p) { x_ = p.x; y_ = p.y; }
+    std::vector<Property> GetProperties();
 
 private:
     constexpr static Energy entityEnergyContent_ = 30_mj;
@@ -56,6 +60,7 @@ private:
     double ticksTillNext_;
 
     unsigned currentEntityCount_;
+    uint64_t totalEntitiesSpawned_ = 0;
 
     Circle GetCircleCollide() const { return Circle{ x_, y_, radius_ }; };
     Rect GetSquareCollide() const { return Rect{ x_ - radius_, y_ - radius_, x_ + radius_, y_ + radius_ }; };

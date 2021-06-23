@@ -3,6 +3,7 @@
 #include "Trilobyte.h"
 #include "FoodPellet.h"
 #include "Egg.h"
+#include "ControlSchemePanAndZoom.h"
 
 #include <QMouseEvent>
 #include <QWheelEvent>
@@ -107,23 +108,6 @@ void UniverseWidget::StepForwards(unsigned ticksToStep)
     }
 }
 
-
-
-void UniverseWidget::SelectFittestTrilobyte()
-{
-    unsigned mostLivingChildren = 0;
-    universe_->ForEach([&](const std::shared_ptr<Entity>& e)
-    {
-        if (const auto* s = dynamic_cast<const Trilobyte*>(e.get())) {
-            if (s->GetLivingDescendantsCount(2) > mostLivingChildren) {
-                mostLivingChildren = s->GetLivingDescendantsCount(2);
-                selectedEntity_ = e;
-            }
-        }
-    });
-    emit EntitySelected(selectedEntity_);
-}
-
 void UniverseWidget::RemoveAllTrilobytes()
 {
     universe_->ClearAllEntitiesOfType<Trilobyte, Egg>();
@@ -134,21 +118,32 @@ void UniverseWidget::RemoveAllFood()
     universe_->ClearAllEntitiesOfType<FoodPellet>();
 }
 
+void UniverseWidget::Zoom(int ticks)
+{
+    transformScale_ *= 1.0 + (0.01 * ticks);
+    update();
+}
+
 void UniverseWidget::ZoomIn()
 {
-    transformScale_ *= 1.0 + 0.01;
-    update();
+    Zoom(+1);
 }
 
 void UniverseWidget::ZoomOut()
 {
-    transformScale_ *= 1.0 - 0.01;
-    update();
+    Zoom(-1);
 }
 
 void UniverseWidget::ZoomReset()
 {
     transformScale_ = 1.0;
+    update();
+}
+
+void UniverseWidget::Pan(double xDistance, double yDistance)
+{
+    transformX_ += xDistance;
+    transformY_ += yDistance;
     update();
 }
 
@@ -158,53 +153,75 @@ void UniverseWidget::PanReset()
     update();
 }
 
+Point UniverseWidget::TransformLocalToSimCoords(const Point& local) const
+{
+    double x = local.x;
+    double y = local.y;
+    // Sim is centred on screen
+    x -= (width() / 2);
+    y -= (height() / 2);
+    // Sim is scaled
+    x /= transformScale_;
+    y /= transformScale_;
+    // Sim is transformed
+    x -= transformX_;
+    y -= transformY_;
+    return { x, y };
+}
+
+Point UniverseWidget::TransformSimToLocalCoords(const Point& sim) const
+{
+    double x = sim.x;
+    double y = sim.y;
+    // Sim is transformed
+    x += transformX_;
+    y += transformY_;
+    // Sim is scaled
+    x *= transformScale_;
+    y *= transformScale_;
+    // Sim is centred on screen
+    x += (width() / 2);
+    y += (height() / 2);
+    return { x, y };
+}
+
 void UniverseWidget::wheelEvent(QWheelEvent* event)
 {
-    double d = 1.0 + (0.001 * double(event->angleDelta().y()));
-    transformScale_ *= d;
-    update();
+    bool eventConsumed = false;
+    for (std::shared_ptr<ControlScheme>& controlScheme : controlSchemes_) {
+        if (!eventConsumed) {
+            eventConsumed = controlScheme->OnWheelScrolled(event->angleDelta());
+        }
+    }
 }
 
 void UniverseWidget::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::LeftButton && draggedEntity_) {
-        universe_->AddEntity(draggedEntity_);
-        draggedEntity_ = nullptr;
-        update();
-    } else if (event->button() == Qt::MiddleButton) {
-        dragging_ = false;
+    bool eventConsumed = false;
+    for (std::shared_ptr<ControlScheme>& controlScheme : controlSchemes_) {
+        if (!eventConsumed) {
+            eventConsumed = controlScheme->OnMouseButtonReleased(event->pos(), event->button(), event->buttons(), event->modifiers());
+        }
     }
 }
 
 void UniverseWidget::mousePressEvent(QMouseEvent* event)
 {
-    if (universe_) {
-        Point simLocation = TransformLocalToSimCoords({ static_cast<double>(event->pos().x()), static_cast<double>(event->pos().y()) });
-        if (event->button() == Qt::RightButton) {
-            selectedEntity_ = universe_->PickEntity(simLocation, false);
-            emit EntitySelected(selectedEntity_);
-        } else if (event->button() == Qt::LeftButton) {
-            draggedEntity_ = universe_->PickEntity(simLocation, true);
-        } else if (event->button() == Qt::MiddleButton) {
-            dragging_ = true;
-            dragX_ = event->pos().x();
-            dragY_ = event->pos().y();
+    bool eventConsumed = false;
+    for (std::shared_ptr<ControlScheme>& controlScheme : controlSchemes_) {
+        if (!eventConsumed) {
+            eventConsumed = controlScheme->OnMouseButtonPressed(event->pos(), event->button(), event->buttons(), event->modifiers());
         }
     }
 }
 
 void UniverseWidget::mouseMoveEvent(QMouseEvent* event)
 {
-    if (dragging_) {
-        transformX_ += ((event->pos().x() - dragX_) / transformScale_);
-        transformY_ += ((event->pos().y() - dragY_) / transformScale_);
-        dragX_ = event->pos().x();
-        dragY_ = event->pos().y();
-        update();
-    } else if (draggedEntity_) {
-        Point simLocation = TransformLocalToSimCoords({ static_cast<double>(event->pos().x()), static_cast<double>(event->pos().y()) });
-        draggedEntity_->SetLocation(simLocation);
-        update();
+    bool eventConsumed = false;
+    for (std::shared_ptr<ControlScheme>& controlScheme : controlSchemes_) {
+        if (!eventConsumed) {
+            eventConsumed = controlScheme->OnMouseMoved(event->pos(), event->buttons(), event->modifiers());
+        }
     }
 }
 
@@ -218,11 +235,6 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
     auto begin = std::chrono::steady_clock::now();
 
     if (universe_) {
-        if (trackSelected_ && selectedEntity_ && (selectedEntity_ != draggedEntity_)) {
-            Point focus = { selectedEntity_->GetTransform().x, selectedEntity_->GetTransform().y };
-            transformX_ = -focus.x;
-            transformY_ = -focus.y;
-        }
         QPainter p(this);
         p.save();
         p.setRenderHint(QPainter::RenderHint::SmoothPixmapTransform);
@@ -234,14 +246,6 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
         Point topLeft = TransformLocalToSimCoords(Point{ 0, 0 });
         Point bottomRight = TransformLocalToSimCoords(Point{ static_cast<double>(width()), static_cast<double>(height()) });
         universe_->Draw(p, drawOptions_, Rect{ topLeft.x, topLeft.y, bottomRight.x, bottomRight.y });
-
-        if (draggedEntity_) {
-            // TODO draw dragged entity slightly bigger and offset, with a shadow so it looks like it is above the sim
-            draggedEntity_->Draw(p, drawOptions_);
-            p.setPen(Qt::GlobalColor::darkYellow);
-            p.setBrush(Qt::BrushStyle::NoBrush);
-            p.drawEllipse(QPointF(draggedEntity_->GetTransform().x, draggedEntity_->GetTransform().y), draggedEntity_->GetRadius(), draggedEntity_->GetRadius());
-        }
 
         perDrawTasks_.ForEach([&](auto& paintAction)
         {
@@ -285,38 +289,6 @@ void UniverseWidget::OnTickTimerElapsed()
 void UniverseWidget::OnDrawTimerElapsed()
 {
     update();
-}
-
-Point UniverseWidget::TransformLocalToSimCoords(const Point& local) const
-{
-    double x = local.x;
-    double y = local.y;
-    // Sim is centred on screen
-    x -= (width() / 2);
-    y -= (height() / 2);
-    // Sim is scaled
-    x /= transformScale_;
-    y /= transformScale_;
-    // Sim is transformed
-    x -= transformX_;
-    y -= transformY_;
-    return { x, y };
-}
-
-Point UniverseWidget::TransformSimToLocalCoords(const Point& sim) const
-{
-    double x = sim.x;
-    double y = sim.y;
-    // Sim is transformed
-    x += transformX_;
-    y += transformY_;
-    // Sim is scaled
-    x *= transformScale_;
-    y *= transformScale_;
-    // Sim is centred on screen
-    x += (width() / 2);
-    y += (height() / 2);
-    return { x, y };
 }
 
 void UniverseWidget::Tick()

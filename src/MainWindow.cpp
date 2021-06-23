@@ -18,6 +18,9 @@
 #include <QFileDialog>
 #include <QCheckBox>
 #include <QPainter>
+#include <QGridLayout>
+#include <QToolTip>
+#include <QSpacerItem>
 
 #include <fstream>
 
@@ -40,10 +43,51 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, &MainWindow::UniverseReset, ui->universe, &UniverseWidget::SetUniverse, Qt::QueuedConnection);
     connect(this, &MainWindow::UniverseReset, ui->inspectorPanel, &InspectorPanel::SetUniverse, Qt::QueuedConnection);
     connect(ui->universe, &UniverseWidget::EntitySelected, ui->inspectorPanel, &InspectorPanel::SetEntity, Qt::QueuedConnection);
+    connect(ui->universe, &UniverseWidget::SpawnerSelected, ui->inspectorPanel, &InspectorPanel::SetSpawner, Qt::QueuedConnection);
 
     // Set reasonable initial proportions
     ui->horizontalSplitter->setSizes({ static_cast<int>(width() * 0.15), static_cast<int>(width() * 0.65), static_cast<int>(width() * 0.2) });
     ui->verticalSplitter->setSizes({ static_cast<int>(height() * 0.7), static_cast<int>(height() * 0.3) });
+
+    /// Control Schemes
+    /// Added in order of priority, highest priority first
+    pickAndMoveEntityControlls_ = ui->universe->EmplaceBackControlScheme<ControlSchemePickAndMoveEntity>();
+    pickAndMoveSpawnerControlls_ = ui->universe->EmplaceBackControlScheme<ControlSchemePickAndMoveSpawner>();
+    panAndZoomControlls_ = ui->universe->EmplaceBackControlScheme<ControlSchemePanAndZoom>();
+
+    QGridLayout* controlTabLayout = new QGridLayout();
+    ui->controllsTab->setLayout(controlTabLayout);
+    int rowIndex = 0;
+    for (std::shared_ptr<ControlScheme> scheme : { std::static_pointer_cast<ControlScheme>(pickAndMoveEntityControlls_),
+                                                   std::static_pointer_cast<ControlScheme>(pickAndMoveSpawnerControlls_),
+                                                   std::static_pointer_cast<ControlScheme>(panAndZoomControlls_) }) {
+        QString descriptionText = QString::fromStdString(scheme->GetDescription());
+
+        QLabel* schemeNameLabel = new QLabel(QString::fromStdString(scheme->GetName()));
+        schemeNameLabel->setToolTip(descriptionText);
+
+        QCheckBox* schemeEnabledCheckbox = new QCheckBox("Enabled");
+        schemeEnabledCheckbox->setToolTip(descriptionText);
+        connect(schemeEnabledCheckbox, &QCheckBox::toggled, this, [=](bool enabled)
+        {
+            scheme->SetEnabled(enabled);
+        }, Qt::QueuedConnection);
+        schemeEnabledCheckbox->setChecked(true);
+
+        QPushButton* schemeHelpButton = new QPushButton("Help");
+        schemeHelpButton->setToolTip(descriptionText);
+        connect(schemeHelpButton, &QPushButton::pressed, this, [=]()
+        {
+            QToolTip::showText(schemeHelpButton->mapToGlobal(schemeHelpButton->rect().center()), descriptionText);
+        }, Qt::QueuedConnection);
+
+        controlTabLayout->addWidget(schemeNameLabel, rowIndex, 0, Qt::AlignRight);
+        controlTabLayout->addWidget(schemeEnabledCheckbox, rowIndex, 1, Qt::AlignLeft);
+        controlTabLayout->addWidget(schemeHelpButton, rowIndex, 2);
+
+        ++rowIndex;
+    }
+    controlTabLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Ignored, QSizePolicy::Expanding), rowIndex, 0, 1, 3);
 
     /// Zoom controlls
     connect(ui->zoomInButton, &QPushButton::pressed, ui->universe, &UniverseWidget::ZoomIn, Qt::QueuedConnection);
@@ -119,8 +163,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->newSpawnerCreateButton, &QPushButton::clicked, this, &MainWindow::AddSpawner, Qt::QueuedConnection);
 
     /// Selected Trilobyte Controlls
-    connect(ui->selectFittestButton, &QPushButton::pressed, ui->universe, &UniverseWidget::SelectFittestTrilobyte, Qt::QueuedConnection);
-    connect(ui->followSelectedToggle, &QPushButton::toggled, ui->universe, &UniverseWidget::SetTrackSelectedEntity, Qt::QueuedConnection);
+    connect(ui->selectFittestButton, &QPushButton::pressed, this, [&]()
+    {
+        pickAndMoveEntityControlls_->SelectFittestTrilobyte();
+    }, Qt::QueuedConnection);
+    connect(ui->followSelectedToggle, &QPushButton::toggled, this, [&](bool checked)
+    {
+        pickAndMoveEntityControlls_->SetTrackSelectedEntity(checked);
+    }, Qt::QueuedConnection);
 
     /// Graph Controlls
     connect(ui->graphs, &QTabWidget::tabCloseRequested, [&](int index)
@@ -131,15 +181,15 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     /// Draw controlls
-    ui->showGridCheckbox->setChecked(ui->universe->DrawOptions().showQuadTreeGrid_);
-    ui->showSpawnersCheckbox->setChecked(ui->universe->DrawOptions().showSpawners_);
-    ui->useImagesCheckbox->setChecked(ui->universe->DrawOptions().showEntityImages_);
-    ui->trilobyteDegugCheckbox->setChecked(ui->universe->DrawOptions().showTrilobyteDebug_);
+    ui->showGridCheckbox->setChecked(ui->universe->GetDrawOptions().showQuadTreeGrid_);
+    ui->showSpawnersCheckbox->setChecked(ui->universe->GetDrawOptions().showSpawners_);
+    ui->useImagesCheckbox->setChecked(ui->universe->GetDrawOptions().showEntityImages_);
+    ui->trilobyteDegugCheckbox->setChecked(ui->universe->GetDrawOptions().showTrilobyteDebug_);
 
-    connect(ui->showGridCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showQuadTreeGrid_ = enabled; }, Qt::QueuedConnection);
-    connect(ui->showSpawnersCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showSpawners_ = enabled; }, Qt::QueuedConnection);
-    connect(ui->useImagesCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showEntityImages_ = enabled; }, Qt::QueuedConnection);
-    connect(ui->trilobyteDegugCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->DrawOptions().showTrilobyteDebug_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->showGridCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->GetDrawOptions().showQuadTreeGrid_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->showSpawnersCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->GetDrawOptions().showSpawners_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->useImagesCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->GetDrawOptions().showEntityImages_ = enabled; }, Qt::QueuedConnection);
+    connect(ui->trilobyteDegugCheckbox, &QCheckBox::toggled, ui->universe, [&](bool enabled){ ui->universe->GetDrawOptions().showTrilobyteDebug_ = enabled; }, Qt::QueuedConnection);
 
     /// Debug controlls
     connect(ui->showPaintAndTickDurationsCheckbox, &QCheckBox::toggled, ui->universe, &UniverseWidget::SetDisplayDurationStats, Qt::QueuedConnection);

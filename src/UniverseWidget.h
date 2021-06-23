@@ -2,6 +2,7 @@
 #define UNIVERSEWIDGET_H
 
 #include "Universe.h"
+#include "ControlScheme.h"
 
 #include <WindowedRollingStatistics.h>
 #include <WindowedFrequencyStatistics.h>
@@ -31,8 +32,16 @@ public:
      */
     [[nodiscard]] Tril::Handle AddDrawOperation(std::function<void(QPainter& paint)>&& drawTask);
 
+    template <typename ControlSchemeType, typename... Args>
+    std::shared_ptr<ControlSchemeType> EmplaceBackControlScheme(Args... args)
+    {
+        controlSchemes_.push_back(std::make_shared<ControlSchemeType>(*this, std::forward<Args>(args)...));
+        return std::dynamic_pointer_cast<ControlSchemeType>(controlSchemes_.back());
+    }
+
 signals:
     void EntitySelected(const std::shared_ptr<Entity>& newSelection);
+    void SpawnerSelected(const std::shared_ptr<Spawner>& newSelection);
     void Ticked();
 
 public slots:
@@ -49,20 +58,20 @@ public slots:
     void SetTicksPaused(bool paused);
     void StepForwards(unsigned ticksToStep);
 
-    DrawSettings& DrawOptions() { return drawOptions_; }
-
     void SetDisplayDurationStats(bool display) { displayDurationStats_ = display; };
     void SetDisplayRateStats(bool display) { displayRateStats_ = display; };
 
-    void SelectFittestTrilobyte();
-    void SetTrackSelectedEntity(bool track) { trackSelected_ = track; }
+    DrawSettings& GetDrawOptions() { return drawOptions_; }
+    std::shared_ptr<Universe> GetUniverse() { return universe_; }
 
     void RemoveAllTrilobytes();
     void RemoveAllFood();
 
+    void Zoom(int ticks);
     void ZoomIn();
     void ZoomOut();
     void ZoomReset();
+    void Pan(double xDistance, double yDistance);
     void PanReset();
 
     // Universe params
@@ -71,8 +80,17 @@ public slots:
     void SetMeanChromosomeMutationCount(double mean) { universeParameters_.meanStructuralMutationCount_ = mean; }
     void SetChromosomeMutationStdDev(double stdDev) { universeParameters_.structuralMutationCountStdDev_ = stdDev; }
 
+    void SetPanTransform(Point transform) { transformX_ = transform.x; transformY_ = transform.y; update(); }
+    void SetZoomTransform(double transform) { transformScale_ = transform; update(); }
+
+    Point GetPanTransform() const { return { transformX_, transformY_ }; }
+    double GetZoomTransform() const { return transformScale_; }
+
     const Tril::WindowedRollingStatistics& GetTickDurationStats() const { return tickDurationStats_; }
     const Tril::WindowedRollingStatistics& GetDrawDurationStats() const{ return drawDurationStats_; }
+
+    Point TransformLocalToSimCoords(const Point& local) const;
+    Point TransformSimToLocalCoords(const Point& sim) const;
 
 protected:
     virtual void wheelEvent(QWheelEvent* event) override final;
@@ -102,25 +120,17 @@ private:
     bool displayRateStats_ = false;
     bool displayDurationStats_ = false;
 
-    // TODO update to using a matrix based transform
+    std::vector<std::shared_ptr<ControlScheme>> controlSchemes_;
+
     qreal transformX_ = 0.0;
     qreal transformY_ = 0.0;
     qreal transformScale_ = 1.0;
-    qreal dragX_ = 0.0;
-    qreal dragY_ = 0.0;
-    bool dragging_ = false;
 
     UniverseParameters universeParameters_;
     std::shared_ptr<Universe> universe_;
-    bool trackSelected_ = false;
-    std::shared_ptr<Entity> selectedEntity_;
-    std::shared_ptr<Entity> draggedEntity_;
 
     DrawSettings drawOptions_;
     Tril::AutoClearingContainer<std::function<void(QPainter& paint)>> perDrawTasks_;
-
-    Point TransformLocalToSimCoords(const Point& local) const;
-    Point TransformSimToLocalCoords(const Point& sim) const;
 
     void Tick();
     void UpdateTps();

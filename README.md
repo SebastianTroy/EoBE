@@ -19,7 +19,7 @@ The easiest way to build from sources yourself is to open project in QtCreator, 
 
 TODO
 -----
- - More GUI controlls
+ - More/better organised GUI controlls
  - More niches
  - - More hazards
  - - More food types
@@ -33,19 +33,19 @@ TODO
  - Matrix based coordinate system/collisions
  - More entities (pheremones? poisons? more food types?)
  - Spawner Settings
- - - Move spawner
  - - Resize spawner
  - - Remove spawner
  - - Adjust spawner entity energy/frequency/colour
  - - Toxins/Rocks/Environmental hazards?
  - - Add global spawn rate slider/spin box
- - - Add properties to spawners and add a spawner tab to the inspector view
  - Image based drawing
  - - Replace placeholder images with coherently styled ones
  - - add images for each sense and effector
  - - add gene for image decals
- - add gene for egg size
- - allow laid eggs to be fertilised by passing trilobytes (optional, let genetics decide)
+ - Egg tweaks
+ - - Genes to control egg size, colour, shape, pattern e.c.t.
+ - - Eggs could proces the genome at 1 gene per tick, automatically increasing hatch time for larger genomes
+ - - allow laid eggs to be fertilised by passing trilobytes (optional, let genetics decide)
  - brain inspector needs ability to adjust line culling (i.e. don't show connections below x strength...) etc
  - Would be very insightful to record which mutations have been accumulated over the generations (could be useful to refine mutations and detect anything too lethal to be useful)
  - MAYBE "Aerodynamics" aspect of entities to control how they interact with friction, and a seperate momentum transform from location transform, so that facing & moving direction aren't always the same
@@ -64,8 +64,13 @@ TODO
  - - - Could make an Sense/EffectorChaiScript, so scripted senses and abilities could be scripted
  - - - Could make a ChaiScriptGraph, so scripted graphs could be added
  - - - Could make a ChaiScriptSpawner, so scripted spawners could be added
+ - - - Could make a ChaiControlScheme, so custom user mouse/keyboard control schemes can be created
  - Tests for all Utility classes
  - Ability to add/remove spikes/other entities manually
+ - ControlScheme tweaks:
+ - - Add ability to hold 'ctrl' when click and dragging to create duplicate spawner/entities
+ - - Add ability to press delete when dragging spawner/entity to destroy it
+ - - Add ability to click&drag box select multiple entities, with delete to remove them
 
 Needs more thought
 ------------------
@@ -99,7 +104,7 @@ One Mouth/Tail... e.t.c.
  - - (adding columns to the network will require a special type that knows the index of the column added for the gene, perhaps assign it in the constructor that takes a list of these things, and the constructor can set it)
  - Modding! If ChaiScript is used, then 
  - - Represent the phenotype landscape in json, and load it (plus mods from mod directory to allow custom genes to be included in phenotype circle whitelists)
- - - scrip-t should already have access to phenotype, should be able to just use basic scripted gene to do any of this
+ - - script should already have access to phenotype, should be able to just use basic scripted gene to do any of this
  - Complex phenotype entries for each, with construction modifiers and custom tick operations
  - - Idea is to filter which modifiers are allowed based on the phenotype map (circle(s) currently in allow these modifications?)
  - - Scale down modifications in response to how close they are to the centre of the nearest containing circle that allows them to have an effect

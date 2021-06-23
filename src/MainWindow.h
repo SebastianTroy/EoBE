@@ -4,6 +4,9 @@
 #include "Universe.h"
 #include "ScatterGraph.h"
 #include "Entity.h"
+#include "ControlSchemePanAndZoom.h"
+#include "ControlSchemePickAndMoveEntity.h"
+#include "ControlSchemePickAndMoveSpawner.h"
 
 #include <QMainWindow>
 #include <QImage>
@@ -26,6 +29,10 @@ signals:
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<Universe> universe_;
+
+    std::shared_ptr<ControlSchemePickAndMoveEntity> pickAndMoveEntityControlls_;
+    std::shared_ptr<ControlSchemePickAndMoveSpawner> pickAndMoveSpawnerControlls_;
+    std::shared_ptr<ControlSchemePanAndZoom> panAndZoomControlls_;
 
     void SetupPlayControls();
     void ResetGraphs();

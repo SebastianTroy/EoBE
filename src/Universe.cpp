@@ -170,10 +170,11 @@ std::shared_ptr<Spawner> Universe::PickSpawner(const Point& location, bool remov
     });
 
     if (iter != spawners_.end()) {
+        std::shared_ptr<Spawner> spawner = *iter;
         if (remove) {
             spawners_.erase(iter);
         }
-        return *iter;
+        return spawner;
     }
     return nullptr;
 }

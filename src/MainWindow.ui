@@ -38,7 +38,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="universeSettingsTab">
          <attribute name="title">
@@ -690,6 +690,11 @@
            </widget>
           </item>
          </layout>
+        </widget>
+        <widget class="QWidget" name="controllsTab">
+         <attribute name="title">
+          <string>Controlls</string>
+         </attribute>
         </widget>
        </widget>
        <widget class="QWidget" name="universeContainer" native="true">

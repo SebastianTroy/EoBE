@@ -15,6 +15,8 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     , previewPixmap_(50, 50)
     , simPropertyModel_(this)
     , simPropertyDetailButtonDelegate_(this)
+    , spawnerPropertyModel_(this)
+    , spawnerPropertyDetailButtonDelegate_(this)
     , entityPropertyModel_(this)
     , entityPropertyDetailButtonDelegate_(this)
     , propertyUpdateThread_(this)
@@ -23,6 +25,9 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     ui->simProperties->setModel(&simPropertyModel_);
     ui->simProperties->setItemDelegateForColumn(PropertyTableModel::MORE_INFO_COLUMN_INDEX, &simPropertyDetailButtonDelegate_);
     ui->simProperties->setColumnWidth(PropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
+    ui->spawnerProperties->setModel(&spawnerPropertyModel_);
+    ui->spawnerProperties->setItemDelegateForColumn(PropertyTableModel::MORE_INFO_COLUMN_INDEX, &spawnerPropertyDetailButtonDelegate_);
+    ui->spawnerProperties->setColumnWidth(PropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
     ui->entityPreview->setAlignment(Qt::AlignCenter);
     ui->entityPreviewScale->setRange(10, 120);
     ui->entityPreviewScale->setValue(70);
@@ -47,6 +52,13 @@ InspectorPanel::InspectorPanel(QWidget *parent)
         ui->simPropertyDescription->setText(description);
     });
     connect(&propertyUpdateThread_, &QTimer::timeout, this, &InspectorPanel::UpdateSimTab, Qt::QueuedConnection);
+
+    /// Spawner Inspector controlls
+    connect(&spawnerPropertyModel_, &PropertyTableModel::DescriptionRequested, [&](QString description)
+    {
+        ui->spawnerPropertyDescription->setText(description);
+    });
+    connect(&propertyUpdateThread_, &QTimer::timeout, this, &InspectorPanel::UpdateSpawnerTab, Qt::QueuedConnection);
 
     /// Entity Inspector controlls
     connect(&entityPropertyModel_, &PropertyTableModel::DescriptionRequested, [&](QString description)
@@ -79,6 +91,7 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     });
 
     SetEntity({});
+    SetSpawner({});
     SetUniverse({});
 
     propertyUpdateThread_.start(200); // 5 Hz
@@ -130,10 +143,32 @@ void InspectorPanel::SetEntity(std::shared_ptr<Entity> selectedEntity)
     }
 }
 
+void InspectorPanel::SetSpawner(std::shared_ptr<Spawner> selectedSpawner)
+{
+    if (selectedSpawner) {
+        // Spawner tab
+        SetSpawnerProperties(selectedSpawner->GetProperties());
+        ui->spawnerPropertyDescription->setText("Press '...' in the table above for more information about a value.");
+        UpdateSpawnerTab();
+    } else {
+        SetSpawnerProperties({});
+    }
+    setTabVisible(SPAWNER_TAB_INDEX, selectedSpawner != nullptr);
+
+    update();
+}
+
 void InspectorPanel::UpdateSimTab()
 {
     if (currentIndex() == SIM_TAB_INDEX) {
         simPropertyModel_.UpdateValues();
+    }
+}
+
+void InspectorPanel::UpdateSpawnerTab()
+{
+    if (currentIndex() == SPAWNER_TAB_INDEX) {
+        spawnerPropertyModel_.UpdateValues();
     }
 }
 
@@ -173,6 +208,13 @@ void InspectorPanel::SetSimProperties(std::vector<Property>&& properties)
     simPropertyModel_.SetProperties(std::move(properties));
     ui->simProperties->resizeColumnsToContents();
     ui->simProperties->setColumnWidth(PropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
+}
+
+void InspectorPanel::SetSpawnerProperties(std::vector<Property>&& properties)
+{
+    spawnerPropertyModel_.SetProperties(std::move(properties));
+    ui->spawnerProperties->resizeColumnsToContents();
+    ui->spawnerProperties->setColumnWidth(PropertyTableModel::MORE_INFO_COLUMN_INDEX, 30);
 }
 
 void InspectorPanel::SetEntityProperties(std::vector<Property>&& properties)

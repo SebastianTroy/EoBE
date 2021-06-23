@@ -58,6 +58,16 @@ inline bool operator==(const Rect& r1, const Rect& r2)
     return r1.left == r2.left && r1.top == r2.top && r1.right == r2.right && r1.bottom == r2.bottom;
 }
 
+inline Point operator+(const Point& a, const Point& b)
+{
+    return { a.x + b.x, a.y + b.y };
+}
+
+inline Point operator-(const Point& a, const Point& b)
+{
+    return { a.x - b.x, a.y - b.y };
+}
+
 inline double GetDistanceSquare(const Point& a, const Point& b)
 {
     // Keep this func as sqrt is expensive, and isn't always needed

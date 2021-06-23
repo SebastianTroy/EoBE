@@ -1,6 +1,10 @@
 set(PROJECT_SOURCES
     main.cpp
     MainWindow.cpp
+    ControlScheme.cpp
+    ControlSchemePanAndZoom.cpp
+    ControlSchemePickAndMoveEntity.cpp
+    ControlSchemePickAndMoveSpawner.cpp
     Effectors/Effector.cpp
     Effectors/EffectorFilterMouth.cpp
     Effectors/EffectorProboscisMouth.cpp
@@ -59,6 +63,10 @@ set(PROJECT_SOURCES
 
 set(PROJECT_HEADERS
     MainWindow.h
+    ControlScheme.h
+    ControlSchemePanAndZoom.h
+    ControlSchemePickAndMoveEntity.h
+    ControlSchemePickAndMoveSpawner.h
     DrawSettings.h
     Effectors/Effector.h
     Effectors/EffectorFilterMouth.h

@@ -110,6 +110,37 @@ void Spawner::AddEntitiesImmediately(unsigned EntityCount)
     ticksTillNext_ = 0;
 }
 
+std::vector<Property> Spawner::GetProperties()
+{
+    return {
+        Property{
+            "Current Entities",
+            [&]()
+            {
+                return fmt::format("{}", currentEntityCount_);
+            },
+            "The number of entites created by this spawner that are still "
+            "exist.",
+        },
+        Property{
+            "Total Entities",
+            [&]()
+            {
+                return fmt::format("{}", totalEntitiesSpawned_);
+            },
+            "The number of entities created by this spawner since it was made.",
+        },
+        Property{
+            "Ticks till Next",
+            [&]()
+            {
+                return fmt::format("{:.4}", ticksTillNext_);
+            },
+            "The number of ticks before this spawner will add a new entity.",
+        },
+    };
+}
+
 double Spawner::GetSpawnEntityRadius() const
 {
     switch (spawn_) {
@@ -146,5 +177,6 @@ void Spawner::SpawnEntity()
             break;
         }
         ++currentEntityCount_;
+        ++totalEntitiesSpawned_;
     }
 }
