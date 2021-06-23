@@ -63,12 +63,10 @@ unsigned NeuralNetwork::GetConnectionCount() const
 
 void NeuralNetwork::ForwardPropogate(std::vector<double>& toPropogate) const
 {
-    static std::vector<double> previousNodeValues;
-
     // about to swap with previousNodeValues so we can return outputs at the end
     // also allows to skip propogation when no hidden layers
     for (const auto& layer : layers_) {
-        std::swap(toPropogate, previousNodeValues);
+        std::swap(toPropogate, previousNodeValues_);
         // We'll reuse this vector for the output of each layer
         toPropogate.assign(layer.size(), 0.0);
 
@@ -77,7 +75,7 @@ void NeuralNetwork::ForwardPropogate(std::vector<double>& toPropogate) const
             double nodeValue = 0.0;
             size_t edgeIndex = 0;
             for (auto& edge : node) {
-                nodeValue += edge * previousNodeValues.at(edgeIndex);
+                nodeValue += edge * previousNodeValues_.at(edgeIndex);
                 ++edgeIndex;
             }
             // tanh is our sigma function

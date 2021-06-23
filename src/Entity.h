@@ -41,13 +41,15 @@ public:
 
     const uint64_t& GetAge() const { return age_; }
     const Transform& GetTransform() const { return transform_; }
-    const Point& GetLocation() const { static Point p; p = { transform_.x, transform_.y }; return p; }
+    static inline Point p{}; // FIXME hack to remove static func variable (for performance reasons, thread safe access each call...)
+    const Point& GetLocation() const { p = { transform_.x, transform_.y }; return p; }
     const double& GetRadius() const { return radius_; }
     double GetEnergy() const { return energy_; }
     const QColor& GetColour() const { return colour_; }
     const double& GetVelocity() const { return speed_; }
     bool Exists() const { return !terminated_; }
-    const Circle& GetCollide() const { static Circle c; c = { transform_.x, transform_.y, radius_ }; return c; };
+    static inline Circle c{}; // FIXME hack to remove static func variable (for performance reasons, thread safe access each call...)
+    const Circle& GetCollide() const { c = { transform_.x, transform_.y, radius_ }; return c; };
 
     void SetLocation(const Point& location) { transform_.x = location.x; transform_.y = location.y; }
     void FeedOn(Entity& other, Energy quantity);

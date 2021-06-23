@@ -16,7 +16,7 @@ MeatChunk::~MeatChunk()
 double MeatChunk::GetMeatChunkRadius(const Energy& energy)
 {
     // Size range 0.5->3.5 scaling linearly with energy quantity
-    static Tril::RangeConverter energyToSize({ 1_mj, 20_mj }, { 0.5, 3.5 });
+    Tril::RangeConverter energyToSize({ 1_mj, 20_mj }, { 0.5, 3.5 });
     return energyToSize.ConvertAndClamp(energy);
 }
 

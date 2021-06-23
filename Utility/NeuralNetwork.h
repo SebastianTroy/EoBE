@@ -61,6 +61,8 @@ public:
 
 private:
     static const inline std::string KEY_LAYERS = "Layers";
+    static inline std::vector<double> previousNodeValues_;
+
 
     std::vector<Layer> layers_;
     size_t width_;

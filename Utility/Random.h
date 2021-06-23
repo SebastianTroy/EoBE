@@ -45,7 +45,7 @@ public:
 
     static bool Boolean()
     {
-        static std::bernoulli_distribution d;
+        std::bernoulli_distribution d;
         return Generate(d);
     }
 
@@ -81,12 +81,10 @@ public:
     static NumericType Number(NumericType min, NumericType max)
     {
         if constexpr (std::is_integral<NumericType>::value) {
-            static std::uniform_int_distribution<NumericType> distribution;
-            distribution.param(typename decltype(distribution)::param_type(min, max));
+            std::uniform_int_distribution<NumericType> distribution(min, max);
             return Generate(distribution);
         } else if constexpr (std::is_floating_point<NumericType>::value) {
-            static std::uniform_real_distribution<NumericType> distribution;
-            distribution.param(typename decltype(distribution)::param_type(min, std::nextafter(max, std::numeric_limits<NumericType>::max())));
+            std::uniform_real_distribution<NumericType> distribution(min, std::nextafter(max, std::numeric_limits<NumericType>::max()));
             return Generate(distribution);
         } else {
             static_assert(std::is_floating_point<NumericType>::value, "Random::Number requires an integral OR floating point number type to work.");
@@ -135,16 +133,14 @@ public:
     template<typename NumericType>
     static NumericType Gaussian(NumericType mean = std::numeric_limits<NumericType>::min(), NumericType standardDeviation = NumericType{ 1.0 })
     {
-        static std::normal_distribution<NumericType> distribution;
-        distribution.param(typename std::normal_distribution<NumericType>::param_type(mean, std::abs(standardDeviation)));
+        std::normal_distribution<NumericType> distribution(mean, std::abs(standardDeviation));
         return Generate(distribution);
     }
 
     template<typename NumericType>
     static NumericType Poisson(NumericType mean = std::numeric_limits<NumericType>::min())
     {
-        static std::poisson_distribution<NumericType> distribution;
-        distribution.param(typename std::poisson_distribution<NumericType>::param_type(mean));
+        std::poisson_distribution<NumericType> distribution(mean);
         return Generate(distribution);
     }
 
@@ -155,14 +151,10 @@ public:
         rands.reserve(count);
 
         if constexpr (std::is_integral<NumericType>::value) {
-            static std::uniform_int_distribution<NumericType> distribution;
-            distribution.param(typename std::uniform_int_distribution<NumericType>::param_type(min, max));
-
+            std::uniform_int_distribution<NumericType> distribution(min, max);
             std::generate_n(std::back_inserter(rands), count, [&](){ return Generate(distribution); });
         } else if constexpr (std::is_floating_point<NumericType>::value) {
-            static std::uniform_real_distribution<NumericType> distribution;
-            distribution.param(typename std::uniform_real_distribution<NumericType>::param_type(min, max));
-
+            std::uniform_real_distribution<NumericType> distribution(min, max);
             std::generate_n(std::back_inserter(rands), count, [&](){ return Generate(distribution); });
         } else {
             static_assert(std::is_floating_point<NumericType>::value, "Random::Numbers requires an integral OR floating point number type to work.");
@@ -174,9 +166,7 @@ public:
     template<typename NumericType>
     static std::vector<NumericType> Gaussians(typename std::vector<NumericType>::size_type count, NumericType mean = std::numeric_limits<NumericType>::min(), NumericType standardDeviation = NumericType{ 1.0 })
     {
-        static std::normal_distribution<NumericType> distribution;
-        distribution.param(typename std::normal_distribution<NumericType>::param_type(mean, standardDeviation));
-
+        std::normal_distribution<NumericType> distribution(mean, standardDeviation);
         std::vector<NumericType> rands;
         rands.reserve(count);
         std::generate_n(std::back_inserter(rands), count, [&](){ return Generate(distribution); });
@@ -186,11 +176,8 @@ public:
     template<typename NumericType>
     static std::vector<NumericType> DualPeakGaussians(typename std::vector<NumericType>::size_type count, NumericType meanPeakOne, NumericType standardDeviationPeakOne, NumericType meanPeakTwo, NumericType standardDeviationPeakTwo)
     {
-        static std::normal_distribution<NumericType> distributionOne;
-        static std::normal_distribution<NumericType> distributionTwo;
-        distributionOne.param(typename std::normal_distribution<NumericType>::param_type(meanPeakOne, std::abs(standardDeviationPeakOne)));
-        distributionTwo.param(typename std::normal_distribution<NumericType>::param_type(meanPeakTwo, std::abs(standardDeviationPeakTwo)));
-
+        std::normal_distribution<NumericType> distributionOne(meanPeakOne, std::abs(standardDeviationPeakOne));
+        std::normal_distribution<NumericType> distributionTwo(meanPeakTwo, std::abs(standardDeviationPeakTwo));
         std::vector<NumericType> rands;
         rands.reserve(count);
         std::generate_n(std::back_inserter(rands), count, [&](){ return Random::Boolean() ? Generate(distributionOne) : Generate(distributionTwo); });
@@ -200,9 +187,7 @@ public:
     template<typename NumericType>
     static std::vector<NumericType> Poissons(typename std::vector<NumericType>::size_type count, NumericType mean = std::numeric_limits<NumericType>::min())
     {
-        static std::poisson_distribution<NumericType> distribution;
-        distribution.param(typename std::poisson_distribution<NumericType>::param_type(mean));
-
+        std::poisson_distribution<NumericType> distribution(mean);
         std::vector<NumericType> rands;
         rands.reserve(count);
         std::generate_n(std::back_inserter(rands), count, [&](){ return Generate(distribution); });
