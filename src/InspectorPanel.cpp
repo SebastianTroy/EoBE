@@ -71,10 +71,6 @@ InspectorPanel::InspectorPanel(QWidget *parent)
     /// NeuralNetowrk Inspector controlls
     connect(ui->liveUpdateSelector, &QCheckBox::toggled, [&](bool checked) { ui->brainInspector->SetUpdateLive(checked); });
     connect(ui->resetInspectorView, &QPushButton::pressed, ui->brainInspector, &NeuralNetworkInspector::ResetViewTransform, Qt::QueuedConnection);
-    connect(&propertyUpdateThread_, &QTimer::timeout, this, [&]()
-    {
-        ui->brainInspector->UpdateConnectionStrengths(universe_->GetEntityContainer(), universe_->GetParameters());
-    }, Qt::QueuedConnection);
 
     /// File Menu Options
     connect(ui->saveGenomeButton, &QPushButton::pressed, [&]()
@@ -156,6 +152,11 @@ void InspectorPanel::SetSpawner(std::shared_ptr<Spawner> selectedSpawner)
     setTabVisible(SPAWNER_TAB_INDEX, selectedSpawner != nullptr);
 
     update();
+}
+
+void InspectorPanel::OnUniverseRedrawn()
+{
+    ui->brainInspector->UpdateConnectionStrengths(universe_->GetEntityContainer(), universe_->GetParameters());
 }
 
 void InspectorPanel::UpdateSimTab()

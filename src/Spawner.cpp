@@ -94,7 +94,9 @@ void Spawner::Tick(const UniverseParameters& params)
         ticksTillNext_ += maxTicksTillNext_ / params.spawnRateModifier;
     }
 
-    --ticksTillNext_;
+    if (ticksTillNext_ > 0) {
+        --ticksTillNext_;
+    }
 }
 
 void Spawner::EntityRemoved()

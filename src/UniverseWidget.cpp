@@ -276,6 +276,7 @@ void UniverseWidget::paintEvent(QPaintEvent* event)
         double seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end - begin).count();
         drawDurationStats_.AddValue(seconds);
         drawRateStats_.AddValue();
+        emit Painted();
     }
 }
 

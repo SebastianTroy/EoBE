@@ -23,6 +23,7 @@ public slots:
     void SetUniverse(std::shared_ptr<Universe> universe);
     void SetEntity(std::shared_ptr<Entity> selectedEntity);
     void SetSpawner(std::shared_ptr<Spawner> selectedSpawner);
+    void OnUniverseRedrawn();
 
 private:
     constexpr static int SIM_TAB_INDEX = 0;

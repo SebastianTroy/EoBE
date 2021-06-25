@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, &MainWindow::UniverseReset, ui->inspectorPanel, &InspectorPanel::SetUniverse, Qt::QueuedConnection);
     connect(ui->universe, &UniverseWidget::EntitySelected, ui->inspectorPanel, &InspectorPanel::SetEntity, Qt::QueuedConnection);
     connect(ui->universe, &UniverseWidget::SpawnerSelected, ui->inspectorPanel, &InspectorPanel::SetSpawner, Qt::QueuedConnection);
+    connect(ui->universe, &UniverseWidget::Painted, ui->inspectorPanel, &InspectorPanel::OnUniverseRedrawn, Qt::QueuedConnection);
 
     // Set reasonable initial proportions
     ui->horizontalSplitter->setSizes({ static_cast<int>(width() * 0.15), static_cast<int>(width() * 0.65), static_cast<int>(width() * 0.2) });

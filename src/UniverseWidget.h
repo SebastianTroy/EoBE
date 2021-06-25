@@ -43,6 +43,7 @@ signals:
     void EntitySelected(const std::shared_ptr<Entity>& newSelection);
     void SpawnerSelected(const std::shared_ptr<Spawner>& newSelection);
     void Ticked();
+    void Painted();
 
 public slots:
     /*
